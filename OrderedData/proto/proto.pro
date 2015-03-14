@@ -16,12 +16,12 @@ TEMPLATE = app
 
 
 SOURCES += \
-    prototipestorage.cpp \
+    prototypestorage.cpp \
     server.cpp \
     client.cpp
 
 HEADERS += \
     storage.h \
-    prototipestorage.h \
+    prototypestorage.h \
     server.h \
     client.h
