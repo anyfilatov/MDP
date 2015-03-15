@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core
-
+QT       += network
 QT       -= gui
 
 TARGET = proto
@@ -16,12 +16,11 @@ TEMPLATE = app
 
 
 SOURCES += \
-    prototypestorage.cpp \
-    server.cpp \
-    client.cpp
+    tcpserver.cpp \
+    tcpclient.cpp
 
 HEADERS += \
     storage.h \
     prototypestorage.h \
-    server.h \
-    client.h
+    tcpserver.h \
+    tcpclient.h
