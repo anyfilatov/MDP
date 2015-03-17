@@ -19,21 +19,15 @@ void PrototypeStorage<K,V>::put(K key, V value)
 }
 
 template <typename K, typename V>
-V PrototypeStorage<K,V>::get(K key)
+QList<V> PrototypeStorage<K,V>::get(K key)
 {
-    return map[key];
+    return map.values(key);
 }
 
 template <typename K, typename V>
-V PrototypeStorage<K,V>::remove(K key)
+int PrototypeStorage<K,V>::remove(K key)
 {
     return map.remove(key);
-}
-
-template <typename K, typename V>
-QList<V> PrototypeStorage<K,V>::traverse(int start, int end)
-{
-    return map.values();
 }
 
 template <typename K, typename V>

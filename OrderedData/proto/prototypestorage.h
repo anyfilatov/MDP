@@ -2,7 +2,7 @@
 #define PROTOTIPESTORAGE_H
 
 #include "storage.h"
-#include <QMap>
+#include <QMultiMap>
 
 template <typename K, typename V>
 class PrototypeStorage: public Storage<K,V>
@@ -12,13 +12,12 @@ public:
     ~PrototypeStorage();
 
     void put(K, V);
-    V get(K);
-    V remove(K);
-    QList<V> traverse(int start, int end);
+    QList<V> get(K);
+    int remove(K);
     QList<V> getAll();
 
 private:
-    QMap<K,V> map;
+    QMultiMap<K,V> map;
 };
 
 #endif // PROTOTIPESTORAGE_H
