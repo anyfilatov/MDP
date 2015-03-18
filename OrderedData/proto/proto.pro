@@ -17,7 +17,6 @@ TEMPLATE = app
 
 SOURCES += \
     tcpserver.cpp \
-    prototypestorage.cpp \
     main.cpp
 
 HEADERS += \

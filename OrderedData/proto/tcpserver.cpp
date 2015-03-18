@@ -4,6 +4,7 @@
 TcpServer::TcpServer(QObject *parent) :
     QObject(parent)
 {
+    storage = new PrototypeStorage<int, QString>;
     server = new QTcpServer(this);
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()),this, SLOT(newConnection()));
@@ -61,15 +62,6 @@ void TcpServer::HandlerRequest(QTcpSocket *socket)
     }
     if (pack[0] == 52 && pack[1] == 48)
     {
-        qDebug() << "traverseHandler";
-        data.append(pack.right(1024));
-        QByteArray test = this->traverseHandler(data);
-        socket->write(test);
-        socket->flush();
-    }
-
-    if (pack[0] == 53 && pack[1] == 48)
-    {
         qDebug() << "getAllHandler";
         data.append(pack.right(1024));
         QByteArray test = this->getAllHandler();
@@ -84,44 +76,45 @@ void TcpServer::HandlerRequest(QTcpSocket *socket)
 
 void TcpServer::putHandler(QByteArray data)
 {
-    //QString str(data);
     QList<QByteArray> list = data.split('#');
     qDebug() <<"\tData key: " << list.first();
     qDebug() <<"\tData value: " << list.last();
-
+    storage->put(list.first().toInt(), list.last());
 }
 
 QByteArray TcpServer::getHandler(QByteArray key)
 {
-    qDebug() <<"\tData key: " <<key;
+    qDebug() <<"\tData key: " << key;
+    QList<QString> value = storage->get(key.toInt());
+
     QByteArray data;
-    data.append("testGet");
+    foreach (QString s, value) {
+        data.append(s);
+        data.append('#');
+    }
+
     return data;
 
 }
 
 QByteArray TcpServer::removeHandler(QByteArray key)
 {
-    qDebug() <<"\tData key: " <<key;
+    qDebug() <<"\tData key: " << key;
+    int code = storage->remove(key.toInt());
     QByteArray data;
-    data.append("testRemove");
+    data.append(QString::number(code));
     return data;
-}
-
-QByteArray TcpServer::traverseHandler(QByteArray data)
-{
-    QList<QByteArray> list = data.split('#');
-    qDebug() <<"\tData intStart: " <<list.first().toInt();
-    qDebug() <<"\tData intEnd: " <<list.last().toInt();
-    QByteArray test;
-    test.append("testTraverse");
-    return test;
-
 }
 
 QByteArray TcpServer::getAllHandler()
 {
+    QList<QString> value = storage->getAll();
+
     QByteArray data;
-    data.append("testGetAll");
+    foreach (QString s, value) {
+        data.append(s);
+        data.append('#');
+    }
+
     return data;
 }

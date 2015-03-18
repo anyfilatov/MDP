@@ -5,7 +5,7 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <QDebug>
-
+#include  "prototypestorage.h"
 
 
 class TcpServer : public QObject
@@ -21,13 +21,12 @@ public slots:
 
 private:
     QTcpServer *server;
-
+    Storage<int, QString> *storage;
 
     void HandlerRequest(QTcpSocket *socket);
     void putHandler(QByteArray data);
     QByteArray getHandler(QByteArray data);
     QByteArray removeHandler(QByteArray data);
-    QByteArray traverseHandler(QByteArray data);
     QByteArray getAllHandler();
 };
 
