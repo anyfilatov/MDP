@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     // create MyTcpServer
     // MyTcpServer constructor will create QTcpServer
 
-    MyTcpServer server;
+    TcpServer server;
 
     return a.exec();
 }
