@@ -14,7 +14,7 @@ public:
     void put(K, V);
     QList<V> get(K);
     int remove(K);
-    QList<V> getAll();
+    QList<QPair<K, QList<V> > > getAll();
 
 private:
     QMultiMap<K,V> map;

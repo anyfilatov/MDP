@@ -31,9 +31,13 @@ int PrototypeStorage<K,V>::remove(K key)
 }
 
 template <typename K, typename V>
-QList<V> PrototypeStorage<K,V>::getAll()
+QList<QPair<K, QList<V> > > PrototypeStorage<K,V>::getAll()
 {
-    return map.values();
+    QList<QPair<K, QList<V> > > list;
+    foreach (K key, map.keys()) {
+        list.append(QPair<K, QList<V> >(key, map[key]));
+    }
+    return list;
 }
 
 
