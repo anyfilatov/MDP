@@ -16,7 +16,6 @@ TEMPLATE = app
 
 
 SOURCES += \
-    prototypestorage.cpp \
     server.cpp \
     client.cpp
 
