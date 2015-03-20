@@ -1,8 +1,8 @@
 #ifndef PROTOTIPESTORAGE_H
 #define PROTOTIPESTORAGE_H
+
 #include "storage.h"
 #include <QMultiMap>
-#include <iostream>
 
 template <typename K, typename V>
 class PrototypeStorage: public Storage<K,V>
@@ -14,7 +14,7 @@ public:
     void put(K, V);
     QList<V> get(K);
     int remove(K);
-    QList<V> getAll();
+    QList<QPair<K, QList<V> > > getAll();
 
 private:
     QMultiMap<K,V> map;
@@ -51,9 +51,14 @@ int PrototypeStorage<K,V>::remove(K key)
 }
 
 template <typename K, typename V>
-QList<V> PrototypeStorage<K,V>::getAll()
+QList<QPair<K, QList<V> > > PrototypeStorage<K,V>::getAll()
 {
-    return map.values();
+    QList<QPair<K, QList<V> > > list;
+    foreach (K key, map.keys()) {
+        list.append(QPair<K, QList<V> >(key, map[key]));
+    }
+    return list;
 }
+
 
 #endif // PROTOTIPESTORAGE_H
