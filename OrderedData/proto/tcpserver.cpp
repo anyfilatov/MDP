@@ -108,13 +108,21 @@ QByteArray TcpServer::removeHandler(QByteArray key)
 
 QByteArray TcpServer::getAllHandler()
 {
-    QList<QString> value = storage->getAll();
-
+    QList<QPair<int, QList<QString> > > list = storage->getAll();
+    QPair<int, QList<QString> > pair;
     QByteArray data;
-    foreach (QString s, value) {
-        data.append(s);
-        data.append('#');
+    foreach (pair, list) {
+        int key = pair.first;
+        data.append(QString::number(key));
+        data.append(":");
+        foreach (QString str, pair.second) {
+            data.append(str);
+            data.append('#');
+        }
+        data.append('|');
     }
-
-    return data;
+    qDebug() << data;
+    QByteArray tmp;
+    tmp.append("test");
+    return tmp;
 }
