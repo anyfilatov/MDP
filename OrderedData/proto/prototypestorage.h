@@ -55,7 +55,7 @@ QList<QPair<K, QList<V> > > PrototypeStorage<K,V>::getAll()
 {
     QList<QPair<K, QList<V> > > list;
     foreach (K key, map.keys()) {
-        list.append(QPair<K, QList<V> >(key, map[key]));
+        list.append(QPair<K, QList<V> >(key, map.values(key)));
     }
     return list;
 }
