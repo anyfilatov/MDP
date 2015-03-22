@@ -21,7 +21,7 @@ public slots:
 
 private:
     QTcpServer *server;
-    Storage<int, QString> *storage;
+    Storage<QString, QString> *storage;
 
     void HandlerRequest(QTcpSocket *socket);
     void putHandler(QByteArray data);

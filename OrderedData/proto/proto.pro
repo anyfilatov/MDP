@@ -17,9 +17,11 @@ TEMPLATE = app
 
 SOURCES += \
     tcpserver.cpp \
-    main.cpp
+    main.cpp \
+    client.cpp
 
 HEADERS += \
     storage.h \
     prototypestorage.h \
     tcpserver.h \
+    client.h
