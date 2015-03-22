@@ -5,6 +5,11 @@ TcpServer::TcpServer(QObject *parent) :
     QObject(parent)
 {
     storage = new PrototypeStorage<int, QString>;
+    storage->put(123,"test1");
+    storage->put(123,"test2");
+    storage->put(123,"test3");
+    storage->put(987,"test9");
+    storage->put(987,"test8");
     server = new QTcpServer(this);
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()),this, SLOT(newConnection()));
@@ -121,8 +126,5 @@ QByteArray TcpServer::getAllHandler()
         }
         data.append('|');
     }
-    qDebug() << data;
-    QByteArray tmp;
-    tmp.append("test");
-    return tmp;
+    return data;
 }

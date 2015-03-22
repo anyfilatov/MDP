@@ -54,7 +54,7 @@ template <typename K, typename V>
 QList<QPair<K, QList<V> > > PrototypeStorage<K,V>::getAll()
 {
     QList<QPair<K, QList<V> > > list;
-    foreach (K key, map.keys()) {
+    foreach (K key, map.uniqueKeys()) {
         list.append(QPair<K, QList<V> >(key, map.values(key)));
     }
     return list;
