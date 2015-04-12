@@ -1,5 +1,6 @@
+#pragma once
 class Hashable{
 public:
-		virtual int hash();
+		virtual int hash()=0;
 	   
 };
