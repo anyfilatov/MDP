@@ -6,14 +6,14 @@
 
 using namespace std;
 
-template <typename K, typename V>
+template <typename V>
 class TableCell{
 
 private:
 
 	int hash;
 	int size;
-	CellItem<K, V>* listRoot;
+	CellItem<V>* listRoot;
 
 
 public:
@@ -22,48 +22,48 @@ public:
 	TableCell(int hash);
 	int getHash();
 	void setHash(int hash);
-	bool add(CellItem<K,V>* item);
+	bool add(CellItem<V>* item);
 	V get(K key);
-	void update(K key, V value);
-	CellItem<K,V>* remove(K key);
+	void update(Hashable key, V value);
+	CellItem<V>* remove(Hashable key);
 	int getSize();
 	string toString(); 
-	vector<K> keys();
+	vector<Hashable> keys();
 };
 
-template <typename K, typename V>
-TableCell<K,V>::TableCell(void){
+template <typename V>
+TableCell<V>::TableCell(void){
 	hash = -1;
 	size = 0;
 	listRoot = NULL;
 }
 
-template <typename K, typename V>
-TableCell<K,V>::TableCell(int hash){
+template <typename V>
+TableCell<V>::TableCell(int hash){
 	this->hash = hash;
 	size = 0;
 	listRoot = NULL;
 }
 
-template <typename K, typename V>
-int TableCell<K,V>::getHash(){
+template <typename V>
+int TableCell<V>::getHash(){
 	return hash;
 }
 
-template <typename K, typename V>
-void TableCell<K,V>::setHash(int hash){
+template <typename V>
+void TableCell<V>::setHash(int hash){
 	this->hash = hash;
 }
 
-template <typename K, typename V>
-bool TableCell<K,V>::add(CellItem<K,V>* item){
+template <typename V>
+bool TableCell<V>::add(CellItem<V>* item){
 	if (!item) return false;
 	if ((!listRoot) || (size == 0)){
 		listRoot = item;
 		size = 1;
 		return true;
 	}
-	CellItem<K,V> *current, *prev;
+	CellItem<V> *current, *prev;
 	current = listRoot;
 	while (current){
 		if (current->getKey() == item->getKey())
@@ -76,9 +76,9 @@ bool TableCell<K,V>::add(CellItem<K,V>* item){
 	return true;
 }
 
-template <typename K, typename V>
-V TableCell<K,V>::get(K key){
-	CellItem<K,V> *current;
+template <typename V>
+V TableCell<V>::get(K key){
+	CellItem<V> *current;
 	current = listRoot;
 	while (current){
 		if (current->getKey() == key)
@@ -88,9 +88,9 @@ V TableCell<K,V>::get(K key){
 	return NULL;
 }
 
-template <typename K, typename V>
-void TableCell<K,V>::update(K key, V value){
-	CellItem<K,V> *current;
+template <typename V>
+void TableCell<V>::update(K key, V value){
+	CellItem<V> *current;
 	current = listRoot;
 	while (current){
 		if (current->getKey() == key){
@@ -101,9 +101,9 @@ void TableCell<K,V>::update(K key, V value){
 	}
 }
 
-template <typename K, typename V>
-CellItem<K,V>* TableCell<K,V>::remove(K key){
-	CellItem<K,V> *current, *prev;
+template <typename V>
+CellItem<V>* TableCell<V>::remove(K key){
+	CellItem<V> *current, *prev;
 	if (listRoot->getKey() == key){
 		current = listRoot;
 		current->setNext(NULL);
@@ -126,22 +126,22 @@ CellItem<K,V>* TableCell<K,V>::remove(K key){
 	return NULL;
 }
 
-template <typename K, typename V>
-int TableCell<K,V>::getSize(){
+template <typename V>
+int TableCell<V>::getSize(){
 	return size;
 }
 
-template <typename K, typename V>
-string TableCell<K,V>::toString(){
+template <typename V>
+string TableCell<V>::toString(){
 	stringstream ss;
 	ss << "TableCell\n{\n  hash: " << hash << "\n  size: " << size << "\n}\n";
 	return ss.str();
 }
 
-template <typename K, typename V>
-vector<K> TableCell<K,V>::keys(){
+template <typename V>
+vector<K> TableCell<V>::keys(){
 	vector<K> keys(size);
-	CellItem<K,V> *current = listRoot;
+	CellItem<V> *current = listRoot;
 	for (int i = 0; i < size; i++){
 		if (!current) break;
 		keys[i] = current->getKey();
