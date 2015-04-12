@@ -23,12 +23,12 @@ public:
 	int getHash();
 	void setHash(int hash);
 	bool add(CellItem<V>* item);
-	V get(K key);
-	void update(Hashable key, V value);
-	CellItem<V>* remove(Hashable key);
+	V get(Hashable*   key);
+	void update(Hashable*  key, V value);
+	CellItem<V>* remove(Hashable*  key);
 	int getSize();
 	string toString(); 
-	vector<Hashable> keys();
+	vector<Hashable*> keys();
 };
 
 template <typename V>
@@ -77,7 +77,7 @@ bool TableCell<V>::add(CellItem<V>* item){
 }
 
 template <typename V>
-V TableCell<V>::get(K key){
+V TableCell<V>::get(Hashable*   key){
 	CellItem<V> *current;
 	current = listRoot;
 	while (current){
@@ -89,7 +89,7 @@ V TableCell<V>::get(K key){
 }
 
 template <typename V>
-void TableCell<V>::update(K key, V value){
+void TableCell<V>::update(Hashable*   key, V value){
 	CellItem<V> *current;
 	current = listRoot;
 	while (current){
@@ -102,7 +102,7 @@ void TableCell<V>::update(K key, V value){
 }
 
 template <typename V>
-CellItem<V>* TableCell<V>::remove(K key){
+CellItem<V>* TableCell<V>::remove(Hashable*   key){
 	CellItem<V> *current, *prev;
 	if (listRoot->getKey() == key){
 		current = listRoot;
@@ -139,8 +139,8 @@ string TableCell<V>::toString(){
 }
 
 template <typename V>
-vector<K> TableCell<V>::keys(){
-	vector<K> keys(size);
+vector<Hashable*  > TableCell<V>::keys(){
+	vector<Hashable*  > keys(size);
 	CellItem<V> *current = listRoot;
 	for (int i = 0; i < size; i++){
 		if (!current) break;

@@ -1,7 +1,5 @@
-#include <string>
 #include "stdafx.h"
 #include <sstream>
-
 using namespace std;
 
 template <typename V>
@@ -9,16 +7,16 @@ class CellItem{
 
 private:
 
-	Hashable key;
+	Hashable*  key;
 	V value;
 	CellItem<V>* next;
 
 public:
 
 	CellItem();
-	CellItem(Hashable key, V value);
-	void setKey(Hashable key);
-	Hashable getKey();
+	CellItem(Hashable*  key, V value);
+	void setKey(Hashable*  key);
+	Hashable*  getKey();
 	void setValue(V value);
 	V getValue();
 	CellItem<V>* getNext();
@@ -33,19 +31,19 @@ CellItem<V>::CellItem(){
 }
 
 template <typename V>
-CellItem<V>::CellItem(Hashable key, V value){
+CellItem<V>::CellItem(Hashable*  key, V value){
 	this->key = key;
 	this->value = value;
 	next = NULL;
 }
 
 template <typename V>
-void CellItem<V>::setKey(Hashable key){
+void CellItem<V>::setKey(Hashable*  key){
 	this->key = key;
 }
 
 template <typename V>
-Hashable  CellItem<V>::getKey(){
+Hashable*   CellItem<V>::getKey(){
 	return key;
 }
 

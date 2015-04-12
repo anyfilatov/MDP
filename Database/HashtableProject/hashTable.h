@@ -17,11 +17,11 @@ class HashTable{
 	public:
 		HashTable();
 		HashTable(int num);
-		void put(Hashable key, V value);
-		V get(Hashable key);
-		void update(Hashable key, V value);
-		V remove(Hashable key);
-		vector<Hashable>	keys();
+		void put(Hashable*  key, V value);
+		V get(Hashable*  key);
+		void update(Hashable*  key, V value);
+		V remove(Hashable*  key);
+		vector<Hashable*>	keys();
 		bool isEmpty();
 		int size();
 		void resize(int newCapacity);
@@ -49,7 +49,7 @@ void HashTable<V>::createCellsArray(){
 	}
 }
 template <typename V>
-HashTable::put(Hashable key, V value){
+void HashTable<V>::put(Hashable*  key, V value){
 	if (key==null){
 		throws new NullPointerException("Key can not be null");
 	}
@@ -64,12 +64,12 @@ HashTable::put(Hashable key, V value){
 	}
 }
 
-template < typename V>
-vector<Hashable> HashTable<V>::keys(){
-	vector<Hashable> keys  = new vector<Hashable>[tableSize];
+template <typename V>
+vector<Hashable*> HashTable<V>::keys(){
+	vector<Hashable* > keys  = new vector<Hashable* >[tableSize];
 	int j = 0;
 	for (int i=0; i<cellsNum; i++){
-		vector<Hashable> cellKeys= cells[i].getKeys();
+		vector<Hashable* > cellKeys= cells[i].getKeys();
 		int cellKeysSize = cells[i].getKeysSize();
 		for (int k = 0; k<cellKeysSize; k++){
 			keys[j] = cellKeys[k];
@@ -80,14 +80,14 @@ vector<Hashable> HashTable<V>::keys(){
 }
 
 template < typename V>
-V HashTable<V>::get(Hashable key){
+V HashTable<V>::get(Hashable*  key){
 	int hash = key.hash();
 	int index = indexFor(hash);
 	return cells[index].get(key);
 }
 
 template < typename V>
-void HashTable<V>::update(Hashable key, V value){
+void HashTable<V>::update(Hashable*  key, V value){
 	int hash = key.hash();
 	int index = indexFor(hash);
 	return cells[index].update(key, value);
@@ -108,7 +108,7 @@ void HashTable<V>::resize (int newCapacity){
 }
 
 template < typename V>
-V HashTable<V>::remove(Hashable key){
+V HashTable<V>::remove(Hashable*  key){
 	int hash = key.hash();
 	int index = indexFor(hash);
 	return cells[index].remove(key);
