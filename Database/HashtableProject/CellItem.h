@@ -4,73 +4,73 @@
 
 using namespace std;
 
-template <typename K, typename V>
+template <typename V>
 class CellItem{
 
 private:
 
-	K key;
+	Hashable key;
 	V value;
-	CellItem<K,V>* next;
+	CellItem<V>* next;
 
 public:
 
 	CellItem();
-	CellItem(K key, V value);
-	void setKey(K key);
-	K getKey();
+	CellItem(Hashable key, V value);
+	void setKey(Hashable key);
+	Hashable getKey();
 	void setValue(V value);
 	V getValue();
-	CellItem<K,V>* getNext();
-	void setNext(CellItem<K,V>* item);
+	CellItem<V>* getNext();
+	void setNext(CellItem<V>* item);
 	string toString();
 
 };
 
-template <typename K, typename V>
-CellItem<K,V>::CellItem(){
+template <typename V>
+CellItem<V>::CellItem(){
 	next = NULL;
 }
 
-template <typename K, typename V>
-CellItem<K,V>::CellItem(K key, V value){
+template <typename V>
+CellItem<V>::CellItem(Hashable key, V value){
 	this->key = key;
 	this->value = value;
 	next = NULL;
 }
 
-template <typename K, typename V>
-void CellItem<K,V>::setKey(K key){
+template <typename V>
+void CellItem<V>::setKey(Hashable key){
 	this->key = key;
 }
 
-template <typename K, typename V>
-K CellItem<K,V>::getKey(){
+template <typename V>
+Hashable  CellItem<V>::getKey(){
 	return key;
 }
 
-template <typename K, typename V>
-void CellItem<K,V>::setValue(V value){
+template <typename V>
+void CellItem<V>::setValue(V value){
 	this->value = value;
 }
 
-template <typename K, typename V>
-V CellItem<K,V>::getValue(){
+template <typename V>
+V CellItem<V>::getValue(){
 	return value;
 }
 
-template <typename K, typename V>
-CellItem<K,V>* CellItem<K,V>::getNext(){
+template <typename V>
+CellItem<V>* CellItem<V>::getNext(){
 	return next;
 }
 
-template <typename K, typename V>
-void CellItem<K,V>::setNext(CellItem<K,V>* item){
+template <typename V>
+void CellItem<V>::setNext(CellItem<V>* item){
 	next = item;
 }
 
-template <typename K, typename V>
-string CellItem<K,V>::toString(){
+template <typename V>
+string CellItem<V>::toString(){
 	stringstream ss;
 	ss << "CellItem\n{\n  key: " << key << "\n  value: " << value << "\n}\n";
 	return ss.str();
