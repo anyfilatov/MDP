@@ -3,6 +3,8 @@
 #include <sstream>
 #include <conio.h>
 #include <vector>
+#include "Hashable.h"
+#include "CellItem.h"
 
 using namespace std;
 
@@ -23,9 +25,9 @@ public:
 	int getHash();
 	void setHash(int hash);
 	bool add(CellItem<V>* item);
-	V get(Hashable*   key);
-	void update(Hashable*  key, V value);
-	CellItem<V>* remove(Hashable*  key);
+	V get(Hashable* key);
+	void update(Hashable* key, V value);
+	CellItem<V>* remove(Hashable* key);
 	int getSize();
 	string toString(); 
 	vector<Hashable*> keys();
@@ -77,7 +79,7 @@ bool TableCell<V>::add(CellItem<V>* item){
 }
 
 template <typename V>
-V TableCell<V>::get(Hashable*   key){
+V TableCell<V>::get(Hashable* key){
 	CellItem<V> *current;
 	current = listRoot;
 	while (current){
@@ -89,7 +91,7 @@ V TableCell<V>::get(Hashable*   key){
 }
 
 template <typename V>
-void TableCell<V>::update(Hashable*   key, V value){
+void TableCell<V>::update(Hashable* key, V value){
 	CellItem<V> *current;
 	current = listRoot;
 	while (current){
@@ -102,16 +104,16 @@ void TableCell<V>::update(Hashable*   key, V value){
 }
 
 template <typename V>
-CellItem<V>* TableCell<V>::remove(Hashable*   key){
+CellItem<V>* TableCell<V>::remove(Hashable* key){
 	CellItem<V> *current, *prev;
-	if (listRoot->getKey() == key){
-		current = listRoot;
-		current->setNext(NULL);
-		listRoot = listRoot->getNext();
-		size--;
-		return current;
-	}
 	prev = listRoot;
+	if (listRoot->getKey() == key){
+		current = listRoot->getNext();
+		prev->setNext(NULL);
+		listRoot = current;
+		size--;
+		return prev;
+	}
 	current = listRoot->getNext();
 	while (current){
 		if (current->getKey() == key){
@@ -139,7 +141,7 @@ string TableCell<V>::toString(){
 }
 
 template <typename V>
-vector<Hashable*  > TableCell<V>::keys(){
+vector<Hashable*> TableCell<V>::keys(){
 	vector<Hashable*  > keys(size);
 	CellItem<V> *current = listRoot;
 	for (int i = 0; i < size; i++){
