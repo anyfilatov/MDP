@@ -1,5 +1,10 @@
-#include "stdafx.h"
+#ifndef CellItem_h
+#define CellItem_h
+
 #include <sstream>
+#include <QTextStream>
+#include "TableKey.h"
+
 using namespace std;
 
 template <typename V>
@@ -7,21 +12,22 @@ class CellItem{
 
 private:
 
-	Hashable*  key;
+    TableKey*  key;
 	V value;
 	CellItem<V>* next;
 
 public:
 
 	CellItem();
-	CellItem(Hashable*  key, V value);
-	void setKey(Hashable*  key);
-	Hashable*  getKey();
+    CellItem(TableKey* key, V value);
+    void setKey(TableKey*  key);
+    TableKey*  getKey();
 	void setValue(V value);
 	V getValue();
 	CellItem<V>* getNext();
 	void setNext(CellItem<V>* item);
 	string toString();
+    void clear();
 
 };
 
@@ -31,19 +37,19 @@ CellItem<V>::CellItem(){
 }
 
 template <typename V>
-CellItem<V>::CellItem(Hashable*  key, V value){
+CellItem<V>::CellItem(TableKey*  key, V value){
 	this->key = key;
 	this->value = value;
 	next = NULL;
 }
 
 template <typename V>
-void CellItem<V>::setKey(Hashable*  key){
+void CellItem<V>::setKey(TableKey*  key){
 	this->key = key;
 }
 
 template <typename V>
-Hashable*   CellItem<V>::getKey(){
+TableKey* CellItem<V>::getKey(){
 	return key;
 }
 
@@ -70,6 +76,32 @@ void CellItem<V>::setNext(CellItem<V>* item){
 template <typename V>
 string CellItem<V>::toString(){
 	stringstream ss;
-	ss << "CellItem\n{\n  key: " << key << "\n  value: " << value << "\n}\n";
+	ss << "CellItem\n{\n  key Hash: " << key->hash() << "\n  value: " << value << "\n}\n";
 	return ss.str();
 }
+
+template <typename V>
+void CellItem<V>::clear(){
+    QTextStream cout(stdout);
+    cout << " CLEAR cellItem\n";
+    cout << "  delete key\n";
+    if (key != NULL){
+        cout << "   key: " << key->hash() << endl;
+        //delete key;
+    }
+    cout << "  delete value\n";
+    delete &value;
+    cout << "  delete next\n";
+    if (next != NULL){
+        next->getValue();
+        cout << "  next: " << next->getKey()->hash() << endl;
+        next->clear();
+    }
+    else
+        cout << "  next: NULL\n";
+
+    delete this;
+}
+
+#endif
+

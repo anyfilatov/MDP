@@ -1,12 +1,17 @@
-#include "d:\github\mdp\mdp\database\hashtableproject\hashable.h"
+#ifndef IntWithHash_h
+#define IntWithHash_h
 
-class IntWithHash:public Hashable{
+#include "TableKey.h"
+
+class IntWithHash: public TableKey{
 private:
 	int value;
 public:
 	IntWithHash();
 	IntWithHash(int val);
+    ~IntWithHash();
 	int hash();
+    Clonable* clone();
 	int getValue();
 	void setValue(int val);
 };
@@ -19,6 +24,9 @@ IntWithHash::IntWithHash(int val){
 	value = val;
 }
 
+IntWithHash::~IntWithHash(){
+}
+
 int IntWithHash::getValue(){
 	return value;
 }
@@ -29,4 +37,10 @@ void IntWithHash::setValue(int val){
 
 int IntWithHash::hash(){
 	return value;
+}\
+
+Clonable* IntWithHash::clone(){
+    return new IntWithHash(value);
 }
+
+#endif
