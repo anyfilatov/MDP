@@ -3,7 +3,7 @@
 
 #include <sstream>
 #include <QTextStream>
-#include "TableKey.h"
+#include "AbstractTableKey.h"
 
 using namespace std;
 
@@ -12,18 +12,18 @@ class CellItem{
 
 private:
 
-    TableKey*  key;
-	V value;
+    AbstractTableKey*  key;
+    V* value;
 	CellItem<V>* next;
 
 public:
 
 	CellItem();
-    CellItem(TableKey* key, V value);
-    void setKey(TableKey*  key);
-    TableKey*  getKey();
-	void setValue(V value);
-	V getValue();
+    CellItem(AbstractTableKey* key, V* value);
+    void setKey(AbstractTableKey*  key);
+    AbstractTableKey*  getKey();
+    void setValue(V* value);
+    V* getValue();
 	CellItem<V>* getNext();
 	void setNext(CellItem<V>* item);
 	string toString();
@@ -37,29 +37,29 @@ CellItem<V>::CellItem(){
 }
 
 template <typename V>
-CellItem<V>::CellItem(TableKey*  key, V value){
+CellItem<V>::CellItem(AbstractTableKey*  key, V* value){
 	this->key = key;
 	this->value = value;
 	next = NULL;
 }
 
 template <typename V>
-void CellItem<V>::setKey(TableKey*  key){
+void CellItem<V>::setKey(AbstractTableKey*  key){
 	this->key = key;
 }
 
 template <typename V>
-TableKey* CellItem<V>::getKey(){
+AbstractTableKey* CellItem<V>::getKey(){
 	return key;
 }
 
 template <typename V>
-void CellItem<V>::setValue(V value){
+void CellItem<V>::setValue(V* value){
 	this->value = value;
 }
 
 template <typename V>
-V CellItem<V>::getValue(){
+V* CellItem<V>::getValue(){
 	return value;
 }
 
@@ -76,7 +76,7 @@ void CellItem<V>::setNext(CellItem<V>* item){
 template <typename V>
 string CellItem<V>::toString(){
 	stringstream ss;
-	ss << "CellItem\n{\n  key Hash: " << key->hash() << "\n  value: " << value << "\n}\n";
+    ss << "CellItem\n{\n  key Hash: " << key->hash() << "\n}\n";
 	return ss.str();
 }
 
@@ -87,10 +87,10 @@ void CellItem<V>::clear(){
     cout << "  delete key\n";
     if (key != NULL){
         cout << "   key: " << key->hash() << endl;
-        //delete key;
+        delete key;
     }
     cout << "  delete value\n";
-    delete &value;
+    delete value;
     cout << "  delete next\n";
     if (next != NULL){
         next->getValue();

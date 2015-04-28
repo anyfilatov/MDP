@@ -7,7 +7,7 @@
 #include <vector>
 #include <QTextStream>
 #include "CellItem.h"
-#include "TableKey.h"
+#include "AbstractTableKey.h"
 
 using namespace std;
 
@@ -28,13 +28,13 @@ public:
 	int getHash();
 	void setHash(int hash);
 	bool add(CellItem<V>* item);
-    V get(TableKey* key);
-    void update(TableKey* key, V value);
-    CellItem<V>* remove(TableKey* key);
+    V* get(AbstractTableKey* key);
+    void update(AbstractTableKey* key, V* value);
+    CellItem<V>* remove(AbstractTableKey* key);
 	int getSize();
 	string toString(); 
-    vector<TableKey*> keys();
-    vector<pair<TableKey*, V> > entries();
+    vector<AbstractTableKey*> keys();
+    vector<pair<AbstractTableKey*, V> > entries();
     void clear();
 };
 
@@ -73,7 +73,7 @@ bool TableCell<V>::add(CellItem<V>* item){
 	CellItem<V> *current, *prev;
 	current = listRoot;
 	while (current){
-        if (current->getKey()->hash() == item->getKey()->hash())
+        if (current->getKey()->equals(item->getKey()))
 			return false;
 		prev = current;
 		current = current->getNext(); 
@@ -84,11 +84,11 @@ bool TableCell<V>::add(CellItem<V>* item){
 }
 
 template <typename V>
-V TableCell<V>::get(TableKey* key){
+V* TableCell<V>::get(AbstractTableKey* key){
 	CellItem<V> *current;
 	current = listRoot;
 	while (current){
-        if (current->getKey()->hash() == key->hash())
+        if (current->getKey()->equals(key))
 			return current->getValue();
 		current = current->getNext(); 
 	}
@@ -96,12 +96,14 @@ V TableCell<V>::get(TableKey* key){
 }
 
 template <typename V>
-void TableCell<V>::update(TableKey* key, V value){
+void TableCell<V>::update(AbstractTableKey* key, V* value){
 	CellItem<V> *current;
 	current = listRoot;
 	while (current){
-        if (current->getKey()->hash() == key->hash()){
+        if (current->getKey()->equals(key)){
+            V* oldVal = current->getValue();
 			current->setValue(value);
+            delete oldVal;
 			break;
 		}
 		current = current->getNext(); 
@@ -109,44 +111,30 @@ void TableCell<V>::update(TableKey* key, V value){
 }
 
 template <typename V>
-CellItem<V>* TableCell<V>::remove(TableKey* key){
-    QTextStream cout(stdout);
-    cout << "REMOVE FROM CELL\n root: ";
+CellItem<V>* TableCell<V>::remove(AbstractTableKey* key){
 	CellItem<V> *current, *prev;
     if (listRoot == NULL){
-        if (listRoot == NULL)
-            cout << "NULL\n";
-        else cout << "NOT NULL\n";
         return NULL;
     }
 	prev = listRoot;
-    if (listRoot->getKey() == key){
+    if (listRoot->getKey()->equals(key)){
 		current = listRoot->getNext();
 		prev->setNext(NULL);
 		listRoot = current;
         size--;
-        if (listRoot == NULL)
-            cout << "NULL\n";
-        else cout << "NOT NULL\n";
 		return prev;
 	}
 	current = listRoot->getNext();
 	while (current){
-		if (current->getKey() == key){
+        if (current->getKey()->equals(key)){
 			prev->setNext(current->getNext());
 			current->setNext(NULL);
             size--;
-            if (listRoot == NULL)
-                cout << "NULL\n";
-            else cout << "NOT NULL\n";
 			return current;
 		}
 		prev = current;
 		current = current->getNext(); 
     }
-    if (listRoot == NULL)
-        cout << "NULL\n";
-    else cout << "NOT NULL\n";
 	return NULL;
 }
 
@@ -163,8 +151,8 @@ string TableCell<V>::toString(){
 }
 
 template <typename V>
-vector<TableKey*> TableCell<V>::keys(){
-    vector<TableKey*  > keys(size);
+vector<AbstractTableKey*> TableCell<V>::keys(){
+    vector<AbstractTableKey*  > keys(size);
 	CellItem<V> *current = listRoot;
 	for (int i = 0; i < size; i++){
 		if (!current) break;
@@ -175,12 +163,12 @@ vector<TableKey*> TableCell<V>::keys(){
 }
 
 template <typename V>
-vector<pair<TableKey*, V> > TableCell<V>::entries(){
-    vector<pair<TableKey*, V> > entries(size);
+vector<pair<AbstractTableKey*, V> > TableCell<V>::entries(){
+    vector<pair<AbstractTableKey*, V> > entries(size);
     CellItem<V> *current = listRoot;
     for (int i = 0; i < size; i++){
         if (!current) break;
-        entries[i] = pair<TableKey*, V>((TableKey*) current->getKey()->clone(), current->getValue());
+        entries[i] = pair<AbstractTableKey*, V>((AbstractTableKey*) current->getKey()->clone(), *current->getValue());
         current = current->getNext();
     }
     return entries;
@@ -188,14 +176,9 @@ vector<pair<TableKey*, V> > TableCell<V>::entries(){
 
 template <typename V>
 void TableCell<V>::clear(){
-    QTextStream cout(stdout);
-    cout << "CLEAR Cell\n";
     if (listRoot != NULL){
-        cout << listRoot->getKey()->hash() << endl;
         listRoot->clear();
     }
-    else
-        cout << " NULL\n";
     delete this;
 }
 
