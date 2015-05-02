@@ -15,7 +15,7 @@
 using namespace std;
 
 template <typename K, typename V>
-class HashTable:public Serializible{
+class HashTable/*:public Serializible*/{
 
 	private:
 
@@ -46,8 +46,8 @@ class HashTable:public Serializible{
 		void setResizeCoef(int coef);
 		int getResizeCoef();
         void clear();
-        string serialize();
-        void parse(string json);
+        /*string serialize();
+        void parse(string json);*/
 };
 
 template <typename K, typename V>
@@ -186,8 +186,10 @@ void HashTable<K, V>::remove(K* key){
     int hash = keyWithHash->hash();
 	int index = indexFor(hash);
     CellItem<V>* removed = cells[index]->remove(key);
-	tableSize--;
-    delete [] removed;
+    if (removed != NULL){
+        tableSize--;
+        delete [] removed;
+    }
     cout << "HashTable_REMOVE\n  hash: " << hash << "\n  tableSize: " << tableSize << endl;
 }
 
@@ -260,7 +262,7 @@ void HashTable<K, V>::clean(vector<TableCell<V>* >* oldCells){
     oldCells->clear();
 }
 
-template <typename K, typename V>
+/*template <typename K, typename V>
 string HashTable<K, V>::serialize(){
     vector<pair<string, string> > pairs = *(new vector<pair<string, string> >());
     vector<K* > keys = this->keys();
@@ -290,7 +292,7 @@ void HashTable<K, V>::parse(string json){
         this->put((K*)key, (V*)value);
     }
     pairs.clear();
-}
+}*/
 
 
 #endif
