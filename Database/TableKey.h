@@ -12,21 +12,21 @@ using namespace std;
 
 class TableKey: public AbstractTableKey{
 private:
-    int userId;
-    int dataId;
-    unsigned int processId;
+    short int userId;
+    short int dataId;
+    short int processId;
 public:
     TableKey();
-    TableKey(int userId, int dataId);
-    TableKey(int userId, int dataId, int processId);
+    TableKey(short int userId, short int dataId);
+    TableKey(short int userId, short int dataId, short int processId);
     ~TableKey();
-    int getUserId();
-    void setUserId(int userId);
-    int getDataId();
-    void setDataId(int dataId);
-    int getProcessId();
-    void setProcessId(int processId);
-    void setKey(int userId, int dataId, int processId);
+    short int getUserId();
+    void setUserId(short int userId);
+    short int getDataId();
+    void setDataId(short int dataId);
+    short int getProcessId();
+    void setProcessId(short int processId);
+    void setKey(short int userId, short int dataId, short int processId);
     int hash();
     Clonable* clone();
     bool equals(AbstractTableKey* other);
@@ -40,11 +40,13 @@ TableKey::TableKey(){
     processId = 0;
 }
 
-TableKey::TableKey(int userId, int dataId){
-    this(userId, dataId, 0);
+TableKey::TableKey(short int userId, short int dataId){
+    this->userId = userId;
+    this->dataId = dataId;
+    processId = 0;
 }
 
-TableKey::TableKey(int userId, int dataId, int processId){
+TableKey::TableKey(short int userId, short int dataId, short int processId){
     this->userId = userId;
     this->dataId = dataId;
     this->processId = processId;
@@ -53,31 +55,31 @@ TableKey::TableKey(int userId, int dataId, int processId){
 TableKey::~TableKey(){
 }
 
-int TableKey::getUserId(){
+short int TableKey::getUserId(){
     return userId;
 }
 
-void TableKey::setUserId(int userId){
+void TableKey::setUserId(short int userId){
     this->userId = userId;
 }
 
-int TableKey::getDataId(){
+short int TableKey::getDataId(){
     return dataId;
 }
 
-void TableKey::setDataId(int dataId){
+void TableKey::setDataId(short int dataId){
     this->dataId = dataId;
 }
 
-int TableKey::getProcessId(){
+short int TableKey::getProcessId(){
     return processId;
 }
 
-void TableKey::setProcessId(int processId){
+void TableKey::setProcessId(short int processId){
     this->processId = processId;
 }
 
-void TableKey::setKey(int userId, int dataId, int processId){
+void TableKey::setKey(short int userId, short int dataId, short int processId){
     this->userId = userId;
     this->dataId = dataId;
     this->processId = processId;
@@ -103,19 +105,21 @@ string TableKey::serialize(){
 }
 
 void TableKey::parse(string json){
-     vector<pair<string, string> > pairs = JsonMethods.parseJson(json);
+     vector<pair<string, string> > pairs = JsonMethods::parseJson(json);
      for (int i = 0; i < pairs.size(); i++){
          pair<string, string> Pair = pairs[i];
          if (Pair.first == "userId"){
-             userId = Pair.second;
+             userId = JsonMethods::getInt(Pair.second);
          } else if (Pair.first == "dataId"){
-             dataId = Pair.second;
+             dataId = JsonMethods::getInt(Pair.second);
          } else if (Pair.first == "processId"){
-             processId = Pair.second;
+             processId = JsonMethods::getInt(Pair.second);
          }
      }
      pairs.clear();
 }
+
+
 
 #endif // TABLEKEY
 

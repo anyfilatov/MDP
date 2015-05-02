@@ -43,7 +43,7 @@ vector<pair<string, string> > JsonMethods::parseJson(string json){
         //cout << ", key: " << QString::fromStdString(key) << ", value: " << QString::fromStdString(value) << endl;
         if (nestedObjs > 0){
             if (getKey)
-            key += json[position];
+                key += json[position];
             else if (getValue)
                 value += json[position];
         }else if (json[position] != '"'){
@@ -57,7 +57,7 @@ vector<pair<string, string> > JsonMethods::parseJson(string json){
                 //cout << ", new: " << QString::fromStdString(value) << endl;
             }
         }else if ((json[position] == '"') && (nestedObjs <= 0)){
-            cout << "\" ";
+            //cout << "\" ";
             if (getKey){
                 if (json[position + 1] == ':'){
                     //cout << "AND GETKEY\n";
@@ -131,6 +131,14 @@ string JsonMethods::toJsonString(vector<pair<string, string> > object){
     }
     json += "}";
     return json;
+}
+
+short int JsonMethods::getInt(string number){
+    int val = 0;
+    for (int i = number.size() - 1, k = 1; i >= 0; i--, k *= 10) {
+        val += (number[i] - 48) * k;
+    }
+    return val;
 }
 
 #endif

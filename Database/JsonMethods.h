@@ -13,6 +13,7 @@ private:
 public:
         static vector<pair<string, string> > parseJson(string json);
         static string toJsonString(vector<pair<string, string> > object);
+        static short int getInt(string number);
 };
 
 #endif
