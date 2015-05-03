@@ -18,10 +18,12 @@ TEMPLATE = app
 SOURCES += \
     router.cpp \
     connect.cpp \
-    RouterClient/routerclient.cpp
+    RouterClient/routerclient.cpp \
+    main.cpp
 
 HEADERS += \
     router.h \
     connect.h \
     typerequest.h \
-    RouterClient/routerclient.h
+    RouterClient/routerclient.h \
+    ../ClientLib/client.h

@@ -1,7 +1,7 @@
 #ifndef ROUTERCLIENT_H
 #define ROUTERCLIENT_H
 
-#include "client.h"
+#include "../../ClientLib/client.h"
 
 class RouterClient : public Client
 {

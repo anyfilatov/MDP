@@ -6,13 +6,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDebug>
-
+#include "../Cache/icache.h"
 
 class Connect : public QRunnable
 {
 
 public:
-    explicit Connect(QMap<QString, QString> *map);
+    Connect(iCache<QString, QString> *rbtree);
 
 protected:
     void run();
@@ -21,7 +21,7 @@ public:
     qintptr socketDescriptor;
 
 private:
-    QMap<QString, QString> *rbtree;
+    iCache<QString, QString> *rbtree;
 
     QJsonObject deserialization(QByteArray data);
     QByteArray serialization(QJsonObject data);

@@ -6,7 +6,15 @@ Router::Router(QObject *parent) :
 {
     pool = new QThreadPool(this);
     pool->setMaxThreadCount(5);
-    map = new QMap<QString, QString>;
+    //rbtree = new RBTree();
+}
+
+Router::Router(iCache<QString, QString> *rbtree,QObject *parent) :
+    QTcpServer(parent)
+{
+    pool = new QThreadPool(this);
+    pool->setMaxThreadCount(5);
+    this->rbtree = rbtree;
 }
 
 void Router::startServer()
@@ -29,13 +37,12 @@ void Router::incomingConnection(qintptr handle)
     // 4. The server throws the runnable to the thread.
 
     // Note: Rannable is a task not a thread
-    Connect *task = new Connect(this->map);
+    Connect *task = new Connect(this->rbtree);
 
     task->setAutoDelete(true);
     task->socketDescriptor = handle;
 
     pool->start(task);
-    qDebug() << map->values();
 
     qDebug() << "pool started";
 }

@@ -10,13 +10,13 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QHostAddress>
-#include "typerequest.h"
+#include "../Router/typerequest.h"
 
 class Client {
 public:
     Client();
-    template <typename K, typename V> virtual void put(K key, V value, QString bucket = NULL);
-    template <typename K, typename V> virtual QList<V> get(K key);
+    template <typename K, typename V> void put(K key, V value, QString bucket = NULL);
+    template <typename K, typename V> QList<V> get(K key);
     int virtual remove(QString bucket);
     QList<QString> virtual getRingHosts();
     void virtual initialOuterJoinRequest(QString idAddress);
@@ -35,10 +35,9 @@ protected:
 
 Client::Client()
 {
-    QSettings *config = new QSettings("settings.conf",QSettings::NativeFormat);
-    int portHost = config->value("CacheServerHost/portHost").toInt();
-    QStringList ipsHost = config->value("CacheServerHost/ipsHost").toString().split(",");
-    this->port = portHost;
+    this->port = 1234;
+    QList<QString> ipsHost;
+    ipsHost.append("127.0.0.1");
     this->hosts = ipsHost;
     qsrand (QDateTime::currentMSecsSinceEpoch());
 }
@@ -147,7 +146,7 @@ QList<V> Client::get(K key){
         socket->close();
 
         jsonResp = parseMessage(msgResp);
-        return jsonResp.value("value").toVariant().value;
+        return jsonResp.value("value").toString().split(',');
     }
 }
 

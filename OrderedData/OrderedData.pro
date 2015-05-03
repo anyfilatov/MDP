@@ -16,12 +16,21 @@ TEMPLATE = app
 
 
 SOURCES += \
-    Router/RouterClient/routerclient.cpp
+    Router/router.cpp \
+    Router/connect.cpp \
+    Router/RouterClient/routerclient.cpp \
+    cacheserver.cpp \
+    main.cpp
 
 HEADERS += \
     ClientLib/client.h \
     Router/typerequest.h \
-    Router/RouterClient/routerclient.h
+    Router/router.h \
+    Router/connect.h \
+    Router/RouterClient/routerclient.h \
+    cacheserver.h \
+    Cache/icache.h \
+    Cache/cache.h
     
 
 DISTFILES += \

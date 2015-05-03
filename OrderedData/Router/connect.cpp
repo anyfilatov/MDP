@@ -2,7 +2,7 @@
 #include "router.h"
 #include "typerequest.h"
 
-Connect::Connect(QMap<QString, QString> *map){
+Connect::Connect(iCache<QString, QString> *map){
     this->rbtree = map;
 }
 
@@ -89,16 +89,22 @@ QJsonObject Connect::handlePut(QJsonObject json){
 
 QJsonObject Connect::handleGet(QJsonObject json){
     QJsonObject jsonResp;
-    QString value = rbtree->find(json.find("key").value().toString()).value();
-    jsonResp.insert("key", json.find("key").value().toString());
-    jsonResp.insert("value", value);
-    jsonResp.insert("status", "OK");
+    //QString value = rbtree->find(json.find("key").value().toString()).value();
+    QString value = NULL;
+    if (value != NULL){
+        jsonResp.insert("key", json.find("key").value().toString());
+        jsonResp.insert("value", value);
+        jsonResp.insert("status", "OK");
+    }
+    else{
+        jsonResp.insert("status", "EMPTY");
+    }
     return jsonResp;
 }
 
 QJsonObject Connect::handleDelete(QJsonObject json){
     QJsonObject jsonResp;
-    rbtree->empty();
+    //rbtree->clear();
     jsonResp.insert("status", "OK");
     return jsonResp;
 }
