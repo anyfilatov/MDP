@@ -7,12 +7,35 @@ class RouterClient : public Client
 {
 public:
     RouterClient();
-    template <typename K, typename V> void put(K key, V value, QString bucket = NULL);
-    template <typename K, typename V> QList<V> get(K key);
-    int virtual remove(QString bucket);
-
-private:
-    QString connectToServer(QString ipAddress);
+    QJsonObject doRequestToOtherRouter(QJsonObject json, QString address, bool isReplyca);
 };
+
+RouterClient::RouterClient(){
+
+}
+
+QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString address, bool isReplyca = false){
+    QByteArray msgReq;
+    QByteArray msgResp;
+
+    if (isReplyca) {
+        json.insert("isReplyca", true);
+    }
+
+    msgReq = createMessage(json);
+
+    socket=new QTcpSocket();
+    socket->connectToHost(QHostAddress(address), port);
+    socket->write(msgReq);
+    socket->waitForBytesWritten();
+    socket->waitForReadyRead();
+    int sizeMsg;
+    while (socket->bytesAvailable()) {
+        sizeMsg = socket->bytesAvailable();
+        msgResp = socket->readAll();
+    }
+    socket->close();
+    return parseMessage(msgResp);
+}
 
 #endif // ROUTERCLIENT_H
