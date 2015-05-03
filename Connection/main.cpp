@@ -1,20 +1,22 @@
-/*
- * File:   main.cpp
- * Author: savinov
- *
- * Created on March 25, 2015, 10:37 PM
- */
+#include "LuaExecutor.h"
+#include "Logger.h"
+#include <tuple>
+#include <functional>
+#include <list>
 
+using namespace std;
 
-#include "Server.h"
-//#include "LuaExecutor.h"
-
-int main(int , char **) {
-    
-    Server server("localhost", 5000);
-
-    return server.Run();
-//    LuaExecutor e;
-//    e.exec();
-    //return 0;
+int main(int, char *[]) {
+    using namespace std::placeholders;
+    DataBase dataBase;
+    DB db(&dataBase);
+    RbTree rbTree;
+    RB rb(&rbTree);
+    try{
+        LuaExecutor executor(db, rb, "script.lua", true);
+        executor.execute();
+    } catch (const std::exception& e) {
+        LOG_ERROR("exception:" << e.what());
+    }
+    return 0;
 }

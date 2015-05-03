@@ -37,13 +37,14 @@ int Host::getPort(){
     return this->port;
 }
 
-int Host::send(HostContent& c)const{
+int Host::send(HostContent& )const{
     if(socket_){
         std::string str("alalala");
         LOG_DEBUG("write");
         if( socket_->isWritable() ) {
-            auto res = socket_->write(str.c_str(), str.size());
-            LOG_DEBUG("writed:" << res);
+            //auto res = 
+            socket_->write(str.c_str(), str.size());
+            LOG_DEBUG("writed:");
             socket_->flush();
             socket_->waitForBytesWritten(-1);
         } else {
@@ -52,7 +53,7 @@ int Host::send(HostContent& c)const{
         socket_->close();
         socket_->deleteLater();
     } else {
-        LOG_DEBUG("Host::send:" << c.getHost().getIp().toStdString() << ":" << c.getHost().getPort());
+        //LOG_DEBUG("Host::send:" << c.getHost().getIp().toStdString() << ":" << c.getHost().getPort());
     }
     LOG_DEBUG("send end");
     return 0;

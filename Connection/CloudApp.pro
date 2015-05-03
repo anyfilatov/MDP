@@ -13,6 +13,7 @@ LUA_INCLUDE_PATH = /usr/include/lua-5.2.3
 LUA_LIB_PATH = /usr/lib
 SOURCE_PATH=./src
 INCLUDE_PATH=./include
+LUA_STATE_PATH=../../Selene/include
 
 TARGET = CloudApp
 CONFIG   += console
@@ -26,12 +27,14 @@ INCLUDEPATH += $$QT_INCLUDE_PATH/QtNetwork\
                $$QT_INCLUDE_PATH/QtCore\
                $$LUA_INCLUDE_PATH\
                $$INCLUDE_PATH\
+               $$LUA_STATE_PATH\
 
 SOURCES += main.cpp \
     $$SOURCE_PATH/host.cpp \
     $$SOURCE_PATH/Script.cpp \
     $$SOURCE_PATH/Server.cpp \
-    $$SOURCE_PATH/Task.cpp
+    $$SOURCE_PATH/Task.cpp \
+    src/LuaExecutor.cpp
 
 HEADERS += \
     $$INCLUDE_PATH/Content.h \

@@ -41,3 +41,7 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+/Connection/tests/LuaTest/build/
+/Connection/tests/LuaTest/dist/
+/Connection/CloudApp/dist/
+/Connection/CloudApp/build/

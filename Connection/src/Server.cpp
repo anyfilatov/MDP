@@ -8,6 +8,9 @@
 #include "Server.h"
 #include <qstring.h>
 #include "hostsender.h"
+#include "errors.h"
+
+using namespace Errors;
 
 Server::Server(QString ip, int port) : Host(ip, port), threadPool_(THREAD_COUNT), orGraph_(*this), tasksMap_(new TaskCounterMap()), rbTree_(new RbTree()), dataBase_(new DataBase()) {
 }

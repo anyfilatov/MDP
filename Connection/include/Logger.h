@@ -12,7 +12,7 @@
 
 #define LOG(LEVEL, CHAIN) {\
                 std::stringstream ss;\
-                ss << "[" << LEVEL << "] " << CHAIN << std::endl;\
+                ss << "[" << LEVEL << "] " << CHAIN << "|" << __FILE__ << " +" << __LINE__ << std::endl;\
                 std::cout << ss.str() << std::flush;\
             }
 
@@ -25,5 +25,5 @@
 #else
 #define LOG_DEBUG(CHAIN)
 #endif
-#define LOG_TRACE(CHAIN)   //LOG(LOG_LEVEL_TRACE, CHAIN)
+#define LOG_TRACE(CHAIN)   LOG(LOG_LEVEL_TRACE, CHAIN)
 

@@ -11,11 +11,11 @@ class Task
 {
 	int ID;
 	QString Command;
-    wrapper<RbTree> RB3;
-	wrapper<DataBase> DB;
+    Wrapper<RbTree> RB3;
+	Wrapper<DataBase> DB;
 
 public:
-    Task(const HostContent& content, wrapper<RbTree> rb, wrapper<DataBase> db);
+    Task(const HostContent& content, Wrapper<RbTree> rb, Wrapper<DataBase> db);
 	~Task(void);
     int operator()();
 };

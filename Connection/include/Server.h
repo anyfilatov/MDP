@@ -6,7 +6,6 @@
 #include <memory>
 #include <map>
 #include <mutex>
-#include "wrapper.h"
 #include "Task.h"
 #include "orgraph.h"
 #include "RbTree.h"
@@ -14,8 +13,6 @@
 #include "host.h"
 #include "Content.h"
 
-#define STATUS_ERROR (-1)
-#define STATUS_OK (0)
 typedef std::map<int, int> TaskCounterMap;
 
 typedef std::shared_ptr<Task> TaskPtr;
@@ -38,9 +35,9 @@ private:
     QTcpServer tcpServer_;
     mutable ThreadPool<Task> threadPool_;
     OrGraph<Host> orGraph_;
-    wrapper<TaskCounterMap> tasksMap_;
-    wrapper<RbTree> rbTree_;
-    wrapper<DataBase> dataBase_;
+    Wrapper<TaskCounterMap> tasksMap_;
+    Wrapper<RbTree> rbTree_;
+    Wrapper<DataBase> dataBase_;
 };
 
 
