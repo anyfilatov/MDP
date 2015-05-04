@@ -1,15 +1,15 @@
 #ifndef Serializible_h
 #define Serializible_h
 
-#include <string>
+#include <QString>
 
 using namespace std;
 
 #pragma once
 class Serializible{
 public:
-        virtual string serialize()= 0;
-        virtual void parse(string json)= 0;
+        virtual QString serialize()= 0;
+        virtual void parse(QString json)= 0;
 };
 
 #endif

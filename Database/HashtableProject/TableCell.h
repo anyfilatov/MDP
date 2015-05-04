@@ -1,7 +1,7 @@
 #ifndef TableCell_h
 #define TableCell_h
 
-#include <string>
+#include <QString>
 #include <sstream>
 #include <conio.h>
 #include <vector>
@@ -32,7 +32,7 @@ public:
     void update(AbstractTableKey* key, V* value);
     CellItem<V>* remove(AbstractTableKey* key);
 	int getSize();
-	string toString(); 
+    QString toString();
     vector<AbstractTableKey*> keys();
     vector<pair<AbstractTableKey*, V> > entries();
     void clear();
@@ -144,7 +144,7 @@ int TableCell<V>::getSize(){
 }
 
 template <typename V>
-string TableCell<V>::toString(){
+QString TableCell<V>::toString(){
 	stringstream ss;
 	ss << "TableCell\n{\n  hash: " << hash << "\n  size: " << size << "\n}\n";
 	return ss.str();

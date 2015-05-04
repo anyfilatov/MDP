@@ -1,7 +1,7 @@
 #ifndef HashTable_h
 #define HashTable_h
 
-#include <string>
+#include <QString>
 #include <vector>
 #include <conio.h>
 #include <QTextStream>
@@ -18,9 +18,8 @@ template <typename K, typename V>
 class HashTable/*:public Serializible*/{
 
 	private:
-
 		int tableSize;
-		int cellsNum;
+        int cellsCount;
 		double coef;
         vector<TableCell<V>* > cells;
 		void createCellsArray();
@@ -29,12 +28,16 @@ class HashTable/*:public Serializible*/{
 		void resize(int newCapacity);
         void transfer(vector<TableCell<V>* >* oldCells);
         void clean(vector<TableCell<V>* >* oldCells);
-
-	public:
+    public:
+        class Iterator;
         HashTable();
 		HashTable(int num);
 		HashTable(int num, double coef);
         ~HashTable();
+        Iterator iterator(){
+            HashTable<K, V>::Iterator iter(this);
+            return iter;
+        }
         void put(K* key, V* value);
         V* get(K* key);
         void update(K* key, V* value);
@@ -46,13 +49,93 @@ class HashTable/*:public Serializible*/{
 		void setResizeCoef(int coef);
 		int getResizeCoef();
         void clear();
-        /*string serialize();
-        void parse(string json);*/
+        /*QString serialize();
+        void parse(QString json);*/
+};
+
+template <typename K, typename V>
+class HashTable<K, V>::Iterator{
+private:
+    HashTable<K, V>* table;
+    int oldTableSize;
+    int oldCellsCount;
+    int cellNum;
+    bool permanent;
+    int num;
+    CellItem<V>* currentItem;
+    bool checkPepmanent(){
+        if ((!permanent) || (!table) || (oldTableSize != table->tableSize) || (oldCellsCount != table->cellsCount) || (!currentItem)){
+            permanent = false;
+            return false;
+        } else return true;
+    }
+public:
+    Iterator(HashTable<K, V>* outerTable){
+        table = outerTable;
+        oldTableSize = outerTable->tableSize;
+        oldCellsCount = outerTable->cellsCount;
+        num = 0;
+        if (oldTableSize > 0){
+            cellNum = 0;
+            while(!outerTable->cells[cellNum]->listRoot){
+                cellNum++;
+            }
+            currentItem = outerTable->cells[cellNum]->listRoot;
+        }else{
+            currentItem = NULL;
+        }
+        permanent = true;
+    }
+
+    V* next(){
+        if (num >= oldTableSize - 1) return NULL;
+        num++;
+        if (checkPepmanent()){
+            if (currentItem->getNext()){
+                currentItem = currentItem->getNext();
+                return currentItem->getValue();
+            }else if (cellNum >= oldCellsCount){
+                return NULL;
+            }else{
+                cellNum++;
+                while(!table->cells[cellNum]->listRoot){
+                    cellNum++;
+                }
+                currentItem = table->cells[cellNum]->listRoot;
+                return currentItem->getValue();
+            }
+        }else return NULL;
+    }
+
+    bool hasNext(){
+        if (checkPepmanent()){
+            if (((!currentItem->getNext()) && (cellNum >= oldCellsCount)) || (num >= oldTableSize - 1))
+                return false;
+            else
+                return true;
+        }else return false;
+    }
+
+    K* getKey(){
+        if (currentItem){
+            return (K*)currentItem->getKey()->clone();
+        }else{
+            return NULL;
+        }
+    }
+
+    V* getValue(){
+        if (currentItem){
+            return currentItem->getValue();
+        }else{
+            return NULL;
+        }
+    }
 };
 
 template <typename K, typename V>
 HashTable<K, V>::HashTable(){
-    cellsNum = 10;
+    cellsCount = 10;
 	tableSize = 0;
 	coef = 0.6;
 	createCellsArray();
@@ -61,7 +144,7 @@ HashTable<K, V>::HashTable(){
 
 template <typename K, typename V>
 HashTable<K, V>::HashTable(int num){
-	cellsNum = (num > 1) ? num : 1;
+    cellsCount = (num > 1) ? num : 1;
 	tableSize = 0;
 	coef = 0.6;
 	createCellsArray();
@@ -69,7 +152,7 @@ HashTable<K, V>::HashTable(int num){
 
 template <typename K, typename V>
 HashTable<K, V>::HashTable(int num, double coef){
-	cellsNum = (num > 1) ? num : 1;
+    cellsCount = (num > 1) ? num : 1;
 	tableSize = 0;
 	this->coef = coef;
 	createCellsArray();
@@ -83,14 +166,14 @@ HashTable<K, V>::~HashTable(){
 template <typename K, typename V>
 void HashTable<K, V>::clear(){
     clean(&cells);
-    cellsNum = 10;
+    cellsCount = 10;
     tableSize = 0;
     createCellsArray();
 }
 
 template <typename K, typename V>
 void HashTable<K, V>::createCellsArray(){
-    cells = *(new vector<TableCell<V>* >(cellsNum));
+    cells = *(new vector<TableCell<V>* >(cellsCount));
 	for (int n = 0; n < cells.size(); n++){
         cells[n] = new TableCell<V>(n);
 	}
@@ -111,7 +194,7 @@ void HashTable<K, V>::put(K* key, V* value){
 		tableSize++;
 		cout << "  TableSize: " << tableSize << endl;
 		if (overSize()){
-			resize(cellsNum * 2);
+            resize(cellsCount * 2);
 		}
 	}else{
 		cout << "  KEY ALREADY EXISTS" << endl;
@@ -120,21 +203,21 @@ void HashTable<K, V>::put(K* key, V* value){
 
 template <typename K, typename V>
 int HashTable<K, V>::indexFor(int hash){
-	return hash % cellsNum;
+    return hash % cellsCount;
 }
 
 template <typename K, typename V>
 bool HashTable<K, V>::overSize(){
     QTextStream cout(stdout);
-	cout << "  coef: " << ((double)tableSize/(double)cellsNum) << endl;
-	return (((double)tableSize/(double)cellsNum) >= coef);
+    cout << "  coef: " << ((double)tableSize/(double)cellsCount) << endl;
+    return (((double)tableSize/(double)cellsCount) >= coef);
 }
 
 template <typename K, typename V>
 vector<K*> HashTable<K, V>::keys(){
     vector<K*> keys(tableSize);
 	int j = 0;
-	for (int i = 0; i < cellsNum; i++){
+    for (int i = 0; i < cellsCount; i++){
         vector<AbstractTableKey*> cellKeys = cells[i]->keys();
         for (int k = 0; k < cellKeys.size(); k++){
             keys[j] = (K*) cellKeys[k]->clone();
@@ -148,7 +231,7 @@ template <typename K, typename V>
 vector<pair<K*, V> > HashTable<K, V>::entries(){
     vector<pair<K*, V> > entries(tableSize);
     int j = 0;
-    for (int i = 0; i < cellsNum; i++){
+    for (int i = 0; i < cellsCount; i++){
         vector<pair<AbstractTableKey*, V> > cellEntries = cells[i]->entries();
         for (int k = 0; k < cellEntries.size(); k++){
             entries[j] = pair<K*, V>((K*)cellEntries[k].first->clone(), cellEntries[k].second);
@@ -199,8 +282,8 @@ void HashTable<K, V>::resize(int newCapacity){
 		return;
 	}*/
     QTextStream cout(stdout);
-    cout << "HashTable_RESIZE\n  oldCellsNUM: " << cellsNum << "\n  newCellsNUM: " << newCapacity << endl;
-	cellsNum = newCapacity;
+    cout << "HashTable_RESIZE\n  oldCellsNUM: " << cellsCount << "\n  newCellsNUM: " << newCapacity << endl;
+    cellsCount = newCapacity;
     vector<TableCell<V>* > oldcells = cells;
 	createCellsArray();
     transfer(&oldcells);
@@ -263,28 +346,28 @@ void HashTable<K, V>::clean(vector<TableCell<V>* >* oldCells){
 }
 
 /*template <typename K, typename V>
-string HashTable<K, V>::serialize(){
-    vector<pair<string, string> > pairs = *(new vector<pair<string, string> >());
+QString HashTable<K, V>::serialize(){
+    vector<pair<QString, QString> > pairs = *(new vector<pair<QString, QString> >());
     vector<K* > keys = this->keys();
     for (int i = 0; i < keys.size(); i++){
         AbstractTableKey* key = keys[i];
         Serializible* value = this->get((K*)key);
-        pairs.push_back(pair<string, string>(key->serialize(),value->serialize()));
+        pairs.push_back(pair<QString, QString>(key->serialize(),value->serialize()));
     }
-    string json = JsonMethods::toJsonString(pairs);
+    QString json = JsonMethods::toJsonString(pairs);
     pairs.clear();
     return json;
 }
 
 template <typename K, typename V>
-void HashTable<K, V>::parse(string json){
+void HashTable<K, V>::parse(QString json){
     this->clear();
     QTextStream cout(stdout);
-    vector<pair<string, string> > pairs = JsonMethods::parseJson(json);
-    cout << "str: " << QString::fromStdString(json) << endl;
+    vector<pair<QString, QString> > pairs = JsonMethods::parseJson(json);
+    cout << "str: " << json << endl;
     for (int i = 0; i <pairs.size(); i++){
-        cout << "PAIR KEY: " << QString::fromStdString(pairs[i].first) << endl;
-        cout << "PAIR VALUE: "<< QString::fromStdString(pairs[i].second) << endl;
+        cout << "PAIR KEY: " << pairs[i].first << endl;
+        cout << "PAIR VALUE: "<< pairs[i].second << endl;
         Serializible* key = new K();
         Serializible* value = new V();
         key->parse(pairs[i].first);
