@@ -1,42 +1,42 @@
-#ifndef CACHE
-#define CACHE
+#ifndef RBTREE
+#define RBTREE
 
 #include "icache.h"
-#include "rbtree.h"
+#include <QMap>
+#include <QDebug>
 
 template<typename K, typename V>
-class Cache : public iCache<K,V>
+class RBTree : public iCache<K,V>
 {
 public:
-    Cache();
+    RBTree();
     virtual int insert(K key, V value);
     virtual V search(K key);
     virtual int remove(K key);
 
 private:
-    iCache<K,V> *rbtree;
+    QMap<K ,V> *rbtree;
 };
 
 template<typename K, typename V>
-Cache<K,V>::Cache(){
-    rbtree = new RBTree<K, V>;
+RBTree<K,V>::RBTree(){
+    rbtree = new QMap<K ,V>;
 }
 
 template<typename K, typename V>
-int Cache<K,V>::insert(K key, V value){
+int RBTree<K,V>::insert(K key, V value){
     rbtree->insert(key, value);
     return 0;
 }
 
 template<typename K, typename V>
-V Cache<K,V>::search(K key){
-    return rbtree->search(key);
+V RBTree<K,V>::search(K key){
+    return rbtree->value(key);
 }
 
 template<typename K, typename V>
-int Cache<K,V>::remove(K key){
+int RBTree<K,V>::remove(K key){
     return rbtree->remove(key);
 }
-
-#endif // CACHE
+#endif // RBTREE
 

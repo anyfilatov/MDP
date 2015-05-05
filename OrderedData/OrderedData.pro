@@ -30,7 +30,8 @@ HEADERS += \
     Router/RouterClient/routerclient.h \
     cacheserver.h \
     Cache/icache.h \
-    Cache/cache.h
+    Cache/cache.h \
+    Cache/rbtree.h
     
 
 DISTFILES += \

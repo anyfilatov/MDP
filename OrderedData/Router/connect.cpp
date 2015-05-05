@@ -80,9 +80,9 @@ QJsonObject Connect::handleRequest(QJsonObject json){
 QJsonObject Connect::handlePut(QJsonObject json){    
     QJsonObject jsonResp;
     if(json.contains("bucket")){
-        rbtree->insert(json.find("bucket").value().toString() + "_keys", json.find("key").value().toString());
+        //rbtree->insert(json.find("bucket").value().toString() + "_keys", json.find("key").value().toString());
     }
-    rbtree->insert(json.find("key").value().toString(),json.find("value").value().toString());
+   // rbtree->insert(json.find("key").value().toString(),json.find("value").value().toString());
     jsonResp.insert("status", "OK");
     return jsonResp;
 }
