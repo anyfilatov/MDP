@@ -35,25 +35,17 @@ int RouterClient::openConnect(QString host, int port){
 
 QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString address, int port, bool isReplyca = false){
     openConnect(address, port);
-    QByteArray msgReq;
-    QByteArray msgResp;
+    QJsonObject jsonResp;
 
     if (isReplyca) {
         json.insert("isReplyca", true);
     }
 
-    msgReq = serialization(json);
+    writeMsg(json);
+    jsonResp = readMsg();
 
-    socket->write(msgReq);
-    socket->waitForBytesWritten();
-    socket->waitForReadyRead();
-    int sizeMsg;
-    while (socket->bytesAvailable()) {
-        sizeMsg = socket->bytesAvailable();
-        msgResp = socket->readAll();
-    }
-    socket->close();
-    return deserialization(msgResp.mid(1));
+
+    return jsonResp;
 }
 
 #endif // ROUTERCLIENT_H

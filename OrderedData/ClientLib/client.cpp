@@ -4,7 +4,7 @@ Client::Client(QObject *parent) : QObject(parent)
 {
     this->port = 12340;
     QList<QString> ipsHost;
-    ipsHost.append("127.0.0.1");
+    ipsHost.append("192.168.1.10");
     this->hosts = ipsHost;
     qsrand (QDateTime::currentMSecsSinceEpoch());
 }

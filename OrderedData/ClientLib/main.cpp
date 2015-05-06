@@ -6,7 +6,6 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     Client client;
-    client.openConnect();
     qDebug() << "Put <testKey, testValue>: " << client.put<QString, QString>("testKey", "testValue", "TEST");
     qDebug() << "Get <testKey>: " << client.get<QString, QString>("testKey");
     qDebug() << "Del <testKey>: " << client.remove("TEST");

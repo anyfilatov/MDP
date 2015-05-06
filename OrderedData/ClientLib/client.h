@@ -34,7 +34,7 @@ protected:
     QJsonObject parseMessage(QByteArray data);
     int openConnect();
 
-private slots:
+protected slots:
     void disconnected();
 };
 

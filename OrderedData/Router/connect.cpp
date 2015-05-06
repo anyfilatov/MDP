@@ -89,7 +89,7 @@ QJsonObject Connect::handlePut(QJsonObject json){
     jsonResp.insert("status", 200);
     //return jsonResp;
     RouterClient client;
-    return client.doRequestToOtherRouter(json, "192.168.1.5", 12346, true);
+    return client.doRequestToOtherRouter(json, "192.168.1.5", 12340, true);
 }
 
 QJsonObject Connect::handleGet(QJsonObject json){
