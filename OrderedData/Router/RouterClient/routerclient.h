@@ -7,14 +7,34 @@ class RouterClient : public Client
 {
 public:
     RouterClient();
-    QJsonObject doRequestToOtherRouter(QJsonObject json, QString address, bool isReplyca);
+    QJsonObject doRequestToOtherRouter(QJsonObject json, QString address, int port, bool isReplyca);
+private:
+    int openConnect(QString host, int port);
 };
 
 RouterClient::RouterClient(){
 
 }
 
-QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString address, bool isReplyca = false){
+int RouterClient::openConnect(QString host, int port){
+    if (socket == NULL) {
+        socket=new QTcpSocket();
+        connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    }
+
+    if(socket->state() == QAbstractSocket::UnconnectedState){
+        socket->connectToHost(QHostAddress(host), port);
+
+        if (!socket->waitForConnected(1000)){
+            qDebug("Can't connect");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString address, int port, bool isReplyca = false){
+    openConnect(address, port);
     QByteArray msgReq;
     QByteArray msgResp;
 
@@ -22,10 +42,8 @@ QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString addre
         json.insert("isReplyca", true);
     }
 
-    msgReq = createMessage(json);
+    msgReq = serialization(json);
 
-    socket=new QTcpSocket();
-    socket->connectToHost(QHostAddress(address), port);
     socket->write(msgReq);
     socket->waitForBytesWritten();
     socket->waitForReadyRead();
@@ -35,7 +53,7 @@ QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString addre
         msgResp = socket->readAll();
     }
     socket->close();
-    return parseMessage(msgResp);
+    return deserialization(msgResp.mid(1));
 }
 
 #endif // ROUTERCLIENT_H

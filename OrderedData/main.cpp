@@ -1,10 +1,20 @@
 #include <QCoreApplication>
 #include "cacheserver.h"
+#include "NetworkManager/NetworkSettings.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    CacheServer server;
+
+    QFile settingsFile("settings.json");
+    if (!settingsFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        return -1;
+
+    NetworkSettings networkSettings(settingsFile);
+    settingsFile.close();
+
+    CacheServer CacheServer(networkSettings);
+
     return a.exec();
 }
 

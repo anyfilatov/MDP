@@ -8,7 +8,7 @@
 class NetworkManager;
 
 class Node: public QObject {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     Node();
     Node(QString host, qint16 port, qint32 heartbeat, qint32 cleanupInterval, NetworkManager& manager);
@@ -25,7 +25,7 @@ public:
     Node& operator=(const Node& other);
     bool operator==(const Node& other) const;
     bool operator<(const Node& other) const;
-    ~Node();
+    virtual ~Node();
 signals:
     void heartbeatChanged();
     void notifyManager(QString address);

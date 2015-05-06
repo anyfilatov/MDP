@@ -5,7 +5,7 @@ Router::Router(QObject *parent) :
     QTcpServer(parent)
 {
     pool = new QThreadPool(this);
-    pool->setMaxThreadCount(5);
+    pool->setMaxThreadCount(3);
     //rbtree = new RBTree();
 }
 
@@ -13,13 +13,13 @@ Router::Router(iCache<QString, QString> *rbtree,QObject *parent) :
     QTcpServer(parent)
 {
     pool = new QThreadPool(this);
-    pool->setMaxThreadCount(5);
+    pool->setMaxThreadCount(3);
     this->rbtree = rbtree;
 }
 
 void Router::startServer()
 {
-    if(this->listen(QHostAddress::Any, 1234))
+    if(this->listen(QHostAddress::Any, 12340))
     {
         qDebug() << "Server started";
     }

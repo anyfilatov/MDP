@@ -6,13 +6,16 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDebug>
+#include <QObject>
+#include <QTimer>
 #include "../Cache/icache.h"
 
-class Connect : public QRunnable
+class Connect : public QObject, public QRunnable
 {
-
+    Q_OBJECT
 public:
-    Connect(iCache<QString, QString> *rbtree);
+    explicit Connect(iCache<QString, QString> *rbtree, QObject *parent = 0);
+    ~Connect();
 
 protected:
     void run();
@@ -22,6 +25,7 @@ public:
 
 private:
     iCache<QString, QString> *rbtree;
+    QTcpSocket *socket;
 
     QJsonObject deserialization(QByteArray data);
     QByteArray serialization(QJsonObject data);
@@ -31,7 +35,6 @@ private:
     QJsonObject handleDelete(QJsonObject json);
     QJsonObject handleRingCheck(QJsonObject json);
     QJsonObject handleOuterJoin(QJsonObject json);
-
 
     QByteArray createMessage(QJsonObject json);
     QJsonObject parseMessage(QByteArray data);

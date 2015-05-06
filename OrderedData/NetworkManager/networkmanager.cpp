@@ -24,6 +24,7 @@ NetworkManager::NetworkManager(NetworkSettings& settings) {
     _recieveGossipTask = new RecieveGossipTask(*this, _mutex);
     _recieveGossipTask->start();
     qDebug() << "Started...";
+    qDebug() << QThread::currentThreadId();
 }
 
 NetworkManager::~NetworkManager() {

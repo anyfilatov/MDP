@@ -19,7 +19,8 @@ SOURCES += \
     router.cpp \
     connect.cpp \
     RouterClient/routerclient.cpp \
-    main.cpp
+    main.cpp \
+    ../ClientLib/client.cpp
 
 HEADERS += \
     router.h \

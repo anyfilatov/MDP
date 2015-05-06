@@ -21,14 +21,7 @@ public:
 public slots:
     void readPendingDatagrams();
 private:
-//    QList<Node*> intersection(QList<Node>& localNodes, 
-//        const QList<Node>& remoteNodeList);
-//    QList<Node*> getLocalNodesNotInRemote(QList<Node>& localNodes, 
-//        const QList<Node>& remoteNodeList);
-//    QList<Node*> getRemoteNodesNotInLocal(QList<Node>& localNodes, 
-//        const QList<Node>& remoteNodeList);
     Node* getLocalNodeByRemote(QList<Node*>& list, Node* node);
-//    const Node* containsInRemoteList(Node& node, const QList<Node>& remoteNodeList);
     QUdpSocket* _socket;
     NetworkManager& _manager;
     QMutex& _mutex;

@@ -1,38 +1,47 @@
 #include "connect.h"
 #include "router.h"
 #include "typerequest.h"
+#include "RouterClient/routerclient.h"
 
-Connect::Connect(iCache<QString, QString> *map){
-    this->rbtree = map;
+Connect::Connect(iCache<QString, QString> *map, QObject *parent): QObject(parent){
+
 }
 
 void Connect::run()
 {
     if(!socketDescriptor) return;
+    socket = new QTcpSocket();
+    socket->setSocketDescriptor(socketDescriptor);
 
-    QTcpSocket socket;
     QByteArray msgReq;
     QByteArray msgResp;
     QJsonObject jsonReq;
     QJsonObject jsonResp;
+    while (socket->waitForReadyRead(10000)) {
+        while (socket->bytesAvailable()) {
+            qDebug() << socket->bytesAvailable();
+            msgReq.append(socket->readAll());
+        }
 
-    socket.setSocketDescriptor(socketDescriptor);
-    socket.waitForReadyRead();
-    while (socket.bytesAvailable()) {
-        msgReq.append(socket.readAll());
+        if (msgReq.size() == 0) {
+            continue;
+        }
+        jsonReq = parseMessage(msgReq);
+        qDebug() << jsonReq;
+
+        jsonResp = handleRequest(jsonReq);
+        msgResp = createMessage(jsonResp);
+        qDebug() << jsonResp;
+
+        socket->write(msgResp);
+        socket->flush();
+        socket->waitForBytesWritten();
+
+        msgReq.clear();
+        msgResp.clear();
     }
-
-    jsonReq = parseMessage(msgReq);
-    qDebug() << jsonReq;
-
-    jsonResp = handleRequest(jsonReq);
-    msgResp = createMessage(jsonResp);
-    qDebug() << jsonResp;
-
-    socket.write(msgResp);
-    socket.flush();
-    socket.waitForBytesWritten();
-    socket.close();
+    qDebug() << "Closed";
+    socket->disconnectFromHost();
 }
 
 QJsonObject Connect::deserialization(QByteArray data){
@@ -48,8 +57,6 @@ QByteArray Connect::serialization(QJsonObject json){
 
 QByteArray Connect::createMessage(QJsonObject json){
     QByteArray data = serialization(json);
-    qDebug() << "data: " + data;
-
     QByteArray message;
     message.append(data.size()+1);
     message.append(data);
@@ -79,17 +86,14 @@ QJsonObject Connect::handleRequest(QJsonObject json){
 
 QJsonObject Connect::handlePut(QJsonObject json){    
     QJsonObject jsonResp;
-    if(json.contains("bucket")){
-        //rbtree->insert(json.find("bucket").value().toString() + "_keys", json.find("key").value().toString());
-    }
-   // rbtree->insert(json.find("key").value().toString(),json.find("value").value().toString());
-    jsonResp.insert("status", "OK");
-    return jsonResp;
+    jsonResp.insert("status", 200);
+    //return jsonResp;
+    RouterClient client;
+    return client.doRequestToOtherRouter(json, "192.168.1.5", 12346, true);
 }
 
 QJsonObject Connect::handleGet(QJsonObject json){
     QJsonObject jsonResp;
-    //QString value = rbtree->find(json.find("key").value().toString()).value();
     QString value = NULL;
     if (value != NULL){
         jsonResp.insert("key", json.find("key").value().toString());
@@ -97,15 +101,19 @@ QJsonObject Connect::handleGet(QJsonObject json){
         jsonResp.insert("status", "OK");
     }
     else{
-        jsonResp.insert("status", "EMPTY");
+        jsonResp.insert("status", 404);
     }
     return jsonResp;
 }
 
 QJsonObject Connect::handleDelete(QJsonObject json){
     QJsonObject jsonResp;
-    //rbtree->clear();
-    jsonResp.insert("status", "OK");
+    int code = 0;
+    if (code == 1) {
+        jsonResp.insert("status", 200);
+    } else{
+        jsonResp.insert("status", 404);
+    }
     return jsonResp;
 }
 
@@ -117,7 +125,11 @@ QJsonObject Connect::handleRingCheck(QJsonObject json){
 
 QJsonObject Connect::handleOuterJoin(QJsonObject json){
     QJsonObject jsonResp;
-    jsonResp.insert("status", "OK");
+    jsonResp.insert("status", 200);
     return jsonResp;
 }
 
+Connect::~Connect(){
+    socket->close();
+    delete socket;
+}
