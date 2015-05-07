@@ -11,6 +11,7 @@ QT       -= gui
 TARGET = OrderedData
 CONFIG   += console
 CONFIG   -= app_bundle
+CONFIG   += c++11
 
 TEMPLATE = app
 
@@ -25,7 +26,8 @@ SOURCES += \
     NetworkManager/node.cpp \
     NetworkManager/RecieveGossipTask.cpp \
     NetworkManager/SendGossipTask.cpp \
-    NetworkManager/NetworkSettings.cpp
+    NetworkManager/NetworkSettings.cpp \
+    Router/hashring.cpp
 
 HEADERS += \
     ClientLib/client.h \
@@ -41,4 +43,5 @@ HEADERS += \
     NetworkManager/node.h \
     NetworkManager/RecieveGossipTask.h \
     NetworkManager/SendGossipTask.h \
-    NetworkManager/NetworkSettings.h
+    NetworkManager/NetworkSettings.h \
+    Router/hashring.h

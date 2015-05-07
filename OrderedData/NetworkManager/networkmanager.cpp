@@ -35,6 +35,17 @@ QList<Node*>& NetworkManager::getMemberList() {
     return _memberList;
 }
 
+QList<Node *> NetworkManager::getAllMembers()
+{
+    QList<Node*> allNodes;
+    allNodes.push_back(_me);
+    for (Node* node: _memberList) {
+        allNodes.append(node);
+    }
+
+    return allNodes;
+}
+
 QList<Node*>& NetworkManager::getDeadNodes() {
     return _deadList;
 }
@@ -57,4 +68,5 @@ void NetworkManager::handleDeadNode(QString address) {
         }
     }
 }
+
 

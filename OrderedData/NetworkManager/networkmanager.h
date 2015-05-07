@@ -17,6 +17,7 @@ public:
     NetworkManager(NetworkSettings& settings);
     ~NetworkManager();
     QList<Node*>& getMemberList();
+    QList<Node*> getAllMembers();
     QList<Node*>& getDeadNodes();
     Node* getMyself();
     const NetworkSettings* getSettings() const;

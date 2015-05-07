@@ -9,12 +9,15 @@ Router::Router(QObject *parent) :
     //rbtree = new RBTree();
 }
 
-Router::Router(iCache<QString, QString> *rbtree,QObject *parent) :
+Router::Router(iCache<QString, QString> *rbtree, NetworkManager *manager, QObject *parent) :
     QTcpServer(parent)
 {
     pool = new QThreadPool(this);
     pool->setMaxThreadCount(3);
     this->rbtree = rbtree;
+    this->rbtree->insert("test", "test");
+    _manager = manager;
+    _ring = new HashRing(_manager, this->rbtree);
 }
 
 void Router::startServer()

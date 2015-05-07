@@ -13,6 +13,7 @@ public:
     virtual int insert(K key, V value);
     virtual V search(K key);
     virtual int remove(K key);
+    virtual bool isEmpty();
 
 private:
     QMap<K ,V> *rbtree;
@@ -38,5 +39,11 @@ template<typename K, typename V>
 int RBTree<K,V>::remove(K key){
     return rbtree->remove(key);
 }
+
+template<typename K, typename V>
+bool RBTree<K, V>::isEmpty() {
+    rbtree->isEmpty();
+}
+
 #endif // RBTREE
 

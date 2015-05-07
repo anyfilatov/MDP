@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include "cacheserver.h"
 #include "NetworkManager/NetworkSettings.h"
+#include "Router/hashring.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,4 +18,3 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
-
