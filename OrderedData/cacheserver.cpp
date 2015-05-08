@@ -2,7 +2,7 @@
 
 CacheServer::CacheServer(NetworkSettings& settings)
 {
-    this->cache = new Cache<QString, QString>;
+    //this->cache = new Cache<QString, QString>;
     this->manager = new NetworkManager(settings);
     this->router = new Router(cache, manager);
     router->startServer();

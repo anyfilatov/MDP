@@ -7,7 +7,7 @@ class RouterClient : public Client
 {
 public:
     RouterClient();
-    QJsonObject doRequestToOtherRouter(QJsonObject json, QString address, int port, bool isReplyca);
+    QJsonObject doRequestToOtherRouter(QJsonObject json, QString address, int port, bool isReplyca=false);
 private:
     int openConnection(QString host, int port);
 };
@@ -33,7 +33,7 @@ int RouterClient::openConnection(QString host, int port){
     return 0;
 }
 
-QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString address, int port, bool isReplyca = false){
+QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString address, int port, bool isReplyca){
     openConnection(address, port);
     QJsonObject jsonResp;
 

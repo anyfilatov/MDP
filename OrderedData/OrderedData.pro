@@ -44,4 +44,5 @@ HEADERS += \
     NetworkManager/RecieveGossipTask.h \
     NetworkManager/SendGossipTask.h \
     NetworkManager/NetworkSettings.h \
-    Router/hashring.h
+    Router/hashring.h \
+    Router/StatusCodes.h
