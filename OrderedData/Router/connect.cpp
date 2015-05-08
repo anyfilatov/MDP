@@ -3,82 +3,77 @@
 #include "typerequest.h"
 #include "RouterClient/routerclient.h"
 
-Connect::Connect(iCache<QString, QString> *map, QObject *parent): QObject(parent){
 
+Connect::Connect(HashRing *ring, iCache<QString, QString> *map, QObject *parent): QObject(parent){
+    _ring = ring;
+    _rbtree = map;
 }
 
 void Connect::run()
 {
     if(!socketDescriptor) return;
-    socket = new QTcpSocket();
-    socket->setSocketDescriptor(socketDescriptor);
+    _socket = new QTcpSocket();
+    _socket->setSocketDescriptor(socketDescriptor);
 
     QByteArray msgReq;
     QByteArray msgResp;
     QJsonObject jsonReq;
     QJsonObject jsonResp;
-    while (socket->waitForReadyRead(10000)) {
-        while (socket->bytesAvailable()) {
-            qDebug() << socket->bytesAvailable();
-            msgReq.append(socket->readAll());
+    while (_socket->waitForReadyRead(10000)) {
+        while (_socket->bytesAvailable()) {
+            qDebug() << _socket->bytesAvailable();
+            msgReq.append(_socket->readAll());
         }
 
         if (msgReq.size() == 0) {
             continue;
         }
-        jsonReq = parseMessage(msgReq);
+        jsonReq = deserialize(msgReq);
         qDebug() << jsonReq;
 
         jsonResp = handleRequest(jsonReq);
-        msgResp = createMessage(jsonResp);
+        msgResp = serialize(jsonResp);
         qDebug() << jsonResp;
 
-        socket->write(msgResp);
-        socket->flush();
-        socket->waitForBytesWritten();
+        _socket->write(msgResp);
+        _socket->flush();
+        _socket->waitForBytesWritten();
 
         msgReq.clear();
         msgResp.clear();
     }
     qDebug() << "Closed";
-    socket->disconnectFromHost();
+    _socket->disconnectFromHost();
 }
 
-QJsonObject Connect::deserialization(QByteArray data){
+QJsonObject Connect::deserialize(QByteArray data){
     QJsonDocument jdoc;
     jdoc = jdoc.fromJson(data);
     return jdoc.object();
 }
 
-QByteArray Connect::serialization(QJsonObject json){
+QByteArray Connect::serialize(QJsonObject json){
     QJsonDocument jdoc(json);
-    return jdoc.toJson();
+    return jdoc.toBinaryData();
 }
 
-QByteArray Connect::createMessage(QJsonObject json){
-    QByteArray data = serialization(json);
-    QByteArray message;
-    message.append(data.size()+1);
-    message.append(data);
-    return message;
-}
-
-QJsonObject Connect::parseMessage(QByteArray data){
-    return deserialization(data.mid(1));
-}
 
 QJsonObject Connect::handleRequest(QJsonObject json){
     switch (json.find("type").value().toInt()) {
     case PUT:
         return handlePut(json);
+    case REPLACE:
+        return handleReplace(json);
     case GET:
         return handleGet(json);
     case DEL:
-        return handleDelete(json);
+        return handleRemove(json);
+    case DEL_BUCKET:
+        return handleRemoveBucket(json);
     case RINGCECK:
         return handleRingCheck(json);
     case OUTERJOIN:
-        return handleOuterJoin(json);
+        return handleRingJoin(json);
     default:
         break;
     }
@@ -86,10 +81,16 @@ QJsonObject Connect::handleRequest(QJsonObject json){
 
 QJsonObject Connect::handlePut(QJsonObject json){    
     QJsonObject jsonResp;
-    jsonResp.insert("status", 200);
-    //return jsonResp;
+
+    QList<Node*> nodes = _ring->findNodes(json.value("key").toString());
     RouterClient client;
-    return client.doRequestToOtherRouter(json, "192.168.1.5", 12340, true);
+    return client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
+
+}
+
+QJsonObject Connect::handleReplace(QJsonObject json)
+{
+
 }
 
 QJsonObject Connect::handleGet(QJsonObject json){
@@ -106,7 +107,12 @@ QJsonObject Connect::handleGet(QJsonObject json){
     return jsonResp;
 }
 
-QJsonObject Connect::handleDelete(QJsonObject json){
+QJsonObject Connect::handleRemoveBucket(QJsonObject json)
+{
+
+}
+
+QJsonObject Connect::handleRemove(QJsonObject json){
     QJsonObject jsonResp;
     int code = 0;
     if (code == 1) {
@@ -123,13 +129,13 @@ QJsonObject Connect::handleRingCheck(QJsonObject json){
     return jsonResp;
 }
 
-QJsonObject Connect::handleOuterJoin(QJsonObject json){
+QJsonObject Connect::handleRingJoin(QJsonObject json){
     QJsonObject jsonResp;
     jsonResp.insert("status", 200);
     return jsonResp;
 }
 
 Connect::~Connect(){
-    socket->close();
-    delete socket;
+    _socket->close();
+    delete _socket;
 }

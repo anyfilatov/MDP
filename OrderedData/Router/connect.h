@@ -8,13 +8,14 @@
 #include <QDebug>
 #include <QObject>
 #include <QTimer>
-#include "../Cache/icache.h"
+#include "Cache/icache.h"
+#include "Router/hashring.h"
 
 class Connect : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    explicit Connect(iCache<QString, QString> *rbtree, QObject *parent = 0);
+    explicit Connect(HashRing *ring, iCache<QString, QString> *_rbtree, QObject *parent = 0);
     ~Connect();
 
 protected:
@@ -24,20 +25,21 @@ public:
     qintptr socketDescriptor;
 
 private:
-    iCache<QString, QString> *rbtree;
-    QTcpSocket *socket;
+    iCache<QString, QString> *_rbtree;
+    QTcpSocket *_socket;
+    HashRing *_ring;
 
-    QJsonObject deserialization(QByteArray data);
-    QByteArray serialization(QJsonObject data);
     QJsonObject handleRequest(QJsonObject json);
     QJsonObject handlePut(QJsonObject json);
+    QJsonObject handleReplace(QJsonObject json);
     QJsonObject handleGet(QJsonObject json);
-    QJsonObject handleDelete(QJsonObject json);
+    QJsonObject handleRemove(QJsonObject json);
+    QJsonObject handleRemoveBucket(QJsonObject json);
     QJsonObject handleRingCheck(QJsonObject json);
-    QJsonObject handleOuterJoin(QJsonObject json);
+    QJsonObject handleRingJoin(QJsonObject json);
 
-    QByteArray createMessage(QJsonObject json);
-    QJsonObject parseMessage(QByteArray data);
+    QByteArray serialize(QJsonObject json);
+    QJsonObject deserialize(QByteArray data);
 };
 
 #endif

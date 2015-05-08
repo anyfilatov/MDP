@@ -3,7 +3,9 @@
 enum TypeRequest{
     PUT,
     GET,
+    REPLACE,
     DEL,
+    DEL_BUCKET,
     RINGCECK,
     OUTERJOIN
 };

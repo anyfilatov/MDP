@@ -8,72 +8,40 @@
 #include <QDateTime>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QHostAddress>
-#include "../Router/typerequest.h"
+#include "Router/typerequest.h"
 
-class Client: public QObject {
-    Q_OBJECT
-public:
-    explicit Client(QObject *parent = 0);
-    template <typename K, typename V> int put(K key, V value, QString bucket = NULL);
-    template <typename K, typename V> QList<V> get(K key);
-    int remove(QString bucket);
-    QList<QString> getRingHosts();
-    void initialOuterJoinRequest(QString idAddress);
+class Client : public QObject {
+  Q_OBJECT
+ public:
+  explicit Client(QObject* parent = 0);
 
-protected:
-    QTcpSocket *socket = NULL;
-    QList<QString> hosts;
-    int port;
+  int put(QString key, QString value, QString bucket = NULL);
+  int put(QString key, QStringList values, QString bucket = NULL);
+  int replace(QString key, QStringList values, QString bucket = NULL);
 
-    void writeMsg(QJsonObject msg);
-    QJsonObject readMsg();
-    QJsonObject deserialization(QByteArray data);
-    QByteArray serialization(QJsonObject json);
-    QByteArray createMessage(QJsonObject json);
-    QJsonObject parseMessage(QByteArray data);
-    int openConnect();
+  QStringList get(QString key, QString bucket = NULL);
 
-protected slots:
-    void disconnected();
+  int remove(QString key);
+  int removeBucket(QString bucket);
+
+  QStringList getRingHosts();
+  void joinToRing(QString who, QStringList ring);
+
+ protected:
+  QTcpSocket* _socket = NULL;
+  QList<QString> _hosts;
+
+  void writeMsg(QJsonObject msg);
+  QJsonObject readMsg();
+  QJsonObject deserialize(QByteArray data);
+  QByteArray serialize(QJsonObject json);
+
+  int openConnection();
+
+ protected slots:
+  void disconnected();
 };
 
-template <typename K, typename V>
-int Client::put(K key, V value, QString bucket){
-    openConnect();
-
-    QJsonObject jsonReq;
-    QJsonObject jsonResp;
-
-    jsonReq.insert("type", PUT);\
-    jsonReq.insert("key", key);
-    jsonReq.insert("value", value);
-
-    if(bucket != NULL){
-        jsonReq.insert("bucket", bucket);
-    }
-
-    writeMsg(jsonReq);
-    jsonResp = readMsg();
-
-    return jsonResp.value("status").toInt();
-}
-
-template <typename K, typename V>
-QList<V> Client::get(K key){
-    openConnect();
-
-    QJsonObject jsonReq;
-    QJsonObject jsonResp;
-
-    jsonReq.insert("type", GET);\
-    jsonReq.insert("key", key);
-
-    writeMsg(jsonReq);
-    jsonResp = readMsg();
-
-    return jsonResp.value("value").toString().split(',');
-
-}
-
-#endif // CLIENT
+#endif  // CLIENT

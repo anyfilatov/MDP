@@ -8,29 +8,29 @@
 #include "../NetworkManager/networkmanager.h"
 #include "../Cache/icache.h"
 
-class HashRing : public QObject
-{
-    Q_OBJECT
-public:
-    HashRing();
-    explicit HashRing(NetworkManager* manager, iCache<QString, QString>* cache, QObject *parent = 0);
-    ~HashRing();
-    QList<Node*> findNodes(QString key);
+class HashRing : public QObject {
+  Q_OBJECT
+ public:
+  HashRing();
+  explicit HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
+                    QObject* parent = 0);
+  ~HashRing();
+  QList<Node*> findNodes(QString key);
 
-public slots:
-    void update();
-private:
-    QList<Node*> _ring;
-    Node* _hasMyReplica;
-    Node* _haveReplicaOf;
+ public slots:
+  void update();
 
-    NetworkManager * _manager;
-    iCache<QString, QString>* _cache;
+ private:
+  QList<Node*> _ring;
+  Node* _hasMyReplica;
+  Node* _haveReplicaOf;
 
-    void stabilize();
-    static size_t hash(QString key);
-    static bool hashBasedLessThen(const Node* node1, const Node* node2);
+  NetworkManager* _manager;
+  iCache<QString, QString>* _cache;
 
+  void stabilize();
+  static size_t hash(QString key);
+  static bool hashBasedLessThen(const Node* node1, const Node* node2);
 };
 
-#endif // HASHRING_H
+#endif  // HASHRING_H
