@@ -131,3 +131,7 @@ size_t HashRing::hash(QString key) {
 bool HashRing::hashBasedLessThen(const Node* node1, const Node* node2) {
   return hash(node1->getAddress()) < hash(node2->getAddress());
 }
+
+QList<Node*> HashRing::getAllMember(){
+    return _manager->getAllMembers();
+}

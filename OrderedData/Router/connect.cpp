@@ -192,29 +192,74 @@ QJsonObject Connect::handleGet(QJsonObject json){
 
 QJsonObject Connect::handleRemoveBucket(QJsonObject json)
 {
+    QJsonObject jsonResp;
+    if (json.contains("not_forwards_requests") && json.value("not_forwards_requests").toBool()) {
+        RouterClient client;
+        QStringList values = client.get(json.value("bucket").toString().append("_keys"));
+        for(QString value: values){
+            client.remove(value);
+        }
+        StatusCode delCode = (StatusCode)_rbtree->remove(json.value("bucket").toString());
+        jsonResp.insert("status", delCode);
+    } else{
+        QList<Node*> nodes;
+        nodes = _ring->findNodes(json.value("bucket").toString().append("_keys"));
+        RouterClient client;
+        QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
+        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+        StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
+        StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
 
+        if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK) {
+            jsonResp.insert("status", StatusCode::OK);
+        } else {
+            jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
+        }
+    }
 }
 
 QJsonObject Connect::handleRemove(QJsonObject json){
     QJsonObject jsonResp;
-    int code = 0;
-    if (code == 1) {
-        jsonResp.insert("status", 200);
+    if (json.contains("not_forwards_requests") && json.value("not_forwards_requests").toBool()) {
+        StatusCode delCode = (StatusCode)_rbtree->remove(json.value("key").toString());
+        jsonResp.insert("status", delCode);
     } else{
-        jsonResp.insert("status", 404);
+        QList<Node*> nodes;
+        nodes = _ring->findNodes(json.value("key").toString());
+        RouterClient client;
+        QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
+        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+        StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
+        StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
+
+        if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK) {
+            jsonResp.insert("status", StatusCode::OK);
+        } else {
+            jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
+        }
     }
     return jsonResp;
 }
 
 QJsonObject Connect::handleRingCheck(QJsonObject json){
     QJsonObject jsonResp;
-    jsonResp.insert("ring", "127.0.0.1,127.0.0.2");
+    QStringList hosts;
+    QList<Node*> nodes = _ring->getAllMember();
+    if (nodes.size() < 1) {
+        jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
+        return jsonResp;
+    }
+    for (Node* node : nodes){
+        hosts.push_back(node->getAddress());
+    }
+    jsonResp.insert("ring", QJsonValue(QJsonArray::fromStringList(hosts)));
+    jsonResp.insert("status", StatusCode::OK);
     return jsonResp;
 }
 
 QJsonObject Connect::handleRingJoin(QJsonObject json){
     QJsonObject jsonResp;
-    jsonResp.insert("status", 200);
+    jsonResp.insert("status", StatusCode::OK);
     return jsonResp;
 }
 

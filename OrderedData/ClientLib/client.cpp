@@ -1,5 +1,5 @@
 #include "client.h"
-
+#include "Exception/exception.h"
 Client::Client(QObject* parent) : QObject(parent) {
   QList<QString> ipsHost;
   ipsHost.append("192.168.1.10");
@@ -19,8 +19,7 @@ int Client::openConnection() {
     _socket->connectToHost(QHostAddress(host.split(":").first()), host.split(":").back().toInt());
 
     if (!_socket->waitForConnected(1000)) {
-      qDebug("Can't connect");
-      return -1;
+      throw ConnectionIsNotCreatedException();
     }
   }
   return 0;
@@ -41,7 +40,7 @@ QJsonObject Client::readMsg() {
   }
 
   if (msg.size() == 0) {
-    msg.append("{\"status\": 500}");
+    throw ServerUnavailableException();
   }
 
   return deserialize(msg);
@@ -75,7 +74,6 @@ int Client::put(QString key, QString value, QString bucket) {
   writeMsg(jsonReq);
   jsonResp = readMsg();
 
-  // TODO подумать над кодами ошибок/exception'ами
   return jsonResp.value("status").toInt();
 }
 
@@ -96,7 +94,6 @@ int Client::put(QString key, QStringList values, QString bucket) {
   writeMsg(jsonReq);
   jsonResp = readMsg();
 
-  // TODO подумать над кодами ошибок/exception'ами
   return jsonResp.value("status").toInt();
 }
 
@@ -117,7 +114,6 @@ int Client::replace(QString key, QStringList values, QString bucket) {
   writeMsg(jsonReq);
   jsonResp = readMsg();
 
-  // TODO подумать над кодами ошибок/exception'ами
   return jsonResp.value("status").toInt();
 }
 

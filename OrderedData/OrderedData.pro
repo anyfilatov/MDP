@@ -27,7 +27,11 @@ SOURCES += \
     NetworkManager/RecieveGossipTask.cpp \
     NetworkManager/SendGossipTask.cpp \
     NetworkManager/NetworkSettings.cpp \
-    Router/hashring.cpp
+    Router/hashring.cpp \
+    Exception/abstractexception.cpp \
+    Exception/clientexeption.cpp \
+    Exception/serverunavailableexception.cpp \
+    Exception/connectionisnotcreatedexception.cpp
 
 HEADERS += \
     ClientLib/client.h \
@@ -45,4 +49,10 @@ HEADERS += \
     NetworkManager/SendGossipTask.h \
     NetworkManager/NetworkSettings.h \
     Router/hashring.h \
-    Router/StatusCodes.h
+    Router/StatusCodes.h \
+    Exception/abstractexception.h \
+    Exception/exceptioncode.h \
+    Exception/clientexeption.h \
+    Exception/serverunavailableexception.h \
+    Exception/connectionisnotcreatedexception.h \
+    Exception/exception.h

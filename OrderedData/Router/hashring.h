@@ -16,6 +16,7 @@ class HashRing : public QObject {
                     QObject* parent = 0);
   ~HashRing();
   QList<Node*> findNodes(QString key);
+  QList<Node*> getAllMember();
 
  public slots:
   void update();

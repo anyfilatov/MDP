@@ -1,0 +1,9 @@
+#ifndef EXCEPTIONCODE
+#define EXCEPTIONCODE
+enum ExceptionCode{
+    SERVER_UNAVAILABLE,
+    CONNECTION_IS_NOT_CREATED,
+
+};
+#endif // EXCEPTIONCODE
+
