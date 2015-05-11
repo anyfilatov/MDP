@@ -4,6 +4,7 @@
 #include <QString>
 #include <QTcpSocket>
 #include <QSettings>
+#include <QString>
 #include <QDebug>
 #include <QDateTime>
 #include <QJsonObject>
@@ -15,7 +16,7 @@
 class Client : public QObject {
   Q_OBJECT
  public:
-  explicit Client(QObject* parent = 0);
+  explicit Client(QString settingsFileName, QObject* parent = 0);
 
   int put(QString key, QString value, QString bucket = NULL);
   int put(QString key, QStringList values, QString bucket = NULL);
@@ -30,6 +31,7 @@ class Client : public QObject {
   void joinToRing(QString who, QStringList ring);
 
  protected:
+  Client(QObject* parent = 0);
   QTcpSocket* _socket = NULL;
   QList<QString> _hosts;
 

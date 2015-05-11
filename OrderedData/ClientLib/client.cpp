@@ -1,9 +1,25 @@
 #include "client.h"
 #include "Exception/exception.h"
-Client::Client(QObject* parent) : QObject(parent) {
-  QList<QString> ipsHost;
-  ipsHost.append("192.168.1.10");
-  this->_hosts = ipsHost;
+
+Client::Client(QString settingsFileName, QObject* parent) : QObject(parent) {
+  QFile settingsFile(settingsFileName);
+  if (!settingsFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    throw std::runtime_error("Couldn't open file");
+
+  QJsonParseError* parseError = NULL;
+  QJsonDocument document =
+      QJsonDocument::fromJson(settingsFile.readAll(), parseError);
+  if (parseError == NULL) {
+    QJsonObject json = document.object();
+    QJsonArray members = json.value("members").toArray();
+    for (int i = 0; i < members.size(); i++) {
+      QString member = members.at(i).toString();
+      _hosts.append(member);
+    }
+  } else {
+    throw std::runtime_error("Error while parsing settings file");
+  }
+
   qsrand(QDateTime::currentMSecsSinceEpoch());
 }
 
@@ -16,7 +32,8 @@ int Client::openConnection() {
   if (_socket->state() == QAbstractSocket::UnconnectedState) {
     QString host = _hosts.at(qrand() % _hosts.size());
     qDebug() << "Open connect on " << host;
-    _socket->connectToHost(QHostAddress(host.split(":").first()), host.split(":").back().toInt());
+    _socket->connectToHost(QHostAddress(host.split(":").first()),
+                           host.split(":").back().toInt());
 
     if (!_socket->waitForConnected(1000)) {
       throw ConnectionIsNotCreatedException();
@@ -206,6 +223,8 @@ void Client::joinToRing(QString who, QStringList ring) {
 
   delete socket;
 }
+
+Client::Client(QObject* parent) : QObject(parent) {}
 
 void Client::disconnected() {
   qDebug() << "Server disconnected";
