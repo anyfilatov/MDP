@@ -12,7 +12,8 @@ HashRing::HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
 
   // Building ring and initialize owners of replicas
   for (Node* node : manager->getAllMembers()) {
-    _ring.push_back(node);
+    Node* ring_node = new Node(node->getHost(), node->getPort() + 1);
+    _ring.push_back(ring_node);
   }
   qDebug() << _ring;
 
@@ -27,7 +28,7 @@ HashRing::HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
   // =============================================
 
   QTimer* timer = new QTimer();
-  timer->setInterval(20000);
+  timer->setInterval(_manager->getSettings()->getCleanupInterval() * 2);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   timer->start();
 }
@@ -63,7 +64,8 @@ void HashRing::update() {
   bool change = false;
 
   for (Node* node : _manager->getAllMembers()) {
-    curMemList.push_back(node);
+    Node* ring_node = new Node(node->getHost(), node->getPort() + 1);
+    curMemList.push_back(ring_node);
   }
 
   qSort(curMemList.begin(), curMemList.end(), hashBasedLessThen);
@@ -74,9 +76,16 @@ void HashRing::update() {
   }
 
   if (change) {
+    for (Node* node : _ring) {
+      delete node;
+    }
     _ring = curMemList;
     stabilize();
     qDebug() << "Stabilization is required";
+  } else {
+    for (Node* node : curMemList) {
+      delete node;
+    }
   }
 }
 
@@ -132,6 +141,4 @@ bool HashRing::hashBasedLessThen(const Node* node1, const Node* node2) {
   return hash(node1->getAddress()) < hash(node2->getAddress());
 }
 
-QList<Node*> HashRing::getAllMember(){
-    return _manager->getAllMembers();
-}
+QList<Node*> HashRing::getAllMember() { return _manager->getAllMembers(); }
