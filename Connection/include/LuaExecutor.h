@@ -431,17 +431,21 @@ typedef std::shared_ptr<QTcpSocket> SocketPtr;
 static SocketPtr sendToHost(QString ip, int port, QByteArray& buffer) {
     SocketPtr socketOut = std::make_shared<QTcpSocket>(new QTcpSocket());
     socketOut->connectToHost(ip, port);
+    LOG_DEBUG("before wait")
+    socketOut->waitForConnected(1000);
+    LOG_DEBUG("after wait")
     if(socketOut->state() == QAbstractSocket::ConnectedState) {
         if (socketOut->isWritable()) {
             socketOut->write(buffer);
             socketOut->flush();
-    //        socketOut->waitForBytesWritten();
+            socketOut->waitForBytesWritten();
         } else {
             throw NetworkErrorException(util::concat("send to host (", ip.toStdString(), " ", port, ") error"));
         }
         
     } else {
         LOG_DEBUG("not connected");
+        socketOut.reset();
     }
     return socketOut;
 }
@@ -483,7 +487,9 @@ public:
         return out;
     }
     void addToWait(SocketPtr socket) {
-        sockets_.push_back(WQSocket(socket));
+        if(socket){
+            sockets_.push_back(WQSocket(socket));
+        }
     }
     
     bool empty() {
@@ -501,10 +507,11 @@ public:
     
     void wait() {
         auto count = sockets_.size();
-        while(count > 0) {
+        while(1) {
+            LOG_DEBUG("wait:" << count);
             for(auto& s : sockets_){
                 if( s.status == s.inWait ) {
-                    if(!s.socket->isOpen()){
+                    if(!s.socket->isOpen() || s.socket->waitForDisconnected(1000)){
                         s.status = s.failed;
                         --count;
                         continue;
@@ -515,6 +522,11 @@ public:
                     }
                 }
             }
+            if(count > 0) {
+                for(int i = 0; i < 100000; i++){int a; a =1;}//sleep
+            } else {
+                break;
+            }
         }
     }
 private:
@@ -522,7 +534,7 @@ private:
 };
 
 template<typename T>
-static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, const char* funcName) {
+static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, const char* funcName, int type) {
     auto* executor = context->e();
     auto* l = executor->getLua();
     Waiter waiter;
@@ -532,14 +544,11 @@ static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, 
             waiter.clear();
         }
         executor->forEach([&] (Host & host) -> void {
-            QByteArray ar;
-            int cmd = util::CMD_MAP;
-            QDataStream ss(&ar, QIODevice::ReadWrite);
+            int cmd = type;
             QString code = executor->getCode();
             auto id = *context->id();
             QString qFuncName(funcName);
-            
-            ss << cmd << code << id << qFuncName;
+            QByteArray ar = util::pack(cmd, code, id, qFuncName);
             
             LOG_DEBUG("ip=" << host.getIP().toStdString() << " port=" << host.getPort() << " ss=" << ar.size());
             auto socket = sendToHost(host.getIP(), host.getPort(), ar);
@@ -548,7 +557,7 @@ static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, 
         lua_getglobal(l, funcName);
 
         try {
-            LOG_TRACE("doMapForAtoms");
+            LOG_TRACE("start action");
             action(context);
         } catch (const LuaExecutionExeption& e) {
             std::string err = util::concat(e.what(), " in function ", funcName);
@@ -570,7 +579,7 @@ static int doMap(Lua l) {
     LOG_DEBUG("funcName=" << funcName << " id=" << *executor);
     lua_pop(l, 1);
     
-    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doMapForAtoms(context);}, context, funcName);
+    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doMapForAtoms(context);}, context, funcName, util::CMD_MAP);
     executor->endMap();
     context->pushOnStack();
     return 1;//count of returns value
@@ -587,7 +596,7 @@ static int doReduce(Lua l) {
     LOG_DEBUG("funcName=" << funcName << " id=" << *executor);
     lua_pop(l, 1);
        
-    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doReduceForAtoms(context);}, context, funcName);
+    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doReduceForAtoms(context);}, context, funcName, util::CMD_REDUCE);
     
     LOG_TRACE("");
     executor->endReduce();

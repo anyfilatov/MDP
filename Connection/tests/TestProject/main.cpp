@@ -50,25 +50,16 @@ void test1() {
     std::cout << "SendTask test 1" << std::endl;
     int cmd(util::CMD_START_USER_SCRIPT);
     int id = 1;
-    QByteArray buffer;
-    QDataStream stream(&buffer, QIODevice::ReadWrite);
-    stream << cmd;
-    QString s(uCode);
-    stream << s;
-    stream << id;
+    
+    QByteArray buffer = util::pack(cmd, QString(uCode), id);
     QTcpSocket socket;
     socket.connectToHost(ip, port);
     if( socket.isWritable() ){
         socket.write(buffer);
-        bool res= socket.waitForReadyRead();
-        while( !res ) {
-            if(!socket.isOpen()){
-                break;
-            }
-            res= socket.waitForReadyRead();
-        }
-        if(res) {
-            QDataStream data(&socket);
+        QByteArray in;
+        int res = util::readAll(socket, in, 1000);
+        if(res == Errors::STATUS_OK) {
+            QDataStream data(&in, QIODevice::ReadWrite);
             int res = -1;
             QString s;
             data >> res >> s;

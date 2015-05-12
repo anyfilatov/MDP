@@ -56,4 +56,5 @@ DEF_EXCEPTION(LuaAllocationException)
 DEF_EXCEPTION(UnknownParametersException)
 DEF_EXCEPTION(NetworkErrorException)
 DEF_EXCEPTION(ParseConfigException)
+DEF_EXCEPTION(ReadFromSocketException)
 

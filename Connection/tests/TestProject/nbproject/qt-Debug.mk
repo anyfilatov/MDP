@@ -370,7 +370,6 @@ build/Debug/GNU-Linux-x86/main.o: main.cpp ../../include/util.h \
 		/usr/include/qt5/QtCore/qobject_impl.h \
 		/usr/include/qt5/QtCore/qpair.h \
 		/usr/include/qt5/QtCore/QByteArray \
-		../../include/Logger.h \
 		/usr/include/qt5/QtNetwork/QTcpSocket \
 		/usr/include/qt5/QtNetwork/qtcpsocket.h \
 		/usr/include/qt5/QtNetwork/qabstractsocket.h \
@@ -387,7 +386,9 @@ build/Debug/GNU-Linux-x86/main.o: main.cpp ../../include/util.h \
 		/usr/include/qt5/QtCore/qvector.h \
 		/usr/include/qt5/QtCore/qpoint.h \
 		/usr/include/qt5/QtCore/qset.h \
-		/usr/include/qt5/QtCore/qcontiguouscache.h
+		/usr/include/qt5/QtCore/qcontiguouscache.h \
+		../../include/Logger.h \
+		../../include/errors.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Debug/GNU-Linux-x86/main.o main.cpp
 
 ####### Install

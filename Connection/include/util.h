@@ -3,6 +3,9 @@
 #include <sstream>
 #include <QDataStream>
 #include <QByteArray>
+#include <QTcpSocket>
+#include "Logger.h"
+#include "errors.h"
 
 namespace util{
     
@@ -29,25 +32,25 @@ namespace util{
     }
     
     template<typename T>
-    QByteArray pack_(const T& s) {
-        QByteArray ar;
-        QDataStream ss(&ar, QIODevice::ReadWrite);
+    void pack_(QDataStream& ss, const T& s) {
         ss << s;
-        return ar;
     }
     
     template<typename T1, typename... T> 
-    QByteArray pack_(const T1& s, const T&... a) {
-        QByteArray ar;
-        QDataStream ss(&ar, QIODevice::ReadWrite);
-        ss << s;
-        ar.append(pack_( a...));
-        return ar;
+    void pack_(QDataStream& stream, const T1& s, const T&... a) {
+        stream << s;
+        pack_(stream,  a...);
     }
     
     template<typename... T> 
     QByteArray pack(const T&... a) {
-        return pack_( a...);        
+        QByteArray out;
+        QDataStream stream(&out, QIODevice::ReadWrite);
+        stream << int(0);
+        pack_(stream, a...);
+        stream.device()->seek(0);
+        stream << (int)(out.size() - sizeof(int));
+        return out;
     }
     
     template<typename... T> 
@@ -102,5 +105,31 @@ namespace util{
         int i0;
         int i1;
         int i2;
+    };
+    
+    static int readAll(QTcpSocket& socket, QByteArray& out, int timeout) {
+        
+        while (socket.bytesAvailable() < qint64(sizeof(int))) {
+            socket.waitForReadyRead();
+        }
+        QDataStream in(&socket);
+        
+        int dataSize = 0;
+        in.setVersion(QDataStream::Qt_5_2);
+        in >> dataSize;
+        while (out.size() < dataSize) {
+            out.append(socket.readAll());
+            if (out.size() < dataSize) {
+                if (!socket.waitForReadyRead(timeout)) {
+                    LOG_DEBUG("4");
+                    if(out.size() == 0){
+                        return Errors::STATUS_ERROR;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return Errors::STATUS_OK;
     };
 }

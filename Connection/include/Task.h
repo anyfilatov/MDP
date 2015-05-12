@@ -22,12 +22,12 @@ public:
     int operator()();
 private:
     int unpackAndExec(int cmd);
-    int ping();
-    int setConfig();
-    int doMap();
-    int doReduce();
-    int doUserScript();
-    int doPing();
+    int ping(QDataStream&);
+    int setConfig(QDataStream&);
+    int doMap(QDataStream&);
+    int doReduce(QDataStream&);
+    int doUserScript(QDataStream&);
+    int doPing(QDataStream&);
         
 };
 

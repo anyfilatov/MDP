@@ -14,8 +14,9 @@ int main(int argc, char ** argv) {
         std:: cout << "./server <id>" << std::endl;
         return 1;
     }
-    int id = atoi(argv[1]);
-    QString fileName("/home/savinov/edu/mdp/mdp/Connection/CloudApp/config.json");
+    char* confFileName = argv[1];
+    int id = atoi(argv[2]);
+    QString fileName(confFileName);
     DataBase dataBase;
     DB db(&dataBase);
     RbTree rbTree;

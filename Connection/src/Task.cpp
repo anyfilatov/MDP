@@ -3,6 +3,7 @@
 #include "Task.h"
 #include "LuaExecutor.h"
 #include <QList>
+#include <qt5/QtCore/qdebug.h>
 Task::Task(const HostContent& content, RB rb, DB db, OG og)
 : rb_(rb), db_(db), content_(content), og_(og) {
 }
@@ -14,39 +15,64 @@ Task::~Task(void) {
 //    
 //}
 
+
+
 int Task::operator()() {
     QString resString;
     int result = Errors::STATUS_OK;
     auto socket = content_.getSocket();
     try {
         LOG_DEBUG("addSocket");
-        QDataStream data(socket);
+        auto socket = content_.getSocket();
+        QByteArray ar;
+//        while(socket->waitForReadyRead(1000)) {
+//            ar.append(socket->readAll());
+//        }
+//        
+        if( util::readAll(*socket, ar, 1000) == Errors::STATUS_ERROR){
+            LOG_ERROR("Read from socket error");
+            socket->close();
+            return Errors::STATUS_ERROR;
+        }
+        QDataStream data(&ar, QIODevice::ReadWrite);
+        //if( readAll(data) == Errors::STATUS_OK ) {
         int cmd = 0;
         int id = 0;
         data >> cmd;
+        QString code;
+        data >> code;
+        LOG_DEBUG("cmd=" << cmd );
+        if (code.isEmpty()) {
+            throw UnknownParametersException(util::concat("Lua code is empty"));
+        }
+        LOG_DEBUG("code=" + code.toStdString());
+        executor_ = std::make_shared<LuaExecutor>(db_, rb_, og_, code, cmd);
         LOG_DEBUG("cmd=" << cmd << " id=" << id);
         switch (cmd) {
             case util::CMD_MAP:
                 unpackAndExec(cmd);
-                doMap();
+                doMap(data);
                 break;
             case util::CMD_REDUCE:
                 unpackAndExec(cmd);
-                doReduce();
+                doReduce(data);
                 break;
             case util::CMD_START_USER_SCRIPT:
                 unpackAndExec(cmd);
-                doUserScript();
+                doUserScript(data);
                 break;
             case util::CMD_PING:
-                ping();
+                ping(data);
                 break;
             case util::CMD_SET_CONFIG:
-                setConfig();
+                setConfig(data);
                 break;
             default:
                 throw UnknownParametersException(util::concat("Unknown command type"));
         }
+    //} else {
+    //    throw ReadFromSocketException("read all error");
+    //}
     } catch (const std::exception& e) {
         LOG_ERROR("exception:" << e.what());
         auto s = util::concat("execution script exception:", e.what());
@@ -57,7 +83,6 @@ int Task::operator()() {
         ss << result << resString;
         socket->write(arr);
     }
-    
     LOG_DEBUG("before flush");
     socket->flush();
     LOG_DEBUG("before wait");
@@ -69,46 +94,33 @@ int Task::operator()() {
     return 0;
 }
 
-int Task::ping() {
+int Task::ping(QDataStream&) {
     auto socket = content_.getSocket();
-    QByteArray arr;
-    QDataStream s(&arr, QIODevice::ReadWrite);
-    s << 0;
+    QByteArray arr = util::pack(Errors::STATUS_OK);
     socket->write(arr);
     return 0;
 }
 
-int Task::setConfig() {
+int Task::setConfig(QDataStream& stream) {
     auto socket = content_.getSocket();
-    QDataStream stream(socket);
     QList<QString> list;
     stream >>  list;
     for(auto& s : list){
         LOG_DEBUG("s=" << s.toStdString());
     }
-    QByteArray ar;
-    QDataStream streamOut(&ar, QIODevice::ReadWrite);
-    streamOut << 0;
+    
+    QByteArray ar = util::pack(Errors::STATUS_OK);
     socket->write(ar);
     return 0;
 }
 
-int Task::unpackAndExec(int type) {
-    auto socket = content_.getSocket();
-    QDataStream data(socket);
-    QString code;
-    data >> code;
-    if(code.isEmpty()){
-        throw UnknownParametersException(util::concat("Lua code is empty"));
-    }
-    LOG_DEBUG("code=" + code.toStdString());
-    executor_ = std::make_shared<LuaExecutor>(db_, rb_, og_, code, type);
+int Task::unpackAndExec(int ) {
+    
     return Errors::STATUS_OK;
 }
 
-int Task::doMap() {
+int Task::doMap(QDataStream& stream) {
     auto socket = content_.getSocket();
-    QDataStream stream(socket);
     util::Id id;
     QString funcName;
     stream >> id >> funcName;
@@ -116,16 +128,13 @@ int Task::doMap() {
     executor_->setFuncName(funcName);
     auto res = executor_->execute();
     
-    QByteArray arr;
-    QDataStream s(&arr, QIODevice::ReadWrite);
-    s << res;
+    QByteArray arr = util::pack(res);
     socket->write(arr);
     return Errors::STATUS_OK;
 }
 
-int Task::doReduce() {
+int Task::doReduce(QDataStream& stream) {
     auto socket = content_.getSocket();
-    QDataStream stream(socket);
     util::Id id;
     QString funcName;
     stream >> id >> funcName;
@@ -133,33 +142,26 @@ int Task::doReduce() {
     executor_->setFuncName(funcName);
     auto res = executor_->execute();
     
-    QByteArray arr;
-    QDataStream s(&arr, QIODevice::ReadWrite);
-    s << res;
+    QByteArray arr = util::pack(res);
     socket->write(arr);
     return Errors::STATUS_OK;
 }
 
-int Task::doUserScript() {
+int Task::doUserScript(QDataStream& stream) {
     auto socket = content_.getSocket();
-    QDataStream data(socket);
     int id = 0;
-    data >> id;
+    stream >> id;
     executor_->setId(util::Id{id, 0, 0});
     executor_->setFuncName("main");
     auto res = executor_->execute();
-    QByteArray arr;
-    QDataStream s(&arr, QIODevice::ReadWrite);
-    s << res;
+    QByteArray arr = util::pack(res);
     socket->write(arr);
     return Errors::STATUS_OK;
 }
 
-int Task::doPing() {
+int Task::doPing(QDataStream&) {
     auto socket = content_.getSocket();
-    QByteArray arr;
-    QDataStream s(&arr, QIODevice::ReadWrite);
-    s << Errors::STATUS_PING_OK;
+    QByteArray arr = util::pack(Errors::STATUS_PING_OK);
     socket->write(arr);
     return Errors::STATUS_OK;
 }

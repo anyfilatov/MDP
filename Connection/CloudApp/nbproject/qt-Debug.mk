@@ -380,10 +380,6 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		/usr/include/qt5/QtCore/qobject_impl.h \
 		/usr/include/qt5/QtCore/qpair.h \
 		/usr/include/qt5/QtCore/QByteArray \
-		../include/OrGraph.h \
-		../include/Node.h \
-		../include/host.h \
-		/usr/include/qt5/QtCore/QString \
 		/usr/include/qt5/QtNetwork/QTcpSocket \
 		/usr/include/qt5/QtNetwork/qtcpsocket.h \
 		/usr/include/qt5/QtNetwork/qabstractsocket.h \
@@ -401,9 +397,13 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		/usr/include/qt5/QtCore/qpoint.h \
 		/usr/include/qt5/QtCore/qset.h \
 		/usr/include/qt5/QtCore/qcontiguouscache.h \
+		../include/errors.h \
+		../include/OrGraph.h \
+		../include/Node.h \
+		../include/host.h \
+		/usr/include/qt5/QtCore/QString \
 		../include/Content.h \
 		../include/RbTree.h \
-		../include/errors.h \
 		../include/selene/selene.h \
 		../include/selene/selene/State.h \
 		../include/selene/selene/Registry.h \
@@ -540,8 +540,8 @@ build/Debug/GNU-Linux-x86/Server.o: ../src/Server.cpp ../include/Server.h \
 		../include/util.h \
 		/usr/include/qt5/QtCore/QDataStream \
 		/usr/include/qt5/QtCore/QByteArray \
-		../include/RbTree.h \
 		../include/errors.h \
+		../include/RbTree.h \
 		../include/OrGraph.h \
 		../include/Node.h \
 		../include/LuaExecutor.h \
@@ -658,8 +658,8 @@ build/Debug/GNU-Linux-x86/Task.o: ../src/Task.cpp ../include/Task.h \
 		../include/util.h \
 		/usr/include/qt5/QtCore/QDataStream \
 		/usr/include/qt5/QtCore/QByteArray \
-		../include/RbTree.h \
 		../include/errors.h \
+		../include/RbTree.h \
 		../include/OrGraph.h \
 		../include/Node.h \
 		../include/LuaExecutor.h \

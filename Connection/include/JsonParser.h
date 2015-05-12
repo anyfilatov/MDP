@@ -22,6 +22,7 @@ public:
         QJsonDocument d = QJsonDocument::fromJson(jsonStr_.toUtf8());
         QJsonObject sett2 = d.object();
         auto hosts = sett2.value("hosts").toArray();
+        LOG_DEBUG("hosts.size = " << hosts.size());
         for( int i = 0; i < hosts.size(); i++ ) {
             auto jHost = hosts[i].toObject();
             auto ip = jHost["ip"].toString();
