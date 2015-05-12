@@ -2,7 +2,10 @@
 #include <list>
 #include <iostream>
 #include "Node.h"
+#include "wrapper.h"
+#include "host.h"
 
+typedef Wrapper<std::vector<Host>> OG ;
 using namespace std;
 template <class T> class OrGraph;
 

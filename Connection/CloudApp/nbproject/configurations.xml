@@ -35,8 +35,11 @@
       </logicalFolder>
       <itemPath>../include/Content.h</itemPath>
       <itemPath>../include/DataBase.h</itemPath>
+      <itemPath>../include/Iterator.h</itemPath>
       <itemPath>../include/Logger.h</itemPath>
       <itemPath>../include/LuaExecutor.h</itemPath>
+      <itemPath>../include/Node.h</itemPath>
+      <itemPath>../include/OrGraph.h</itemPath>
       <itemPath>../include/Queue.h</itemPath>
       <itemPath>../include/RbTree.h</itemPath>
       <itemPath>../include/Server.h</itemPath>
@@ -46,7 +49,6 @@
       <itemPath>../include/errors.h</itemPath>
       <itemPath>../include/host.h</itemPath>
       <itemPath>../include/hostsender.h</itemPath>
-      <itemPath>../include/orgraph.h</itemPath>
       <itemPath>../include/wrapper.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -124,11 +126,17 @@
       </item>
       <item path="../include/DataBase.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../include/Iterator.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../include/JsonParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/Logger.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/LuaExecutor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Node.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/OrGraph.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/Queue.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -147,8 +155,6 @@
       <item path="../include/host.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/hostsender.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../include/orgraph.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/selene/selene.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -266,11 +272,17 @@
       </item>
       <item path="../include/DataBase.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../include/Iterator.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../include/JsonParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/Logger.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/LuaExecutor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Node.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/OrGraph.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/Queue.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -289,8 +301,6 @@
       <item path="../include/host.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/hostsender.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../include/orgraph.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../include/selene/selene.h" ex="false" tool="3" flavor2="0">
       </item>

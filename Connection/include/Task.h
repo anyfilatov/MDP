@@ -5,7 +5,7 @@
 #include "host.h"
 #include "DataBase.h"
 #include "RbTree.h"
-#include "orgraph.h"
+#include "OrGraph.h"
 #include "LuaExecutor.h"
 #include <QTcpSocket> 
 

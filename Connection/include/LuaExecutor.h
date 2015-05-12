@@ -7,13 +7,12 @@
 
 #include "Logger.h"
 #include "DataBase.h"
+#include "OrGraph.h"
 #include "RbTree.h"
 #include "selene.h"
 #include "errors.h"
-#include "orgraph.h"
 #include "host.h"
 #include <memory>
-
 typedef std::vector<int> UserDbTableIdArray;
 typedef lua_State* Lua;
 typedef std::map<int, std::vector<std::string>> MapDb;
@@ -432,12 +431,17 @@ typedef std::shared_ptr<QTcpSocket> SocketPtr;
 static SocketPtr sendToHost(QString ip, int port, QByteArray& buffer) {
     SocketPtr socketOut = std::make_shared<QTcpSocket>(new QTcpSocket());
     socketOut->connectToHost(ip, port);
-    if (socketOut->isWritable()) {
-        socketOut->write(buffer);
-        socketOut->flush();
-//        socketOut->waitForBytesWritten();
+    if(socketOut->state() == QAbstractSocket::ConnectedState) {
+        if (socketOut->isWritable()) {
+            socketOut->write(buffer);
+            socketOut->flush();
+    //        socketOut->waitForBytesWritten();
+        } else {
+            throw NetworkErrorException(util::concat("send to host (", ip.toStdString(), " ", port, ") error"));
+        }
+        
     } else {
-        throw NetworkErrorException(util::concat("send to host (", ip.toStdString(), " ", port, ") error"));
+        LOG_DEBUG("not connected");
     }
     return socketOut;
 }

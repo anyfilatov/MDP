@@ -275,7 +275,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d build/Debug/GNU-Linux-x86/CloudApp1.0.0 || mkdir -p build/Debug/GNU-Linux-x86/CloudApp1.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) build/Debug/GNU-Linux-x86/CloudApp1.0.0/ && $(COPY_FILE) --parents ../include/Content.h ../include/DataBase.h ../include/JsonParser.h ../include/Logger.h ../include/LuaExecutor.h ../include/Queue.h ../include/RbTree.h ../include/Server.h ../include/Task.h ../include/TaskScheduler.h ../include/ThreadPool.h ../include/errors.h ../include/host.h ../include/hostsender.h ../include/orgraph.h ../include/selene/selene.h ../include/selene/selene/BaseFun.h ../include/selene/selene/Class.h ../include/selene/selene/ClassFun.h ../include/selene/selene/Ctor.h ../include/selene/selene/Dtor.h ../include/selene/selene/Fun.h ../include/selene/selene/LuaName.h ../include/selene/selene/LuaRef.h ../include/selene/selene/MetatableRegistry.h ../include/selene/selene/Obj.h ../include/selene/selene/ObjFun.h ../include/selene/selene/Registry.h ../include/selene/selene/Selector.h ../include/selene/selene/State.h ../include/selene/selene/Tuple.h ../include/selene/selene/exotics.h ../include/selene/selene/function.h ../include/selene/selene/primitives.h ../include/selene/selene/traits.h ../include/selene/selene/util.h ../include/util.h ../include/wrapper.h build/Debug/GNU-Linux-x86/CloudApp1.0.0/ && $(COPY_FILE) --parents ../main.cpp ../src/Server.cpp ../src/Task.cpp ../src/host.cpp build/Debug/GNU-Linux-x86/CloudApp1.0.0/ && (cd `dirname build/Debug/GNU-Linux-x86/CloudApp1.0.0` && $(TAR) CloudApp1.0.0.tar CloudApp1.0.0 && $(COMPRESS) CloudApp1.0.0.tar) && $(MOVE) `dirname build/Debug/GNU-Linux-x86/CloudApp1.0.0`/CloudApp1.0.0.tar.gz . && $(DEL_FILE) -r build/Debug/GNU-Linux-x86/CloudApp1.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) build/Debug/GNU-Linux-x86/CloudApp1.0.0/ && $(COPY_FILE) --parents ../include/Content.h ../include/DataBase.h ../include/Iterator.h ../include/JsonParser.h ../include/Logger.h ../include/LuaExecutor.h ../include/Node.h ../include/OrGraph.h ../include/Queue.h ../include/RbTree.h ../include/Server.h ../include/Task.h ../include/TaskScheduler.h ../include/ThreadPool.h ../include/errors.h ../include/host.h ../include/hostsender.h ../include/selene/selene.h ../include/selene/selene/BaseFun.h ../include/selene/selene/Class.h ../include/selene/selene/ClassFun.h ../include/selene/selene/Ctor.h ../include/selene/selene/Dtor.h ../include/selene/selene/Fun.h ../include/selene/selene/LuaName.h ../include/selene/selene/LuaRef.h ../include/selene/selene/MetatableRegistry.h ../include/selene/selene/Obj.h ../include/selene/selene/ObjFun.h ../include/selene/selene/Registry.h ../include/selene/selene/Selector.h ../include/selene/selene/State.h ../include/selene/selene/Tuple.h ../include/selene/selene/exotics.h ../include/selene/selene/function.h ../include/selene/selene/primitives.h ../include/selene/selene/traits.h ../include/selene/selene/util.h ../include/util.h ../include/wrapper.h build/Debug/GNU-Linux-x86/CloudApp1.0.0/ && $(COPY_FILE) --parents ../main.cpp ../src/Server.cpp ../src/Task.cpp ../src/host.cpp build/Debug/GNU-Linux-x86/CloudApp1.0.0/ && (cd `dirname build/Debug/GNU-Linux-x86/CloudApp1.0.0` && $(TAR) CloudApp1.0.0.tar CloudApp1.0.0 && $(COMPRESS) CloudApp1.0.0.tar) && $(MOVE) `dirname build/Debug/GNU-Linux-x86/CloudApp1.0.0`/CloudApp1.0.0.tar.gz . && $(DEL_FILE) -r build/Debug/GNU-Linux-x86/CloudApp1.0.0
 
 
 clean:compiler_clean 
@@ -380,9 +380,30 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		/usr/include/qt5/QtCore/qobject_impl.h \
 		/usr/include/qt5/QtCore/qpair.h \
 		/usr/include/qt5/QtCore/QByteArray \
+		../include/OrGraph.h \
+		../include/Node.h \
+		../include/host.h \
+		/usr/include/qt5/QtCore/QString \
+		/usr/include/qt5/QtNetwork/QTcpSocket \
+		/usr/include/qt5/QtNetwork/qtcpsocket.h \
+		/usr/include/qt5/QtNetwork/qabstractsocket.h \
+		/usr/include/qt5/QtCore/qdebug.h \
+		/usr/include/qt5/QtCore/qhash.h \
+		/usr/include/qt5/QtCore/qmap.h \
+		/usr/include/qt5/QtCore/qtextstream.h \
+		/usr/include/qt5/QtCore/qlocale.h \
+		/usr/include/qt5/QtCore/qvariant.h \
+		/usr/include/qt5/QtCore/qstringlist.h \
+		/usr/include/qt5/QtCore/qregexp.h \
+		/usr/include/qt5/QtCore/qstringmatcher.h \
+		/usr/include/qt5/QtCore/qshareddata.h \
+		/usr/include/qt5/QtCore/qvector.h \
+		/usr/include/qt5/QtCore/qpoint.h \
+		/usr/include/qt5/QtCore/qset.h \
+		/usr/include/qt5/QtCore/qcontiguouscache.h \
+		../include/Content.h \
 		../include/RbTree.h \
 		../include/errors.h \
-		/usr/include/qt5/QtCore/QString \
 		../include/selene/selene.h \
 		../include/selene/selene/State.h \
 		../include/selene/selene/Registry.h \
@@ -407,26 +428,6 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		../include/selene/selene/ObjFun.h \
 		../include/selene/selene/Selector.h \
 		../include/selene/selene/Tuple.h \
-		../include/orgraph.h \
-		../include/host.h \
-		/usr/include/qt5/QtNetwork/QTcpSocket \
-		/usr/include/qt5/QtNetwork/qtcpsocket.h \
-		/usr/include/qt5/QtNetwork/qabstractsocket.h \
-		/usr/include/qt5/QtCore/qdebug.h \
-		/usr/include/qt5/QtCore/qhash.h \
-		/usr/include/qt5/QtCore/qmap.h \
-		/usr/include/qt5/QtCore/qtextstream.h \
-		/usr/include/qt5/QtCore/qlocale.h \
-		/usr/include/qt5/QtCore/qvariant.h \
-		/usr/include/qt5/QtCore/qstringlist.h \
-		/usr/include/qt5/QtCore/qregexp.h \
-		/usr/include/qt5/QtCore/qstringmatcher.h \
-		/usr/include/qt5/QtCore/qshareddata.h \
-		/usr/include/qt5/QtCore/qvector.h \
-		/usr/include/qt5/QtCore/qpoint.h \
-		/usr/include/qt5/QtCore/qset.h \
-		/usr/include/qt5/QtCore/qcontiguouscache.h \
-		../include/Content.h \
 		../include/Server.h \
 		/usr/include/qt5/QtNetwork/QTcpServer \
 		/usr/include/qt5/QtNetwork/qtcpserver.h \
@@ -541,7 +542,8 @@ build/Debug/GNU-Linux-x86/Server.o: ../src/Server.cpp ../include/Server.h \
 		/usr/include/qt5/QtCore/QByteArray \
 		../include/RbTree.h \
 		../include/errors.h \
-		../include/orgraph.h \
+		../include/OrGraph.h \
+		../include/Node.h \
 		../include/LuaExecutor.h \
 		../include/selene/selene.h \
 		../include/selene/selene/State.h \
@@ -658,7 +660,8 @@ build/Debug/GNU-Linux-x86/Task.o: ../src/Task.cpp ../include/Task.h \
 		/usr/include/qt5/QtCore/QByteArray \
 		../include/RbTree.h \
 		../include/errors.h \
-		../include/orgraph.h \
+		../include/OrGraph.h \
+		../include/Node.h \
 		../include/LuaExecutor.h \
 		../include/selene/selene.h \
 		../include/selene/selene/State.h \
