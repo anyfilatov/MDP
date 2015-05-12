@@ -4,16 +4,15 @@
 Router::Router(QObject *parent) : QTcpServer(parent) {
   pool = new QThreadPool(this);
   pool->setMaxThreadCount(3);
-  // rbtree = new RBTree();
 }
 
-Router::Router(iCache<QString, QString> *rbtree, NetworkManager *manager,
+Router::Router(Cache<QString, QString> *rbtree, NetworkManager *manager,
                QObject *parent)
     : QTcpServer(parent) {
   pool = new QThreadPool(this);
   pool->setMaxThreadCount(3);
   this->rbtree = rbtree;
-  this->rbtree->insert("test", "test");
+//  this->rbtree->insert("test", "test");
   _manager = manager;
   _ring = new HashRing(_manager, this->rbtree);
 }

@@ -48,8 +48,7 @@ void Connect::run()
 }
 
 QJsonObject Connect::deserialize(QByteArray data){
-    QJsonDocument jdoc;
-    jdoc = jdoc.fromJson(data);
+    QJsonDocument jdoc = QJsonDocument::fromBinaryData(data);
     return jdoc.object();
 }
 
@@ -118,6 +117,8 @@ QJsonObject Connect::handlePut(QJsonObject json){
                 jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
             }
         }
+        for (Node* node: nodes)
+            delete node;
     }
     return jsonResp;
 }
@@ -147,6 +148,8 @@ QJsonObject Connect::handleReplace(QJsonObject json)
         } else {
             jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
         }
+        for (Node* node: nodes)
+            delete node;
     }
 
     return jsonResp;
@@ -189,6 +192,8 @@ QJsonObject Connect::handleGet(QJsonObject json){
         } else {
             jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
         }
+        for (Node* node: nodes)
+            delete node;
     }
     return jsonResp;
 }
@@ -218,6 +223,9 @@ QJsonObject Connect::handleRemoveBucket(QJsonObject json)
         } else {
             jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
         }
+
+        for (Node* node: nodes)
+            delete node;
     }
 }
 
@@ -240,6 +248,8 @@ QJsonObject Connect::handleRemove(QJsonObject json){
         } else {
             jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
         }
+        for (Node* node: nodes)
+            delete node;
     }
     return jsonResp;
 }
@@ -254,6 +264,7 @@ QJsonObject Connect::handleRingCheck(QJsonObject json){
     }
     for (Node* node : nodes){
         hosts.push_back(node->getAddress());
+        delete node;
     }
     jsonResp.insert("hosts", QJsonValue(QJsonArray::fromStringList(hosts)));
     jsonResp.insert("status", StatusCode::OK);
@@ -262,6 +273,16 @@ QJsonObject Connect::handleRingCheck(QJsonObject json){
 
 QJsonObject Connect::handleRingJoin(QJsonObject json){
     QJsonObject jsonResp;
+    QStringList values = json.value("values").toVariant().toStringList();
+    QList<Node*> members = _ring->getAllMember();
+    QList<Node*> nodes;
+    for(Node* node : members){
+        if(values.contains(node->getAddress())){
+            values.removeOne(node->getAddress());
+        }
+        delete node;
+    }
+    _ring->getManager()->addMembers(values);
     jsonResp.insert("status", StatusCode::OK);
     return jsonResp;
 }

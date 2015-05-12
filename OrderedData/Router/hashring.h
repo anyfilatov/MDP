@@ -18,10 +18,12 @@ class HashRing : public QObject {
   QList<Node*> findNodes(QString key);
   QList<Node*> getAllMember();
 
- public slots:
+  NetworkManager *getManager() const;
+
+public slots:
   void update();
 
- private:
+private:
   QList<Node*> _ring;
   Node* _hasMyReplica;
   Node* _haveReplicaOf;

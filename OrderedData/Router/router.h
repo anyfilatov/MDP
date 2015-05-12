@@ -12,7 +12,7 @@ class Router : public QTcpServer {
   Q_OBJECT
  public:
   explicit Router(QObject *parent = 0);
-  explicit Router(iCache<QString, QString> *rbtree, NetworkManager *manger,
+  explicit Router(Cache<QString, QString> *rbtree, NetworkManager *manger,
                   QObject *parent = 0);
   void startServer();
 
@@ -22,7 +22,7 @@ class Router : public QTcpServer {
 
  private:
   QThreadPool *pool;
-  iCache<QString, QString> *rbtree;
+  Cache<QString, QString> *rbtree;
   NetworkManager *_manager;
   HashRing *_ring;
 };

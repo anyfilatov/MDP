@@ -19,7 +19,7 @@ Client::Client(QString settingsFileName, QObject* parent) : QObject(parent) {
   } else {
     throw std::runtime_error("Error while parsing settings file");
   }
-
+  settingsFile.close();
   qsrand(QDateTime::currentMSecsSinceEpoch());
 }
 
@@ -32,11 +32,18 @@ int Client::openConnection() {
   if (_socket->state() == QAbstractSocket::UnconnectedState) {
     QString host = _hosts.at(qrand() % _hosts.size());
     qDebug() << "Open connect on " << host;
+
     _socket->connectToHost(QHostAddress(host.split(":").first()),
                            host.split(":").back().toInt());
 
     if (!_socket->waitForConnected(1000)) {
-      throw ConnectionIsNotCreatedException();
+      host = _hosts.at(qrand() % _hosts.size());
+      _socket->connectToHost(QHostAddress(host.split(":").first()),
+                             host.split(":").back().toInt());
+      if (!_socket->waitForConnected(1000)) {
+        throw ServerUnavailableException();
+      }
+      _hosts = this->getRingHosts();
     }
   }
   return 0;
@@ -64,8 +71,7 @@ QJsonObject Client::readMsg() {
 }
 
 QJsonObject Client::deserialize(QByteArray data) {
-  QJsonDocument jdoc;
-  jdoc = jdoc.fromJson(data);
+  QJsonDocument jdoc = QJsonDocument::fromBinaryData(data);
   return jdoc.object();
 }
 
@@ -151,15 +157,14 @@ QStringList Client::get(QString key, QString bucket) {
   jsonResp = readMsg();
 
   QStringList response;
-  if(jsonResp.value("status").toInt() == StatusCode::OK){
-
-      for (QJsonValue value : jsonResp.value("values").toArray()) {
-        response << value.toString();
-      }
-  } else if (jsonResp.value("status").toInt() == StatusCode::NOT_FOUND){
-      throw NotFoundValueException();
+  if (jsonResp.value("status").toInt() == StatusCode::OK) {
+    for (QJsonValue value : jsonResp.value("values").toArray()) {
+      response << value.toString();
+    }
+  } else if (jsonResp.value("status").toInt() == StatusCode::NOT_FOUND) {
+    throw NotFoundValueException();
   } else {
-      throw ServerUnavailableException();
+    throw ServerUnavailableException();
   }
   return response;
 }
@@ -205,14 +210,15 @@ QStringList Client::getRingHosts() {
   writeMsg(jsonReq);
   jsonResp = readMsg();
 
+  qDebug() << jsonResp;
+
   QStringList response;
-  if(jsonResp.value("status").toInt() == StatusCode::SERVER_UNAVAILABLE){
-      throw ServerUnavailableException();
-  } else{
-      QStringList response;
-      for (QJsonValue value : jsonResp.value("hosts").toArray()) {
-        response << value.toString();
-      }
+  if (jsonResp.value("status").toInt() == StatusCode::SERVER_UNAVAILABLE) {
+    throw ServerUnavailableException();
+  } else {
+    for (QJsonValue value : jsonResp.value("hosts").toArray()) {
+      response << value.toString();
+    }
   }
   return response;
 }

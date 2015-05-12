@@ -12,10 +12,15 @@ HashRing::HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
 
   // Building ring and initialize owners of replicas
   for (Node* node : manager->getAllMembers()) {
-    Node* ring_node = new Node(node->getHost(), node->getPort() + 1);
-    _ring.push_back(ring_node);
+    _ring.push_back(node);
   }
-  qDebug() << _ring;
+
+
+  for(Node* node: _ring) {
+      qDebug() << node->getAddress();
+  }
+
+  qDebug() << _manager->getMyself();
 
   if (_ring.indexOf(_manager->getMyself()) == 0) {
     _haveReplicaOf = _ring[_ring.size() - 1];
@@ -39,16 +44,23 @@ QList<Node*> HashRing::findNodes(QString key) {
   size_t pos = hash(key);
   QList<Node*> nodes;
 
+  Node* firstNode;
+  Node* secondNode;
+
   if (_ring.size() >= 2) {
     if (pos <= hash(_ring.at(0)->getAddress()) &&
         pos > hash(_ring.at(_ring.size() - 1)->getAddress())) {
-      nodes.push_back(_ring.at(0));
-      nodes.push_back(_ring.at(1));
+        firstNode = _ring.at(0);
+        secondNode = _ring.at(1);
+      nodes.push_back(new Node(firstNode->getHost(), firstNode->getPort()+1));
+      nodes.push_back(new Node(secondNode->getHost(), secondNode->getPort()+1));
     } else {
       for (int i = 0; i < _ring.size(); ++i) {
         if (pos <= hash(_ring.at(i)->getAddress())) {
-          nodes.push_back(_ring.at(i));
-          nodes.push_back(_ring.at((i + 1) % _ring.size()));
+            firstNode = _ring.at(i);
+            secondNode = _ring.at((i + 1) % _ring.size());
+          nodes.push_back(new Node(firstNode->getHost(), firstNode->getPort() + 1));
+          nodes.push_back(new Node(secondNode->getHost(), secondNode->getPort() + 1));
           break;
         }
       }
@@ -64,33 +76,31 @@ void HashRing::update() {
   bool change = false;
 
   for (Node* node : _manager->getAllMembers()) {
-    Node* ring_node = new Node(node->getHost(), node->getPort() + 1);
-    curMemList.push_back(ring_node);
+    curMemList.push_back(node);
   }
 
   qSort(curMemList.begin(), curMemList.end(), hashBasedLessThen);
 
   qDebug() << "Cyr member list: " << curMemList;
-  if (_cache->isEmpty() || _ring.size() != curMemList.size()) {
+  if (!_cache->isEmpty() || _ring.size() != curMemList.size()) {
     change = true;
   }
 
   if (change) {
-    for (Node* node : _ring) {
-      delete node;
-    }
     _ring = curMemList;
     stabilize();
     qDebug() << "Stabilization is required";
-  } else {
-    for (Node* node : curMemList) {
-      delete node;
-    }
   }
 }
 
+NetworkManager *HashRing::getManager() const
+{
+    return _manager;
+}
+
+
 void HashRing::stabilize() {
-  qDebug() << "Stabilization started";
+    qDebug() << "Stabilization started";
   qDebug() << _ring;
 
   Node* to_be_predecessor;  // new nodes whose replicas I have
@@ -141,4 +151,11 @@ bool HashRing::hashBasedLessThen(const Node* node1, const Node* node2) {
   return hash(node1->getAddress()) < hash(node2->getAddress());
 }
 
-QList<Node*> HashRing::getAllMember() { return _manager->getAllMembers(); }
+QList<Node*> HashRing::getAllMember() {
+    QList<Node*> members =  _manager->getAllMembers();
+    QList<Node*> ring_nodes;
+    for(Node* member: members) {
+        ring_nodes.append(new Node(member->getHost(), member->getPort() + 1));
+    }
+    return ring_nodes;
+}

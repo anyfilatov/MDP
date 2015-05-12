@@ -158,7 +158,7 @@ template<typename K, typename V>
 void RBTree<K,V>::insert(K key, V value)
 {
     size_++;
-    std::cout << "root.key = " << root_->key() << std::endl;
+//    std::cout << "root.key = " << root_->key() << std::endl;
     TNode<K,V> *z = new TNode<K,V>(key, value, BLACK, nil_, nil_, nil_);
     TNode<K,V> *y = nil_;
     TNode<K,V> *x = root_;

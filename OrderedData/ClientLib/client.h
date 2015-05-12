@@ -34,7 +34,7 @@ class Client : public QObject {
  protected:
   Client(QObject* parent = 0);
   QTcpSocket* _socket = NULL;
-  QList<QString> _hosts;
+  QStringList _hosts;
 
   void writeMsg(QJsonObject msg);
   QJsonObject readMsg();

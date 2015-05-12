@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     NetworkSettings networkSettings(settingsFile);
     settingsFile.close();
 
-    CacheServer CacheServer(networkSettings);
+    CacheServer cacheServer(networkSettings);
 
     return a.exec();
 }
