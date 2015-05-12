@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QHostAddress>
 #include "Router/typerequest.h"
+#include "Router/StatusCodes.h"
 
 class Client : public QObject {
   Q_OBJECT

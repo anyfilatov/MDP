@@ -92,11 +92,12 @@ QJsonObject Connect::handlePut(QJsonObject json){
     } else{
         QList<Node*> nodes;
         if(json.contains("bucket")){
-            nodes = _ring->findNodes(json.value("bucket").toString().append(json.value("key").toString()));
+            QString key = json.value("bucket").toString() + "#" + json.value("key").toString();
+            nodes = _ring->findNodes(key);
             RouterClient client;
             QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
             QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
-            StatusCode codeBucket = (StatusCode)client.put(json.value("bucket").toString().append("_keys"), json.value("key").toString());
+            StatusCode codeBucket = (StatusCode)client.put(json.value("bucket").toString().append("_keys"), key);
             StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
             StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
             if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK || codeBucket == StatusCode::OK) {
@@ -130,7 +131,8 @@ QJsonObject Connect::handleReplace(QJsonObject json)
     } else{
         QList<Node*> nodes;
         if(json.contains("bucket")){
-            nodes = _ring->findNodes(json.value("bucket").toString().append(json.value("key").toString()));
+            QString key = json.value("bucket").toString() + "#" + json.value("key").toString();
+            nodes = _ring->findNodes(key);
         } else {
             nodes = _ring->findNodes(json.value("key").toString());
         }
@@ -160,7 +162,8 @@ QJsonObject Connect::handleGet(QJsonObject json){
     } else{
         QList<Node*> nodes;
         if(json.contains("bucket")){
-            nodes = _ring->findNodes(json.value("bucket").toString().append(json.value("key").toString()));
+            QString key = json.value("bucket").toString() + "#" + json.value("key").toString();
+            nodes = _ring->findNodes(key);
         } else {
             nodes = _ring->findNodes(json.value("key").toString());
         }
@@ -252,7 +255,7 @@ QJsonObject Connect::handleRingCheck(QJsonObject json){
     for (Node* node : nodes){
         hosts.push_back(node->getAddress());
     }
-    jsonResp.insert("ring", QJsonValue(QJsonArray::fromStringList(hosts)));
+    jsonResp.insert("hosts", QJsonValue(QJsonArray::fromStringList(hosts)));
     jsonResp.insert("status", StatusCode::OK);
     return jsonResp;
 }

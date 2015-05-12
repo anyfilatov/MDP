@@ -151,10 +151,16 @@ QStringList Client::get(QString key, QString bucket) {
   jsonResp = readMsg();
 
   QStringList response;
-  for (QJsonValue value : jsonResp.value("values").toArray()) {
-    response << value.toString();
-  }
+  if(jsonResp.value("status").toInt() == StatusCode::OK){
 
+      for (QJsonValue value : jsonResp.value("values").toArray()) {
+        response << value.toString();
+      }
+  } else if (jsonResp.value("status").toInt() == StatusCode::NOT_FOUND){
+      throw NotFoundValueException();
+  } else {
+      throw ServerUnavailableException();
+  }
   return response;
 }
 
@@ -200,10 +206,14 @@ QStringList Client::getRingHosts() {
   jsonResp = readMsg();
 
   QStringList response;
-  for (QJsonValue value : jsonResp.value("hosts").toArray()) {
-    response << value.toString();
+  if(jsonResp.value("status").toInt() == StatusCode::SERVER_UNAVAILABLE){
+      throw ServerUnavailableException();
+  } else{
+      QStringList response;
+      for (QJsonValue value : jsonResp.value("hosts").toArray()) {
+        response << value.toString();
+      }
   }
-
   return response;
 }
 

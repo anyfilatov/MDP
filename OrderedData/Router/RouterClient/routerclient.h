@@ -41,6 +41,8 @@ QJsonObject RouterClient::doRequestToOtherRouter(QJsonObject json, QString addre
         json.insert("isReplyca", true);
     }
 
+    json.insert("not_forwards_requests", true);
+
     writeMsg(json);
     jsonResp = readMsg();
 

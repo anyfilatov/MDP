@@ -31,7 +31,8 @@ SOURCES += \
     Exception/abstractexception.cpp \
     Exception/clientexeption.cpp \
     Exception/serverunavailableexception.cpp \
-    Exception/connectionisnotcreatedexception.cpp
+    Exception/connectionisnotcreatedexception.cpp \
+    Exception/notfoundvalueexception.cpp
 
 HEADERS += \
     ClientLib/client.h \
@@ -43,6 +44,7 @@ HEADERS += \
     Cache/cache.h \
     Cache/icache.h \
     Cache/rbtree.h \
+    Cache/tnode.h \
     NetworkManager/networkmanager.h \
     NetworkManager/node.h \
     NetworkManager/RecieveGossipTask.h \
@@ -55,4 +57,5 @@ HEADERS += \
     Exception/clientexeption.h \
     Exception/serverunavailableexception.h \
     Exception/connectionisnotcreatedexception.h \
-    Exception/exception.h
+    Exception/exception.h \
+    Exception/notfoundvalueexception.h
