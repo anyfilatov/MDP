@@ -45,3 +45,7 @@ Temporary Items
 /Connection/tests/LuaTest/dist/
 /Connection/CloudApp/dist/
 /Connection/CloudApp/build/
+/Connection/tests/TestProject/build/
+/Connection/tests/TestProject/dist/
+/Connection/tests/ExecutionClient/dist/
+/Connection/tests/ExecutionClient/build/

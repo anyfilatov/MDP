@@ -12,13 +12,22 @@
 
 using namespace Errors;
 
-Server::Server(QString ip, int port) : Host(ip, port), threadPool_(THREAD_COUNT), orGraph_(*this), tasksMap_(new TaskCounterMap()), rbTree_(new RbTree()), dataBase_(new DataBase()) {
+static const char* CMD_START_USER_SCRIPT = "start";
+static const char* CMD_START_MAP = "map";
+static const char* CMD_START_REDUCE = "reduce";
+static const char* CMD_PING = "ping";
+static const char* CMD_END_MAP = "mapEnded";
+static const char* CMD_END_REDUCE = "reduceEnded";
+
+Server::Server(QString ip, int port, const DB& db, const RB& rb, OG& og) 
+        : Host(ip, port), threadPool_(THREAD_COUNT)
+        , tasksMap_(new TaskCounterMap()), rbTree_(rb), dataBase_(db), orGraph_(og) {
 }
 
 Server::~Server() {
 }
 
-int Server::Run(){
+int Server::run(){
     if(configure() == STATUS_OK) {
         threadPool_.start();
         while (tcpServer_.isListening()) {
@@ -29,12 +38,25 @@ int Server::Run(){
                 LOG_DEBUG("has connection");
                 auto socket = tcpServer_.nextPendingConnection();
                 if (socket) {
-                    LOG_DEBUG("addSocket");
-                    QString data;
-                    if( unpack(*socket, &data) == STATUS_OK ) {
-                        Host host(socket);
-                        orGraph_.sendAllChidren(HostSender(HostContent(data, host)));
-                    }
+                    HostContent content(Host(), socket);
+                    Task task(content, rbTree_, dataBase_, orGraph_);
+                    threadPool_.add(task);
+//                    LOG_DEBUG("addSocket");
+//                    QString data;
+//                    auto buff = socket->readAll();
+//                    QString str(buff);
+//                    LOG_DEBUG("str=" << str.toStdString());
+//                    socket->write("Ok", strlen("Ok"));
+//                    LOG_DEBUG("before flush" );
+//                    socket->flush();
+//                    LOG_DEBUG("before wait" );
+//                    socket->waitForBytesWritten();
+//                    LOG_DEBUG("before close" );
+//                    socket->close();
+//                    LOG_DEBUG("after close" );
+//                    QDataStream stream(socket);
+//                    QString cmd;
+//                    stream >> cmd;
                 }
             }
             LOG_DEBUG("end");
@@ -46,13 +68,15 @@ int Server::Run(){
 }
 
 int Server::send(const HostContent& data)const{
-    Task task(data, rbTree_, dataBase_);
-    threadPool_.add(task);
+//    Task task(data, rbTree_, dataBase_);
+//    threadPool_.add(task);
     return STATUS_OK;
 }
 
 int Server::configure() {
-    QHostAddress addr(QHostAddress::Any);
+//    QHostAddress addr(QHostAddress::Any);
+    QHostAddress addr(QHostAddress::Broadcast);
+    addr.setAddress(IP);
     if( !tcpServer_.listen(addr, qint16(port) ) ) {
         LOG_WARNING("tcpServer listen error. Exit");
         return STATUS_ERROR;

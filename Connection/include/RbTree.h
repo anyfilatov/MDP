@@ -5,6 +5,8 @@
 #include "Logger.h"
 #include "errors.h"
 #include "util.h"
+#include <list>
+#include <QString>
 
 class RbTree {
     typedef std::map<std::string, std::vector<std::string>> KeepedType;
@@ -15,6 +17,10 @@ public:
         LOG_TRACE("RBTree");
     };
     RbTree(const RbTree& ) = delete;
+    
+    std::list<QString> getAllKeys() {
+        return std::list<QString>();
+    }
     
     int setSwap(util::Id& , SetAtomType& atom) {
         rb_.insert(std::make_pair(atom.first, KeepedType::mapped_type()))

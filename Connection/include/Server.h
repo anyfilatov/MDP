@@ -21,10 +21,10 @@ class Server : public Host{
     const int WAIT_CONNECTION_TIME_MSEC = 1000000;
     const int THREAD_COUNT = 2;
 public:
-    Server(QString ip, int port);
+    Server(QString ip, int port, const DB& db, const RB& rb, OG& og);
     Server(const Server& orig) = delete;
     virtual ~Server();
-    int Run();
+    virtual int run();
     virtual int send(const HostContent& cmd)const;
 private:
     int configure();
@@ -34,10 +34,10 @@ private:
 private:
     QTcpServer tcpServer_;
     mutable ThreadPool<Task> threadPool_;
-    OrGraph<Host> orGraph_;
     Wrapper<TaskCounterMap> tasksMap_;
-    Wrapper<RbTree> rbTree_;
-    Wrapper<DataBase> dataBase_;
+    RB rbTree_;
+    DB dataBase_;
+    OG orGraph_;
 };
 
 

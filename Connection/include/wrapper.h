@@ -57,6 +57,10 @@ public:
     T* operator->() const {
         return object;
     }
+    
+    T& operator * () {
+        return *object;
+    }
 };
 
 

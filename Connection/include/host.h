@@ -10,16 +10,21 @@ class Host
 public:
     Host();
     Host(QString, int);
-    Host(QTcpSocket* socket);
     void setHost(QString, int);
     QString getIP();
     int getPort();
-    void run();
+    virtual int run();
     virtual int send (HostContent& command)const;
     virtual ~Host();
+    void setId(int _id) {
+        id = _id;
+    }
+    int getId() {
+        return id;
+    }
 protected:
     QString IP;
     int port;
-    QTcpSocket* socket_;
+    int id;
 };
 

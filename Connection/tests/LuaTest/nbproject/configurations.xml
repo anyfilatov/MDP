@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>/home/savinov/edu/mdp/mdp/Connection/tests/LuaTest/tes.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="include" displayName="include" projectFiles="true">
+      <logicalFolder name="selene" displayName="selene" projectFiles="true">
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/BaseFun.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Class.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/ClassFun.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Ctor.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Dtor.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Fun.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/LuaName.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/LuaRef.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/MetatableRegistry.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Obj.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/ObjFun.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Registry.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Selector.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/State.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/Tuple.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/exotics.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/function.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/primitives.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/traits.h</itemPath>
+        <itemPath>/home/savinov/edu/mdp/Selene/include/selene/util.h</itemPath>
+      </logicalFolder>
+      <itemPath>/home/savinov/edu/mdp/Selene/include/selene.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <itemPath>/home/savinov/edu/mdp/mdp/Connection/tests/LuaTest/script.lua</itemPath>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>/home/savinov/edu/mdp/mdp/Connection/src</Elem>
+    <Elem>/home/savinov/edu/mdp/Selene/include</Elem>
+    <Elem>/home/savinov/edu/mdp/Selene/test</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="4">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <qt>
+        <modules>core gui widgets</modules>
+      </qt>
+      <compileType>
+        <ccTool>
+          <standard>8</standard>
+          <incDir>
+            <pElem>../../include</pElem>
+            <pElem>/usr/include/lua-5.2.3</pElem>
+            <pElem>/home/savinov/edu/mdp/Selene/include</pElem>
+            <pElem>/home/savinov/edu/mdp/trunk/include</pElem>
+            <pElem>/home/savinov/edu/mdp/LuaState/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>DEBUG=1</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <linkerDynSerch>
+            <pElem>/usr/lib</pElem>
+          </linkerDynSerch>
+          <linkerLibItems>
+            <linkerLibLibItem>lua52</linkerLibLibItem>
+            <linkerLibLibItem>dl</linkerLibLibItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/BaseFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Class.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/ClassFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Ctor.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Dtor.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Fun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/LuaName.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/LuaRef.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/MetatableRegistry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Obj.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/ObjFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Registry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Selector.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/State.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Tuple.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/exotics.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/function.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/primitives.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/traits.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/util.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/mdp/Connection/tests/LuaTest/script.lua"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/mdp/Connection/tests/LuaTest/tes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="4">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <qt>
+        <buildMode>1</buildMode>
+        <modules>core gui widgets</modules>
+      </qt>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/BaseFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Class.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/ClassFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Ctor.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Dtor.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Fun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/LuaName.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/LuaRef.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/MetatableRegistry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Obj.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/ObjFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Registry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Selector.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/State.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/Tuple.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/exotics.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/function.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/primitives.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/traits.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/Selene/include/selene/util.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/mdp/Connection/tests/LuaTest/script.lua"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/savinov/edu/mdp/mdp/Connection/tests/LuaTest/tes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

@@ -5,19 +5,30 @@
 #include "host.h"
 #include "DataBase.h"
 #include "RbTree.h"
+#include "orgraph.h"
+#include "LuaExecutor.h"
+#include <QTcpSocket> 
 
-
-class Task
+class Task 
 {
-	int ID;
-	QString Command;
-    Wrapper<RbTree> RB3;
-	Wrapper<DataBase> DB;
-
+    RB rb_;
+    DB db_;
+    HostContent content_;
+    OG og_;
+    std::shared_ptr<LuaExecutor> executor_;
 public:
-    Task(const HostContent& content, Wrapper<RbTree> rb, Wrapper<DataBase> db);
-	~Task(void);
+    Task(const HostContent& content, RB rb, DB db, OG og);
+    ~Task(void);
     int operator()();
+private:
+    int unpackAndExec(int cmd);
+    int ping();
+    int setConfig();
+    int doMap();
+    int doReduce();
+    int doUserScript();
+    int doPing();
+        
 };
 
 

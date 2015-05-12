@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="95">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>../include/JsonParser.h</itemPath>
+      <itemPath>../include/util.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="include" displayName="include" projectFiles="true">
+      <logicalFolder name="selene" displayName="selene" projectFiles="true">
+        <logicalFolder name="selene" displayName="selene" projectFiles="true">
+          <itemPath>../include/selene/selene/BaseFun.h</itemPath>
+          <itemPath>../include/selene/selene/Class.h</itemPath>
+          <itemPath>../include/selene/selene/ClassFun.h</itemPath>
+          <itemPath>../include/selene/selene/Ctor.h</itemPath>
+          <itemPath>../include/selene/selene/Dtor.h</itemPath>
+          <itemPath>../include/selene/selene/Fun.h</itemPath>
+          <itemPath>../include/selene/selene/LuaName.h</itemPath>
+          <itemPath>../include/selene/selene/LuaRef.h</itemPath>
+          <itemPath>../include/selene/selene/MetatableRegistry.h</itemPath>
+          <itemPath>../include/selene/selene/Obj.h</itemPath>
+          <itemPath>../include/selene/selene/ObjFun.h</itemPath>
+          <itemPath>../include/selene/selene/Registry.h</itemPath>
+          <itemPath>../include/selene/selene/Selector.h</itemPath>
+          <itemPath>../include/selene/selene/State.h</itemPath>
+          <itemPath>../include/selene/selene/Tuple.h</itemPath>
+          <itemPath>../include/selene/selene/exotics.h</itemPath>
+          <itemPath>../include/selene/selene/function.h</itemPath>
+          <itemPath>../include/selene/selene/primitives.h</itemPath>
+          <itemPath>../include/selene/selene/traits.h</itemPath>
+          <itemPath>../include/selene/selene/util.h</itemPath>
+        </logicalFolder>
+        <itemPath>../include/selene/selene.h</itemPath>
+      </logicalFolder>
+      <itemPath>../include/Content.h</itemPath>
+      <itemPath>../include/DataBase.h</itemPath>
+      <itemPath>../include/Logger.h</itemPath>
+      <itemPath>../include/LuaExecutor.h</itemPath>
+      <itemPath>../include/Queue.h</itemPath>
+      <itemPath>../include/RbTree.h</itemPath>
+      <itemPath>../include/Server.h</itemPath>
+      <itemPath>../include/Task.h</itemPath>
+      <itemPath>../include/TaskScheduler.h</itemPath>
+      <itemPath>../include/ThreadPool.h</itemPath>
+      <itemPath>../include/errors.h</itemPath>
+      <itemPath>../include/host.h</itemPath>
+      <itemPath>../include/hostsender.h</itemPath>
+      <itemPath>../include/orgraph.h</itemPath>
+      <itemPath>../include/wrapper.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>../main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="src" displayName="src" projectFiles="true">
+      <itemPath>../src/Server.cpp</itemPath>
+      <itemPath>../src/Task.cpp</itemPath>
+      <itemPath>../src/host.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <itemPath>config.json</itemPath>
+    <itemPath>script.lua</itemPath>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>../include</Elem>
+    <Elem>../src</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="4">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <qt>
+        <modules>core gui widgets network</modules>
+      </qt>
+      <compileType>
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <standard>8</standard>
+          <incDir>
+            <pElem>../include</pElem>
+            <pElem>../include/selene</pElem>
+            <pElem>/usr/include/lua</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>DEBUG</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+          <linkerLibItems>
+            <linkerLibLibItem>lua</linkerLibLibItem>
+            <linkerLibLibItem>dl</linkerLibLibItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="../include/Content.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/DataBase.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/JsonParser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Logger.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/LuaExecutor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/RbTree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Task.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/TaskScheduler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/ThreadPool.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/errors.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/host.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/hostsender.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/orgraph.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/BaseFun.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Class.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/ClassFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Ctor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Dtor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Fun.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/LuaName.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/LuaRef.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/MetatableRegistry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Obj.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/ObjFun.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Registry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Selector.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/State.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Tuple.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/exotics.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/function.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/primitives.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/traits.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/wrapper.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Server.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Task.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/host.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="config.json" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="script.lua" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="4">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <qt>
+        <buildMode>1</buildMode>
+        <modules>core gui widgets</modules>
+      </qt>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+        </linkerTool>
+      </compileType>
+      <item path="../include/Content.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/DataBase.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/JsonParser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Logger.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/LuaExecutor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/RbTree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/Task.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/TaskScheduler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/ThreadPool.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/errors.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/host.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/hostsender.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/orgraph.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/BaseFun.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Class.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/ClassFun.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Ctor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Dtor.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Fun.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/LuaName.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/LuaRef.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/MetatableRegistry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Obj.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/ObjFun.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Registry.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Selector.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/State.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/Tuple.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/exotics.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/function.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/primitives.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../include/selene/selene/traits.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/selene/selene/util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../include/wrapper.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Server.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/Task.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../src/host.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="config.json" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="script.lua" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
