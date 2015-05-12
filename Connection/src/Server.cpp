@@ -67,7 +67,7 @@ int Server::run(){
     return STATUS_ERROR;
 }
 
-int Server::send(const HostContent& data)const{
+int Server::send(const HostContent& )const{
 //    Task task(data, rbTree_, dataBase_);
 //    threadPool_.add(task);
     return STATUS_OK;

@@ -11,7 +11,7 @@
 #include "Logger.h"
 #include <QByteArray>
 #include <QTcpSocket>
-
+INST_LOGGGER();
 /*
  * Simple C++ Test Suite
  */
@@ -81,7 +81,7 @@ void test2() {
 int main(int argc, char** argv) {
 //    std::cout << "%SUITE_STARTING% SendTask" << std::endl;
 //    std::cout << "%SUITE_STARTED%" << std::endl;
-
+    Logger::addConsoleLogger();
     std::cout << "%TEST_STARTED% test1 (SendTask)" << std::endl;
     test1();
     std::cout << "%TEST_FINISHED% time=0 test1 (SendTask)" << std::endl;

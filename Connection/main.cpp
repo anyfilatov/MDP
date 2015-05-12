@@ -7,6 +7,7 @@
 #include "JsonParser.h"
 
 using namespace std;
+INST_LOGGGER();
 
 int main(int argc, char ** argv) {
     using namespace std::placeholders;
@@ -14,6 +15,7 @@ int main(int argc, char ** argv) {
         std:: cout << "./server <id>" << std::endl;
         return 1;
     }
+    Logger::addConsoleLogger();
     char* confFileName = argv[1];
     int id = atoi(argv[2]);
     QString fileName(confFileName);

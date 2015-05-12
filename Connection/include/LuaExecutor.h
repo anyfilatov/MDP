@@ -523,7 +523,7 @@ public:
                 }
             }
             if(count > 0) {
-                for(int i = 0; i < 100000; i++){int a; a =1;}//sleep
+                for(int i = 0; i < 100000; i++){}//sleep
             } else {
                 break;
             }

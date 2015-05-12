@@ -316,12 +316,9 @@ compiler_clean:
 
 build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		../include/Logger.h \
-		../include/DataBase.h \
-		../include/wrapper.h \
-		../include/util.h \
-		/usr/include/qt5/QtCore/QDataStream \
-		/usr/include/qt5/QtCore/qdatastream.h \
-		/usr/include/qt5/QtCore/qscopedpointer.h \
+		/usr/include/qt5/QtCore/QString \
+		/usr/include/qt5/QtCore/qstring.h \
+		/usr/include/qt5/QtCore/qchar.h \
 		/usr/include/qt5/QtCore/qglobal.h \
 		/usr/include/qt5/QtCore/qconfig.h \
 		/usr/include/qt5/QtCore/qfeatures.h \
@@ -358,26 +355,33 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		/usr/include/qt5/QtCore/qtypeinfo.h \
 		/usr/include/qt5/QtCore/qtypetraits.h \
 		/usr/include/qt5/QtCore/qsysinfo.h \
+		/usr/include/qt5/QtCore/qbytearray.h \
+		/usr/include/qt5/QtCore/qrefcount.h \
+		/usr/include/qt5/QtCore/qnamespace.h \
+		/usr/include/qt5/QtCore/qarraydata.h \
+		/usr/include/qt5/QtCore/qstringbuilder.h \
+		/usr/include/qt5/QtCore/QFile \
+		/usr/include/qt5/QtCore/qfile.h \
+		/usr/include/qt5/QtCore/qfiledevice.h \
 		/usr/include/qt5/QtCore/qiodevice.h \
 		/usr/include/qt5/QtCore/qobject.h \
 		/usr/include/qt5/QtCore/qobjectdefs.h \
-		/usr/include/qt5/QtCore/qnamespace.h \
 		/usr/include/qt5/QtCore/qobjectdefs_impl.h \
-		/usr/include/qt5/QtCore/qstring.h \
-		/usr/include/qt5/QtCore/qchar.h \
-		/usr/include/qt5/QtCore/qbytearray.h \
-		/usr/include/qt5/QtCore/qrefcount.h \
-		/usr/include/qt5/QtCore/qarraydata.h \
-		/usr/include/qt5/QtCore/qstringbuilder.h \
 		/usr/include/qt5/QtCore/qlist.h \
 		/usr/include/qt5/QtCore/qalgorithms.h \
 		/usr/include/qt5/QtCore/qiterator.h \
 		/usr/include/qt5/QtCore/qcoreevent.h \
+		/usr/include/qt5/QtCore/qscopedpointer.h \
 		/usr/include/qt5/QtCore/qmetatype.h \
 		/usr/include/qt5/QtCore/qvarlengtharray.h \
 		/usr/include/qt5/QtCore/qcontainerfwd.h \
 		/usr/include/qt5/QtCore/qisenum.h \
 		/usr/include/qt5/QtCore/qobject_impl.h \
+		../include/DataBase.h \
+		../include/wrapper.h \
+		../include/util.h \
+		/usr/include/qt5/QtCore/QDataStream \
+		/usr/include/qt5/QtCore/qdatastream.h \
 		/usr/include/qt5/QtCore/qpair.h \
 		/usr/include/qt5/QtCore/QByteArray \
 		/usr/include/qt5/QtNetwork/QTcpSocket \
@@ -401,7 +405,6 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		../include/OrGraph.h \
 		../include/Node.h \
 		../include/host.h \
-		/usr/include/qt5/QtCore/QString \
 		../include/Content.h \
 		../include/RbTree.h \
 		../include/selene/selene.h \
@@ -436,9 +439,6 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		../include/Queue.h \
 		../include/Task.h \
 		../include/JsonParser.h \
-		/usr/include/qt5/QtCore/QFile \
-		/usr/include/qt5/QtCore/qfile.h \
-		/usr/include/qt5/QtCore/qfiledevice.h \
 		/usr/include/qt5/QtCore/QJsonArray \
 		/usr/include/qt5/QtCore/qjsonarray.h \
 		/usr/include/qt5/QtCore/qjsonvalue.h \
@@ -531,10 +531,13 @@ build/Debug/GNU-Linux-x86/Server.o: ../src/Server.cpp ../include/Server.h \
 		../include/ThreadPool.h \
 		../include/Queue.h \
 		../include/Logger.h \
+		/usr/include/qt5/QtCore/QString \
+		/usr/include/qt5/QtCore/QFile \
+		/usr/include/qt5/QtCore/qfile.h \
+		/usr/include/qt5/QtCore/qfiledevice.h \
 		../include/Task.h \
 		../include/wrapper.h \
 		../include/host.h \
-		/usr/include/qt5/QtCore/QString \
 		../include/Content.h \
 		../include/DataBase.h \
 		../include/util.h \
@@ -575,7 +578,6 @@ build/Debug/GNU-Linux-x86/Server.o: ../src/Server.cpp ../include/Server.h \
 build/Debug/GNU-Linux-x86/Task.o: ../src/Task.cpp ../include/Task.h \
 		../include/wrapper.h \
 		../include/Logger.h \
-		../include/host.h \
 		/usr/include/qt5/QtCore/QString \
 		/usr/include/qt5/QtCore/qstring.h \
 		/usr/include/qt5/QtCore/qchar.h \
@@ -620,9 +622,9 @@ build/Debug/GNU-Linux-x86/Task.o: ../src/Task.cpp ../include/Task.h \
 		/usr/include/qt5/QtCore/qnamespace.h \
 		/usr/include/qt5/QtCore/qarraydata.h \
 		/usr/include/qt5/QtCore/qstringbuilder.h \
-		/usr/include/qt5/QtNetwork/QTcpSocket \
-		/usr/include/qt5/QtNetwork/qtcpsocket.h \
-		/usr/include/qt5/QtNetwork/qabstractsocket.h \
+		/usr/include/qt5/QtCore/QFile \
+		/usr/include/qt5/QtCore/qfile.h \
+		/usr/include/qt5/QtCore/qfiledevice.h \
 		/usr/include/qt5/QtCore/qiodevice.h \
 		/usr/include/qt5/QtCore/qobject.h \
 		/usr/include/qt5/QtCore/qobjectdefs.h \
@@ -637,6 +639,10 @@ build/Debug/GNU-Linux-x86/Task.o: ../src/Task.cpp ../include/Task.h \
 		/usr/include/qt5/QtCore/qcontainerfwd.h \
 		/usr/include/qt5/QtCore/qisenum.h \
 		/usr/include/qt5/QtCore/qobject_impl.h \
+		../include/host.h \
+		/usr/include/qt5/QtNetwork/QTcpSocket \
+		/usr/include/qt5/QtNetwork/qtcpsocket.h \
+		/usr/include/qt5/QtNetwork/qabstractsocket.h \
 		/usr/include/qt5/QtCore/qdebug.h \
 		/usr/include/qt5/QtCore/qhash.h \
 		/usr/include/qt5/QtCore/qpair.h \
@@ -769,7 +775,10 @@ build/Debug/GNU-Linux-x86/host.o: ../src/host.cpp ../include/host.h \
 		/usr/include/qt5/QtCore/qset.h \
 		/usr/include/qt5/QtCore/qcontiguouscache.h \
 		../include/Content.h \
-		../include/Logger.h
+		../include/Logger.h \
+		/usr/include/qt5/QtCore/QFile \
+		/usr/include/qt5/QtCore/qfile.h \
+		/usr/include/qt5/QtCore/qfiledevice.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Debug/GNU-Linux-x86/host.o ../src/host.cpp
 
 ####### Install

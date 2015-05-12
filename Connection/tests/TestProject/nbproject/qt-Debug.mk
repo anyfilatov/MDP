@@ -388,6 +388,10 @@ build/Debug/GNU-Linux-x86/main.o: main.cpp ../../include/util.h \
 		/usr/include/qt5/QtCore/qset.h \
 		/usr/include/qt5/QtCore/qcontiguouscache.h \
 		../../include/Logger.h \
+		/usr/include/qt5/QtCore/QString \
+		/usr/include/qt5/QtCore/QFile \
+		/usr/include/qt5/QtCore/qfile.h \
+		/usr/include/qt5/QtCore/qfiledevice.h \
 		../../include/errors.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Debug/GNU-Linux-x86/main.o main.cpp
 

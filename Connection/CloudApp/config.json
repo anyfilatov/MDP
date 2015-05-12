@@ -4,7 +4,7 @@
         {"ip" : "127.0.0.1", "port" : 4002, "id" : 2 }
     ],
     "relations": [
-      {"parent": 1, "childs": [2] }
+      {"parent": 1, "childs": [2] },
       {"parent": 2, "childs": [] }
     ]
 }
