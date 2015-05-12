@@ -6,8 +6,8 @@ namespace integration {
     public:
         //AbstractClient(){}
 
-        virtual bool CheckHosts(IP&){return true;}// = 0;
-        virtual void SendConfig(){}// = 0;
-        virtual void UpdateConfig(){}// = 0;
+        virtual bool CheckHosts(IP&) = 0;
+        virtual void SendConfig() = 0;
+        virtual void UpdateConfig() = 0;
     };
 }
