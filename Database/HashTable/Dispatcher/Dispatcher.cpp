@@ -394,4 +394,21 @@ QJsonArray Dispatcher::getUsers(){
     return array;
 }
 
+QJsonArray Dispatcher::getTableIds(short userId){
+    QJsonArray array;
+    vector<TableKey*> keys = hashTable.keys();
+    for (int i = 0; i < keys.size(); i++){
+        short currentId = keys[i]->getUserId();
+        if (userId == currentId){
+            short dataId = keys[i]->getDataId();
+            short processId = keys[i]->getProcessId();
+            QJsonObject key;
+            key.insert("DATA_ID", dataId);
+            key.insert("PROCESS_ID", processId);
+            array.push_back(key);
+        }
+    }
+    return array;
+}
+
 #endif

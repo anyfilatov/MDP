@@ -40,6 +40,7 @@ public:
     MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
     int getSize(short int userId, short int dataId, short int processId);
     QJsonArray getUsers();
+    QJsonArray getTableIds(short int userId);
 };
 
 
