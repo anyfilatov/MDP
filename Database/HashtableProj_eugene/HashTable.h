@@ -3,14 +3,14 @@
 
 #include <QString>
 #include <vector>
-#include <conio.h>
+//#include <conio.h>
 #include <QTextStream>
 #include "TableCell.h"
 #include "AbstractTableKey.h"
 #include "CellItem.h"
 #include <sstream>
 #include "Serializible.h"
-#include "JsonMethods.h"
+//#include "JsonMethods.h"
 
 using namespace std;
 

@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <sstream>
-#include <conio.h>
+//#include <conio.h>
 #include <vector>
 #include <QTextStream>
 #include "CellItem.h"
@@ -145,9 +145,10 @@ int TableCell<V>::getSize(){
 
 template <typename V>
 QString TableCell<V>::toString(){
-	stringstream ss;
-	ss << "TableCell\n{\n  hash: " << hash << "\n  size: " << size << "\n}\n";
-	return ss.str();
+    //stringstream ss;
+    return "TableCell\n{\n  hash: " + hash + "\n  size: " + size + "\n}\n";
+    //ss << "TableCell\n{\n  hash: " << hash << "\n  size: " << size << "\n}\n";
+    //return ss.str();
 }
 
 template <typename V>
