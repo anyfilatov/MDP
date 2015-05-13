@@ -19,7 +19,7 @@ void GuiFileParser::loadFile(QString fileName, DBClient& db){
             MDPData* datablock = packDataBlock(in, db);
             flag = datablock!=NULL && datablock->size()!=0;
             if (flag){
-                //sendDataBlock(datablock);
+                db.put(userId,dataId,processId,datablock);
             }
             delete datablock;
         }while(flag);
@@ -39,7 +39,7 @@ MDPData* GuiFileParser::packDataBlock(QTextStream& inputStream, DBClient& db){
        flag = lineconst!=NULL;
        if (flag){
             line =new QString(lineconst);
-            qDebug()<<lineconst;
+ //           qDebug()<<lineconst;
             QTextStream strin(line);
             QString value;
             bool valuesFlag = true;
