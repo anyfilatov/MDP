@@ -12,7 +12,6 @@ Router::Router(Cache<QString, QString> *rbtree, NetworkManager *manager,
   pool = new QThreadPool(this);
   pool->setMaxThreadCount(3);
   this->rbtree = rbtree;
-//  this->rbtree->insert("test", "test");
   _manager = manager;
   _ring = new HashRing(_manager, this->rbtree);
 }

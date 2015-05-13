@@ -41,7 +41,7 @@ void SendGossipTask::sendNodeList(Node* me,
         for (Node* n: nodeList) {
             json.push_back(QJsonValue(n->toJsonObject()));
         }
-        qDebug() << "Sending list: " << json;
+        //qDebug() << "Sending list: " << json;
         QByteArray json_bytes = (new QJsonDocument(json))->toBinaryData();
         int packet_length = json_bytes.size();
         if (packet_length <= NetworkManager::MAX_PACKET_LENGTH) {

@@ -5,7 +5,7 @@
 #include "Router/StatusCodes.h"
 
 
-Connect::Connect(HashRing *ring, iCache<QString, QString> *map, QObject *parent): QObject(parent){
+Connect::Connect(HashRing *ring, Cache<QString, QString> *map, QObject *parent): QObject(parent){
     _ring = ring;
     _rbtree = map;
 }
@@ -30,11 +30,9 @@ void Connect::run()
             continue;
         }
         jsonReq = deserialize(msgReq);
-        qDebug() << jsonReq;
 
         jsonResp = handleRequest(jsonReq);
         msgResp = serialize(jsonResp);
-        qDebug() << jsonResp;
 
         _socket->write(msgResp);
         _socket->flush();
@@ -80,12 +78,14 @@ QJsonObject Connect::handleRequest(QJsonObject json){
 }
 
 QJsonObject Connect::handlePut(QJsonObject json){    
+    qDebug() << "do PUT: " << json;
     QJsonObject jsonResp;
     if (json.contains("not_forwards_requests") && json.value("not_forwards_requests").toBool()) {
         if(json.contains("value")){
-            //_rbtree->insert(json.value("key").toString(), json.value("value").toString());
+            qDebug() << "WHO: " << _ring->getManager()->getMyself()->getAddress() << " PUT " << json;
+            _rbtree->insert(json.value("key").toString(), json.value("value").toString());
         } else {
-            //_rbtree->insert(json.value("key").toString(), json.value("values").toString());
+            _rbtree->insert(json.value("key").toString(), json.value("values").toVariant().toStringList());
         }
         jsonResp.insert("status", StatusCode::OK);
     } else{
@@ -95,7 +95,7 @@ QJsonObject Connect::handlePut(QJsonObject json){
             nodes = _ring->findNodes(key);
             RouterClient client;
             QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
-            QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+            QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[1]->getHost(), nodes[1]->getPort(), true);
             StatusCode codeBucket = (StatusCode)client.put(json.value("bucket").toString().append("_keys"), key);
             StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
             StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
@@ -106,9 +106,13 @@ QJsonObject Connect::handlePut(QJsonObject json){
             }
         } else {
             nodes = _ring->findNodes(json.value("key").toString());
-            RouterClient client;
-            QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
-            QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+            qDebug() << "Found nodes:";
+            for (Node * node : nodes){
+                qDebug() << node->getAddress();
+            }
+            RouterClient clientPrimary, clientReplica;
+            QJsonObject jsonPrimaryResp = clientPrimary.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
+            QJsonObject jsonReplicaResp = clientReplica.doRequestToOtherRouter(json, nodes[1]->getHost(), nodes[1]->getPort(), true);
             StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
             StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
             if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK) {
@@ -127,7 +131,7 @@ QJsonObject Connect::handleReplace(QJsonObject json)
 {
     QJsonObject jsonResp;
     if (json.contains("not_forwards_requests") && json.value("not_forwards_requests").toBool()) {
-        //_rbtree->replace(json.value("key").toString(), json.value("values").toString());
+        _rbtree->replace(json.value("key").toString(), json.value("values").toVariant().toStringList());
         jsonResp.insert("status", StatusCode::OK);
     } else{
         QList<Node*> nodes;
@@ -140,7 +144,7 @@ QJsonObject Connect::handleReplace(QJsonObject json)
 
         RouterClient client;
         QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
-        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[1]->getHost(), nodes[1]->getPort(), true);
         StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
         StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
         if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK) {
@@ -158,7 +162,7 @@ QJsonObject Connect::handleReplace(QJsonObject json)
 QJsonObject Connect::handleGet(QJsonObject json){
     QJsonObject jsonResp;
     if (json.contains("not_forwards_requests") && json.value("not_forwards_requests").toBool()) {
-        QStringList values;// = _rbtree->search(json.value("key").toString());
+        QStringList values = _rbtree->search(json.value("key").toString());
         jsonResp.insert("key", json.value("key"));
         jsonResp.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
         jsonResp.insert("status", StatusCode::OK);
@@ -173,7 +177,7 @@ QJsonObject Connect::handleGet(QJsonObject json){
 
         RouterClient client;
         QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
-        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[1]->getHost(), nodes[1]->getPort(), true);
         StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
         StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
 
@@ -214,7 +218,7 @@ QJsonObject Connect::handleRemoveBucket(QJsonObject json)
         nodes = _ring->findNodes(json.value("bucket").toString().append("_keys"));
         RouterClient client;
         QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
-        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[1]->getHost(), nodes[1]->getPort(), true);
         StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
         StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
 
@@ -239,7 +243,7 @@ QJsonObject Connect::handleRemove(QJsonObject json){
         nodes = _ring->findNodes(json.value("key").toString());
         RouterClient client;
         QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
-        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort(), true);
+        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[1]->getHost(), nodes[1]->getPort(), true);
         StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
         StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
 

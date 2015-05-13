@@ -19,8 +19,9 @@ HashRing::HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
   for(Node* node: _ring) {
       qDebug() << node->getAddress();
   }
-
+  qSort(_ring.begin(), _ring.end(), hashBasedLessThen);
   qDebug() << _manager->getMyself();
+
 
   if (_ring.indexOf(_manager->getMyself()) == 0) {
     _haveReplicaOf = _ring[_ring.size() - 1];
@@ -42,13 +43,14 @@ HashRing::~HashRing() {}
 
 QList<Node*> HashRing::findNodes(QString key) {
   size_t pos = hash(key);
+  qDebug() << "KEY HASH " << pos;
   QList<Node*> nodes;
 
   Node* firstNode;
   Node* secondNode;
 
   if (_ring.size() >= 2) {
-    if (pos <= hash(_ring.at(0)->getAddress()) &&
+    if (pos <= hash(_ring.at(0)->getAddress()) ||
         pos > hash(_ring.at(_ring.size() - 1)->getAddress())) {
         firstNode = _ring.at(0);
         secondNode = _ring.at(1);
@@ -56,6 +58,7 @@ QList<Node*> HashRing::findNodes(QString key) {
       nodes.push_back(new Node(secondNode->getHost(), secondNode->getPort()+1));
     } else {
       for (int i = 0; i < _ring.size(); ++i) {
+        qDebug() << hash(_ring.at(i)->getAddress());
         if (pos <= hash(_ring.at(i)->getAddress())) {
             firstNode = _ring.at(i);
             secondNode = _ring.at((i + 1) % _ring.size());
@@ -82,14 +85,14 @@ void HashRing::update() {
   qSort(curMemList.begin(), curMemList.end(), hashBasedLessThen);
 
   qDebug() << "Cyr member list: " << curMemList;
-  if (!_cache->isEmpty() || _ring.size() != curMemList.size()) {
+  if (_ring.size() != curMemList.size() && !_cache->isEmpty() ) {
     change = true;
   }
 
   if (change) {
+    qDebug() << "Stabilization is required";
     _ring = curMemList;
     stabilize();
-    qDebug() << "Stabilization is required";
   }
 }
 
@@ -100,7 +103,7 @@ NetworkManager *HashRing::getManager() const
 
 
 void HashRing::stabilize() {
-    qDebug() << "Stabilization started";
+  qDebug() << "Stabilization started";
   qDebug() << _ring;
 
   Node* to_be_predecessor;  // new nodes whose replicas I have
@@ -115,8 +118,8 @@ void HashRing::stabilize() {
   to_be_successor =
       _ring[(_ring.indexOf(_manager->getMyself()) + 1) % _ring.size()];
 
-  qDebug() << _hasMyReplica->getAddress();
-  qDebug() << _haveReplicaOf->getAddress();
+//  qDebug() << _hasMyReplica->getAddress();
+//  qDebug() << _haveReplicaOf->getAddress();
 
   if (_hasMyReplica->getAddress() != to_be_successor->getAddress()) {
     // TODO get all primary keys and send them (i.e. update)  to to_be_successor

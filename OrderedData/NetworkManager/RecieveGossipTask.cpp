@@ -51,7 +51,7 @@ void RecieveGossipTask::processRemoteNodeList(const QByteArray& json) {
 
         QJsonDocument document = QJsonDocument::fromBinaryData(json.mid(4));
         QJsonArray nodeList = document.array();
-        qDebug() << "Recieved: " << nodeList;
+        //qDebug() << "Recieved: " << nodeList;
         QList<Node*> remoteNodes;
         //        Node *senderMember = NULL;
 

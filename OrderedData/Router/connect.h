@@ -8,14 +8,14 @@
 #include <QDebug>
 #include <QObject>
 #include <QTimer>
-#include "Cache/icache.h"
+#include "Cache/cache.h"
 #include "Router/hashring.h"
 
 class Connect : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    explicit Connect(HashRing *ring, iCache<QString, QString> *_rbtree, QObject *parent = 0);
+    explicit Connect(HashRing *ring, Cache<QString, QString> *_rbtree, QObject *parent = 0);
     ~Connect();
 
 protected:
