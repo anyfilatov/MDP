@@ -16,6 +16,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QDebug>
+#include <QJsonArray>
 
 
 using namespace std;
@@ -70,7 +71,12 @@ void Dispatcher::slotReadClient()
         MDPData* d;
         QString comm = jso.take("COMMAND").toString();
 
-        if (comm == "REMOVE") {
+        if (comm == "GET_USERS") {
+            QJsonArray users = getUsers();
+            jsAnswer.insert("COMMAND", "_GET_USERS");
+            jsAnswer.insert("USERS", users);
+            sendToClient(pClientSocket, jsAnswer);
+        }else if (comm == "REMOVE") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
             short processId = jso.take("PROCESS_ID").toInt();
@@ -351,13 +357,14 @@ void Dispatcher::remove(short int userId, short int dataId, short int processId)
 
 MDPData* Dispatcher::getNextStrings(short int userId, short int dataId, short int processId, short int count){
     TableKey key(userId, dataId, processId);
+    IntWithHash* info = tableInfo.get(&key);
+    if (!info) return NULL;
     IntWithHash* increment = sessions.get(&key);
     if (!increment){
         increment = new IntWithHash(0);
         sessions.put(&key, increment);
     }
     int firstIndex = increment->getValue();
-    IntWithHash* info = tableInfo.get(&key);
     if ((increment->getValue() + count) >= (info->getValue())){
         sessions.remove(&key);
     }else{
@@ -373,6 +380,18 @@ int Dispatcher::getSize(short userId, short dataId, short processId){
         return info->getValue();
     }
     return 0;
+}
+
+QJsonArray Dispatcher::getUsers(){
+    QJsonArray array;
+    vector<TableKey*> keys = hashTable.keys();
+    for (int i = 0; i < keys.size(); i++){
+        short userId = keys[i]->getUserId();
+        if (!array.contains(userId)){
+            array.push_back(userId);
+        };
+    }
+    return array;
 }
 
 #endif

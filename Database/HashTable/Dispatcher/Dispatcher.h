@@ -9,6 +9,7 @@
 #include "Data.h"
 #include <QObject>
 #include <QTcpServer>
+#include <QJsonArray>
 
 using namespace std;
 
@@ -38,6 +39,7 @@ public:
     void remove(short int userId, short int dataId, short int processId);
     MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
     int getSize(short int userId, short int dataId, short int processId);
+    QJsonArray getUsers();
 };
 
 

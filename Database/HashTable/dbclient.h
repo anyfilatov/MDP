@@ -11,7 +11,9 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QThread>
+#include <vector>
 
+using namespace std;
 
 class DBClient: public QObject {
     Q_OBJECT
@@ -29,6 +31,8 @@ public:
     bool remove(short int userId, short int dataId, short int processId);
     MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
     int getSize(short int userId, short int dataId, short int processId);
+    vector<short> getUsers();
+    //vector<TableKey> getTableIds(short int userId);
 public:
     explicit DBClient(const QString& strHost, int nPort, QObject *parent = 0);
 public slots:

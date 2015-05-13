@@ -14,14 +14,15 @@
 #include <QTcpSocket>
 #include <QDebug>
 #include <QJsonObject>
-
+#include <QJsonArray>
+#include <vector>
 
 using namespace std;
 
 DBClient::DBClient(const QString& strHost, int nPort, QObject *parent) :
     QObject(parent), m_nNextBlockSize(0)
 {
-    maxCellsSize = 100000;
+    maxCellsSize = 1000;
     m_pTcpSocket = new QTcpSocket(this);
 
     m_pTcpSocket->connectToHost(strHost, nPort);
@@ -117,6 +118,7 @@ bool DBClient::put(short int userId, short int dataId, short int processId, MDPD
 
 MDPData* DBClient::get(short int userId, short int dataId, short int processId){
     int size = getSize(userId, dataId, processId);
+    qDebug() << size;
     if (size <= maxCellsSize){
         QJsonObject obj;
         obj.insert("COMMAND", "GET_3");
@@ -125,6 +127,8 @@ MDPData* DBClient::get(short int userId, short int dataId, short int processId){
         obj.insert("PROCESS_ID", processId);
         sendToServer(obj);
         obj = slotReadyRead();
+        QJsonDocument doc(obj);
+        qDebug() << doc.toJson();
         MDPData* data = new MDPData;
         if (obj.contains("DATA")){
             data->parse(obj.take("DATA").toString());
@@ -145,13 +149,11 @@ MDPData* DBClient::get(short int userId, short int dataId, short int processId){
         for (int i = 0; i < cells.size(); i++){
             allCells.push_back(cells[i]);
         }
-        if (data){
-            qDebug() << data->serialize();
-        }
         first += maxCellsSize;
     }
-    MDPData allData(headers, allCells, 0);
-    return NULL;
+
+    MDPData* allData = new MDPData(headers, allCells, 0);
+    return allData;
 }
 
 MDPData* DBClient::get(short int userId, short int dataId, short int processId, int strNum){
@@ -162,37 +164,54 @@ MDPData* DBClient::get(short int userId, short int dataId, short int processId, 
     obj.insert("PROCESS_ID", processId);
     obj.insert("STR_NUM", strNum);
     sendToServer(obj);
-    if (m_pTcpSocket->waitForReadyRead(5000)){
-        QJsonObject obj = slotReadyRead();
-        MDPData* data = new MDPData;
-        if (obj.contains("DATA")){
-            data->parse(obj.take("DATA").toString());
-            data->serialize();
-            return data;
-        }else{
-            return NULL;
-        }
+    obj = slotReadyRead();
+    MDPData* data = new MDPData;
+    if (obj.contains("DATA")){
+        data->parse(obj.take("DATA").toString());
+        return data;
     }
     return NULL;
 }
 
 MDPData* DBClient::get(short int userId, short int dataId, short int processId, int strNum, int count){
-    QJsonObject obj;
-    obj.insert("COMMAND", "GET_5");
-    obj.insert("USER_ID", userId);
-    obj.insert("DATA_ID", dataId);
-    obj.insert("PROCESS_ID", processId);
-    obj.insert("STR_NUM", strNum);
-    obj.insert("COUNT", count);
-    sendToServer(obj);
-    obj = slotReadyRead();
-    MDPData* data = new MDPData;
-    if (obj.contains("DATA")){
-        data->parse(obj.take("DATA").toString());
-        data->serialize();
-        return data;
+    if (count <= maxCellsSize){
+        QJsonObject obj;
+        obj.insert("COMMAND", "GET_5");
+        obj.insert("USER_ID", userId);
+        obj.insert("DATA_ID", dataId);
+        obj.insert("PROCESS_ID", processId);
+        obj.insert("STR_NUM", strNum);
+        obj.insert("COUNT", count);
+        sendToServer(obj);
+        obj = slotReadyRead();
+        MDPData* data = new MDPData;
+        if (obj.contains("DATA")){
+            data->parse(obj.take("DATA").toString());
+            return data;
+        }
+        return NULL;
     }
-    return NULL;
+    int first = strNum;
+    vector<vector<QString> > allCells;
+    vector<QString> headers;
+
+    while(first < strNum + count){
+        MDPData* data = get(userId, dataId, processId, first, maxCellsSize);
+        if (headers.size() == 0){
+            headers = data->getHeaders();
+        }
+        vector<vector<QString> > cells = data->getCells();
+        for (int i = 0; i < cells.size(); i++){
+            allCells.push_back(cells[i]);
+        }
+        if (data){
+            qDebug() << data->serialize();
+        }
+        first += maxCellsSize;
+    }
+
+    MDPData* allData = new MDPData(headers, allCells, strNum);
+    return allData;
 }
 
 bool DBClient::remove(short int userId, short int dataId, short int processId){
@@ -201,6 +220,7 @@ bool DBClient::remove(short int userId, short int dataId, short int processId){
     obj.insert("USER_ID", userId);
     obj.insert("DATA_ID", dataId);
     obj.insert("PROCESS_ID", processId);
+    sendToServer(obj);
     obj = slotReadyRead();
     if (obj.contains("SUCCESS")){
         return obj.take("SUCCESS").toBool();
@@ -216,16 +236,11 @@ MDPData* DBClient::getNextStrings(short int userId, short int dataId, short int 
     obj.insert("PROCESS_ID", processId);
     obj.insert("COUNT", count);
     sendToServer(obj);
-    if (m_pTcpSocket->waitForReadyRead(5000)){
-        QJsonObject obj = slotReadyRead();
-        MDPData* data = new MDPData;
-        if (obj.contains("DATA")){
-            data->parse(obj.take("DATA").toString());
-            data->serialize();
-            return data;
-        }else{
-            return NULL;
-        }
+    obj = slotReadyRead();
+    MDPData* data = new MDPData;
+    if (obj.contains("DATA")){
+        data->parse(obj.take("DATA").toString());
+        return data;
     }
     return NULL;
 }
@@ -239,8 +254,22 @@ int DBClient::getSize(short userId, short dataId, short processId){
     sendToServer(obj);
     obj = slotReadyRead();
     if (obj.contains("SIZE")){
-        return obj.take("DATA").toInt();
-    }else{
-        return 0;
+        return obj.take("SIZE").toInt();
     }
+    return 0;
+}
+
+vector<short> DBClient::getUsers(){
+    QJsonObject obj;
+    obj.insert("COMMAND", "GET_USERS");
+    sendToServer(obj);
+    obj = slotReadyRead();
+    vector<short> users;
+    if (obj.contains("USERS")){
+        QJsonArray array = obj.take("USERS").toArray();
+        for (short i = 0; i < array.size(); i++){
+            users.push_back(array[i].toInt());
+        }
+    }
+    return users;
 }

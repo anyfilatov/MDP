@@ -22,7 +22,7 @@
 #include <QCoreApplication>
 #include <QObject>
 #include "dbclient.h"
-#include <unistd.h>
+//#include <unistd.h>
 #include <QAbstractSocket>
 #include <QThread>
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         IntWithHash* val = iter.next();
         cout << val->getValue() << endl;
     }*/
-    int dim = 400;
+    int dim = 10;
     vector<QString> headers(3);
     vector<vector<QString> > cells(dim);
     headers[0] = "firstaeiurblsrun";
@@ -116,20 +116,47 @@ int main(int argc, char *argv[])
         }
     }
 
-    MDPData data(headers, cells, 12);
+
+    MDPData data1(headers, cells, 0);
+    MDPData data2(headers, cells, 0);
+    MDPData data(headers, cells, 0);
     //data.parse(data.serialize());
     //data.serialize();
     //MDPData data;
 
-    //Dispatcher dispatcher(2323);
-    //dispatcher.put(0, 3, 2, &data);
-    //qDebug() << dispatcher.getSize(0,3,2);
-    DBClient client("172.19.25.19", 2323);
+    Dispatcher dispatcher(2323);
+    dispatcher.put(0, 3, 2, &data);
+    dispatcher.put(0,2,1, &data1);
+    dispatcher.put(2, 2, 1, &data2);
+    QJsonArray keys = dispatcher.getUsers();
+    qDebug() << keys;
+    /*qDebug() << dispatcher.getSize(0,3,2);
+    MDPData* d = dispatcher.get(0, 3, 2, 3, 10);
+    if (d != NULL){
+        qDebug() << d->serialize();
+    }*/
+
+    /*DBClient client("172.19.25.19", 2323);
+
     MDPData* d = client.get(0, 3, 2);
-    if (d){
-        d->serialize();
+    if (d != NULL){
+        qDebug() <<d->serialize();
+    }else {
+        qDebug() << "NULL";
     }
-    qDebug() << client.getSize(0, 3, 2);
+    client.remove(0, 3, 2);
+    d = client.get(0, 3, 2);
+    if (d != NULL){
+        qDebug() <<d->serialize();
+    }else {
+        qDebug() << "NULL";
+    }*/
+
+    /*d = client.get(0, 3, 2, 3, 15);
+    if (d != NULL){
+        qDebug() <<d->serialize();
+    }*/
+    //qDebug() << client.getSize(0, 3, 2);
 
     /*Data* newData = dispatcher.get(0, 3, 2);
     newData->serialize();
