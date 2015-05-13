@@ -3,6 +3,7 @@
 enum TypeRequest{
     PUT,
     GET,
+    GET_BUCKET,
     REPLACE,
     DEL,
     DEL_BUCKET,

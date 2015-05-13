@@ -43,7 +43,6 @@ HashRing::~HashRing() {}
 
 QList<Node*> HashRing::findNodes(QString key) {
   size_t pos = hash(key);
-  qDebug() << "KEY HASH " << pos;
   QList<Node*> nodes;
 
   Node* firstNode;
