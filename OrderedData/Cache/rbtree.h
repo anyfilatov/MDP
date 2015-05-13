@@ -22,7 +22,7 @@ public:
     void replace(K key, vector<V> values);
     
     void remove(K key);
-    TNode<K,V>* remove(TNode<K,V> *z);
+    TNode<K,V>* remove(TNode<K,V> *z); // don't delete memory
     void removeAll();
     
     TNode<K,V>* search(TNode<K,V> *x, K key);
@@ -291,7 +291,7 @@ void RBTree<K,V>::inorderWalkDelete(TNode<K,V> *x)
 {
     if (x != nil_) {
         inorderWalkDelete(x->left());
-        delete x;
+        delete remove(x);
         inorderWalkDelete(x->right());
     }
 }
@@ -299,11 +299,11 @@ void RBTree<K,V>::inorderWalkDelete(TNode<K,V> *x)
 template<typename K, typename V>
 void RBTree<K,V>::remove(K key)
 {
-    remove(search(root_, key));
+    delete remove(search(root_, key));
 }
 
 template<typename K, typename V>
-TNode<K,V>* RBTree<K,V>::remove(TNode<K,V> *z)
+TNode<K,V>* RBTree<K,V>::remove(TNode<K,V> *z) // don't delete memory
 {
     size_--;
     TNode<K,V> *y = nil_;
