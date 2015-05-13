@@ -33,6 +33,7 @@ private:
     QJsonObject handlePut(QJsonObject json);
     QJsonObject handleReplace(QJsonObject json);
     QJsonObject handleGet(QJsonObject json);
+    QJsonObject handleGetBucket(QJsonObject json);
     QJsonObject handleRemove(QJsonObject json);
     QJsonObject handleRemoveBucket(QJsonObject json);
     QJsonObject handleRingCheck(QJsonObject json);

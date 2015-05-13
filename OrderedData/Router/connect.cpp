@@ -202,6 +202,45 @@ QJsonObject Connect::handleGet(QJsonObject json){
     return jsonResp;
 }
 
+QJsonObject Connect::handleGetBucket(QJsonObject json){
+    QJsonObject jsonResp;
+    QString key = json.value("bucket").toString() + "_keys";
+    if (json.contains("not_forwards_requests") && json.value("not_forwards_requests").toBool()) {
+        QStringList values = _rbtree->search(key);
+        jsonResp.insert("key", json.value("bucket"));
+        jsonResp.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
+        jsonResp.insert("status", StatusCode::OK);
+    } else{
+        QList<Node*> nodes;
+        nodes = _ring->findNodes(key);
+
+        RouterClient client;
+        QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(json, nodes[0]->getHost(), nodes[0]->getPort());
+        QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(json, nodes[1]->getHost(), nodes[1]->getPort(), true);
+        StatusCode codePrimary = (StatusCode)jsonPrimaryResp.value("status").toInt();
+        StatusCode codeReplica = (StatusCode)jsonReplicaResp.value("status").toInt();
+
+        if (codePrimary == StatusCode::OK && codeReplica == StatusCode::OK) {
+            if(jsonPrimaryResp.value("values").toArray().size() > jsonReplicaResp.value("values").toArray().size())
+                jsonResp.insert("values", jsonPrimaryResp.value("values"));
+            else
+                jsonResp.insert("values", jsonPrimaryResp.value("values"));
+            jsonResp.insert("status", StatusCode::OK);
+        } else if (codePrimary == StatusCode::OK) {
+            jsonResp.insert("values", jsonPrimaryResp.value("values"));
+            jsonResp.insert("status", StatusCode::OK);
+        } else if (codeReplica == StatusCode::OK){
+            jsonResp.insert("values", jsonReplicaResp.value("values"));
+            jsonResp.insert("status", StatusCode::OK);
+        } else {
+            jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
+        }
+        for (Node* node: nodes)
+            delete node;
+    }
+    return jsonResp;
+}
+
 QJsonObject Connect::handleRemoveBucket(QJsonObject json)
 {
     QJsonObject jsonResp;
