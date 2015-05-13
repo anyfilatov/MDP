@@ -5,7 +5,6 @@
 #include "wrapper.h"
 #include "host.h"
 
-typedef Wrapper<std::vector<Host>> OG ;
 using namespace std;
 template <class T> class OrGraph;
 
@@ -19,7 +18,7 @@ template <class T> class OrGraph
 {
 private:
         
-        Node<T> *root_;//value of node
+        Node<T> *root_ = nullptr;;//value of node
         //std::list<OrGraph<T> > *chidren;//list of nodes
 public:
     OrGraph();
@@ -30,15 +29,22 @@ public:
     void setRoot(Node<T> &_root);
     void setRoot(T root);
     void addChild(Node<T> &_root);
+    void addChild(OrGraph<T> &og);
     void addChild(T graphElement);
     void addChild(Node<T> *graphElement);
     void deleteChild(int id);
     Node<T>* getRoot();
+    template<typename TPred>
+    Node<T>* findIf(TPred predicate);
     //std::list<Node<T> >* getChildren();
     bool empty();
     friend ostream& operator<< <>(ostream& os, OrGraph<T>& graph);
     template <typename T2> void sendAllChidren(T2);
 };
+
+//typedef Wrapper<std::vector<Host>> OG ;
+typedef Wrapper<OrGraph<Host>> OG ;
+
 
 template <class T>
 OrGraph<T>::OrGraph()
@@ -86,6 +92,15 @@ Node<T>* OrGraph<T>::getRoot()
      return this->root_;
 }
 
+template<typename T>
+template<typename TPred>
+Node<T>* OrGraph<T>::findIf(TPred predicate) {
+    if(root_){
+        return root_->findIf(predicate);
+    }
+    return nullptr;
+}
+
 template <class T>
 bool OrGraph<T>::empty()
 {
@@ -97,12 +112,34 @@ bool OrGraph<T>::empty()
 template <class T>
 void OrGraph<T>::setRoot(Node<T> &_root)
 {
+    if(this->root_){
+        delete this->root_;
+    }
     this->root_ = _root;
 }
 
 template <class T>
+void OrGraph<T>::setRoot(T _root)
+{
+    if(root_){
+        delete this->root_;
+    }
+    root_ = new Node<T>(_root);
+}
+
+template <class T>
 void OrGraph<T>::addChild(Node<T> &node){
-     this->root_->addChild(node);
+    if(!root_){
+        setRoot(node);
+    } else {
+        this->root_->addChild(node);
+    }
+}
+
+template <class T>
+void OrGraph<T>::addChild(OrGraph<T> &og){
+    this->root_->setChidren(og.root_);
+    og->root_ = nullptr;
 }
 
 template <class T>

@@ -79,8 +79,7 @@ Node<T>* Iterator<T>::next(){
             
         
     }
-    else 
-        return NULL;
+    return NULL;
 }
 
 template<typename T>

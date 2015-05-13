@@ -406,6 +406,8 @@ build/Debug/GNU-Linux-x86/main.o: ../main.cpp ../include/LuaExecutor.h \
 		../include/Node.h \
 		../include/host.h \
 		../include/Content.h \
+		../include/Iterator.h \
+		/usr/include/qt5/QtCore/QtDebug \
 		../include/RbTree.h \
 		../include/selene/selene.h \
 		../include/selene/selene/State.h \
@@ -548,6 +550,8 @@ build/Debug/GNU-Linux-x86/Server.o: ../src/Server.cpp ../include/Server.h \
 		../include/OrGraph.h \
 		../include/Node.h \
 		../include/LuaExecutor.h \
+		../include/Iterator.h \
+		/usr/include/qt5/QtCore/QtDebug \
 		../include/selene/selene.h \
 		../include/selene/selene/State.h \
 		../include/selene/selene/Registry.h \
@@ -669,6 +673,8 @@ build/Debug/GNU-Linux-x86/Task.o: ../src/Task.cpp ../include/Task.h \
 		../include/OrGraph.h \
 		../include/Node.h \
 		../include/LuaExecutor.h \
+		../include/Iterator.h \
+		/usr/include/qt5/QtCore/QtDebug \
 		../include/selene/selene.h \
 		../include/selene/selene/State.h \
 		../include/selene/selene/Registry.h \

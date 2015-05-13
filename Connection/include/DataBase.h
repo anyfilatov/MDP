@@ -19,6 +19,7 @@ public:
         LOG_TRACE("DataBase");
     };
     DataBase(const DataBase& ) = delete;
+    
     GetAtomType getNextAtom(util::Id& ) {
         return "test";
     }

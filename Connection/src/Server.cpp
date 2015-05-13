@@ -19,9 +19,9 @@ static const char* CMD_PING = "ping";
 static const char* CMD_END_MAP = "mapEnded";
 static const char* CMD_END_REDUCE = "reduceEnded";
 
-Server::Server(QString ip, int port, const DB& db, const RB& rb, OG& og) 
+Server::Server(QString ip, int port, const DB& db, const RB& rb, OG& og, QString configFileName) 
         : Host(ip, port), threadPool_(THREAD_COUNT)
-        , tasksMap_(new TaskCounterMap()), rbTree_(rb), dataBase_(db), orGraph_(og) {
+        , tasksMap_(new TaskCounterMap()), rbTree_(rb), dataBase_(db), orGraph_(og), configFileName_(configFileName) {
 }
 
 Server::~Server() {

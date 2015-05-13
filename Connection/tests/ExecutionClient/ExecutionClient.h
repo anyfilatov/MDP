@@ -28,7 +28,9 @@ namespace Execution{
             std::vector<QString> out;
             QByteArray buffer;
             QDataStream stream(&buffer, QIODevice::ReadWrite);
-            stream << 4;
+            stream << int(0) << 4;
+            stream.device()->seek(0);
+            stream << int(buffer.size() - sizeof(int));
             if( request(buffer) == 0){
                 QDataStream streamAnswer(&buffer, QIODevice::ReadWrite);
                 int code = 0;
@@ -45,15 +47,21 @@ namespace Execution{
             return out;
         }
         
-        void setNewChild(const std::vector<QString>& conf) {
+        void setNewChild(const std::vector<QString>& conf, const std::vector<QString>& newConf) {
             QByteArray buffer;
             QDataStream stream(&buffer, QIODevice::ReadWrite);
             stream << 5;
-            QList<QString> newConf;
+            QList<QString> lConf;
             for(auto& s : conf) {
-                newConf.push_back(s);
+                lConf.push_back(s);
             }
-            stream << newConf;
+            QList<QString> lNewConf;
+            for(auto& s : newConf) {
+                lNewConf.push_back(s);
+            }
+            stream << int(0) << lConf << lNewConf;
+            stream.device()->seek(0);
+            stream << int(buffer.size() - sizeof(int));
             request(buffer);
         }
         

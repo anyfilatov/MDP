@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "DataBase.h"
 #include "OrGraph.h"
+#include "Iterator.h"
 #include "RbTree.h"
 #include "selene.h"
 #include "errors.h"
@@ -165,7 +166,18 @@ public:
     
     void endReduce() {
         LOG_DEBUG("end Reduce");
-        ++id_.i0;
+    }
+    
+    void startMap() {
+        //++std::get<0>(id_);
+    }
+    
+    void startReduce() {
+        LOG_DEBUG("start Reduce");
+        LOG_DEBUG("start Map");
+        int id = id_.get(util::Id::dataIdIndex);
+        ++id;
+        id_.set(util::Id::dataIdIndex, id);
     }
     
     void addLuaVariable(LuaContextVariablePtr variable) {
@@ -185,8 +197,20 @@ public:
     
     template<typename T> void forEach(T action){
         OG::ScopedLock lock(og_);
-        for(auto& el : *og_) {
-            action(el);
+        Iterator<Host> it(*og_);
+        for(; !it.end(); it.next()) {
+            action(*it);
+        }
+        
+    }
+    
+    template<typename T> void forEachWithoutRoot(T action){
+        OG::ScopedLock lock(og_);
+        Iterator<Host> it(*og_);
+        if(it.end()) return;
+        it.next();
+        for(; !it.end(); it.next()) {
+            action(*it);
         }
         
     }
@@ -429,6 +453,7 @@ static int doReduceOnly(LuaExecutor* executor, util::Id& id) {
 typedef std::shared_ptr<QTcpSocket> SocketPtr;
 
 static SocketPtr sendToHost(QString ip, int port, QByteArray& buffer) {
+    LOG_DEBUG("SendTo " << ip.toStdString() << ":" << port);
     SocketPtr socketOut = std::make_shared<QTcpSocket>(new QTcpSocket());
     socketOut->connectToHost(ip, port);
     LOG_DEBUG("before wait")
@@ -511,7 +536,8 @@ public:
             LOG_DEBUG("wait:" << count);
             for(auto& s : sockets_){
                 if( s.status == s.inWait ) {
-                    if(!s.socket->isOpen() || s.socket->waitForDisconnected(1000)){
+                    if(s.socket->state() == QAbstractSocket::SocketState::UnconnectedState 
+                            || s.socket->state() == QAbstractSocket::SocketState::ClosingState){
                         s.status = s.failed;
                         --count;
                         continue;
@@ -543,7 +569,7 @@ static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, 
         if (!waiter.empty()) {
             waiter.clear();
         }
-        executor->forEach([&] (Host & host) -> void {
+        executor->forEachWithoutRoot([&] (Host & host) -> void {
             int cmd = type;
             QString code = executor->getCode();
             auto id = *context->id();
@@ -574,6 +600,7 @@ static int doMap(Lua l) {
     size_t s = 0;
     auto* context = LuaExecutor::LuaContextVariable::getFromPeak(l);
     auto* executor = context->e();
+    executor->startMap();
     lua_pop(l, 1);
     const char* funcName = lua_tolstring(l, lua_gettop(l), &s);
     LOG_DEBUG("funcName=" << funcName << " id=" << *executor);
@@ -591,6 +618,7 @@ static int doReduce(Lua l) {
     size_t s = 0;
     auto* context = LuaExecutor::LuaContextVariable::getFromPeak(l);
     auto* executor = context->e();
+    executor->startReduce();
     lua_pop(l, 1);
     const char* funcName = lua_tolstring(l, lua_gettop(l), &s);
     LOG_DEBUG("funcName=" << funcName << " id=" << *executor);

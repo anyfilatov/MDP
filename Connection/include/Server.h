@@ -21,7 +21,7 @@ class Server : public Host{
     const int WAIT_CONNECTION_TIME_MSEC = 1000000;
     const int THREAD_COUNT = 2;
 public:
-    Server(QString ip, int port, const DB& db, const RB& rb, OG& og);
+    Server(QString ip, int port, const DB& db, const RB& rb, OG& og, QString configFileName);
     Server(const Server& orig) = delete;
     virtual ~Server();
     virtual int run();
@@ -38,6 +38,7 @@ private:
     RB rbTree_;
     DB dataBase_;
     OG orGraph_;
+    QString configFileName_;
 };
 
 

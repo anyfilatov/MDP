@@ -17,8 +17,9 @@ private:
     T value_;
     std::vector<Node<T>* > children_;
     Node<T> *parent_;
-    
 public:
+    Node(const Node<T>& ) = delete;
+    Node(Node<T>&& ) = delete;
     Node();
     Node(T value);
     int getID();
@@ -29,6 +30,8 @@ public:
     void addChild( T node);
     Node<T>* getParent();
     Node<T>* getLastChild();
+    template<typename TPred>
+    Node<T>* findIf(TPred predicate);
     ~Node();
 };
 
@@ -69,6 +72,21 @@ Node<T>* Node<T>::getLastChild(){
     return children_.back();
 }
 
+template<typename T>
+template<typename TPred>
+Node<T>* Node<T>::findIf(TPred predicate){
+    if(predicate(value_)){
+        return this;
+    }
+    for(auto& ch : children_) {
+        auto* res = ch->findIf(predicate);
+        if( res ) {
+            return res;
+        }
+    }
+    return nullptr;
+}
+
 
 template<typename T>
 void Node<T>::addChild(T node){  
@@ -84,5 +102,7 @@ Node<T>* Node<T>::getParent(){
 
 template<typename T>
 Node<T>::~Node(){
-
+    for(auto& n : children_) {
+        delete n;
+    }
 }
