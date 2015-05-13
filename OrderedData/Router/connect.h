@@ -25,7 +25,7 @@ public:
     qintptr socketDescriptor;
 
 private:
-    iCache<QString, QString> *_rbtree;
+    Cache<QString, QString> *_rbtree;
     QTcpSocket *_socket;
     HashRing *_ring;
 
