@@ -29,6 +29,7 @@ private:
     int sparePort;
     void _connect();
     void switchIps();
+    int tryNum;
 
 public:
     bool put(short int userId, short int dataId, short int processId, MDPData* data);
@@ -41,10 +42,10 @@ public:
     vector<short> getUsers();
     vector<pair<short, short> > getTableIds(short userId);
     void setIps(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort);
+    QJsonObject slotReadyRead   (QJsonObject &obj);
 public:
     explicit DBClient(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort, QObject *parent = 0);
 public slots:
-    QJsonObject slotReadyRead   (                            );
     void slotError       (QAbstractSocket::SocketError);
     void slotConnected   (                            );
     void sendToServer(const QJsonObject& jso);
