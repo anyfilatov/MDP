@@ -2,10 +2,10 @@
 #define DISPATCHER_H
 
 
-#include "HashTable.h"
-#include "TableKey.h"
-#include "StringWithHash.h"
-#include "IntWithHash.h"
+#include "HashTable/HashTable.h"
+#include "HashTable/TableKey.h"
+#include "HashTable/StringWithHash.h"
+#include "HashTable/IntWithHash.h"
 #include "Data.h"
 #include <QObject>
 #include <QTcpServer>
@@ -37,6 +37,7 @@ public:
     MDPData* get(short int userId, short int dataId, short int processId, int strNum, int count);
     void remove(short int userId, short int dataId, short int processId);
     MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
+    int getSize(short int userId, short int dataId, short int processId);
 };
 
 

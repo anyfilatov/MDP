@@ -1,10 +1,10 @@
 #ifndef STORAGE
 #define STORAGE
 
-#include "HashTable.h"
-#include "TableKey.h"
-#include "StringWithHash.h"
-#include "IntWithHash.h"
+#include "HashTable/HashTable.h"
+#include "HashTable/TableKey.h"
+#include "HashTable/StringWithHash.h"
+#include "HashTable/IntWithHash.h"
 #include "Data.h"
 
 using namespace std;

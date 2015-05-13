@@ -6,14 +6,14 @@
 #include <QString>
 #include <sys/stat.h>
 #include <vector>
-#include "StringWithHash.h"
-#include "IntWithHash.h"
-#include "AbstractTableKey.h"
-#include "TableKey.h"
-#include "HashTable.h"
-#include "CellItem.h"
+#include "HashTable/StringWithHash.h"
+#include "HashTable/IntWithHash.h"
+#include "HashTable/AbstractTableKey.h"
+#include "HashTable/TableKey.h"
+#include "HashTable/HashTable.h"
+#include "HashTable/CellItem.h"
 #include "Data.h"
-#include "dispatcher.h"
+#include "Dispatcher/Dispatcher.h"
 #include <QTextStream>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         IntWithHash* val = iter.next();
         cout << val->getValue() << endl;
     }*/
-    int dim = 400000;
+    int dim = 400;
     vector<QString> headers(3);
     vector<vector<QString> > cells(dim);
     headers[0] = "firstaeiurblsrun";
@@ -121,10 +121,15 @@ int main(int argc, char *argv[])
     //data.serialize();
     //MDPData data;
 
-    Dispatcher dispatcher(2323);
-    dispatcher.put(0, 3, 2, &data);
-    //DBClient client("172.19.4.43", 2323);
-    //client.get(0, 3, 2);
+    //Dispatcher dispatcher(2323);
+    //dispatcher.put(0, 3, 2, &data);
+    //qDebug() << dispatcher.getSize(0,3,2);
+    DBClient client("172.19.25.19", 2323);
+    MDPData* d = client.get(0, 3, 2);
+    if (d){
+        d->serialize();
+    }
+    qDebug() << client.getSize(0, 3, 2);
 
     /*Data* newData = dispatcher.get(0, 3, 2);
     newData->serialize();

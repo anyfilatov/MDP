@@ -2,10 +2,10 @@
 #define DISPATCHER_CPP
 
 #include "Dispatcher.h"
-#include "HashTable.h"
-#include "TableKey.h"
-#include "StringWithHash.h"
-#include "IntWithHash.h"
+#include "HashTable/HashTable.h"
+#include "HashTable/TableKey.h"
+#include "HashTable/StringWithHash.h"
+#include "HashTable/IntWithHash.h"
 #include "Data.h"
 #include <QString>
 #include <vector>
@@ -64,15 +64,39 @@ void Dispatcher::slotReadClient()
         QByteArray arr;
         in >> arr;
 
-        QJsonObject buff;
         QJsonObject jso = QJsonDocument::fromJson(arr).object();
         QJsonObject jsAnswer;
 
         MDPData* d;
-        //d.parse(jso.take("DATA").toString());
         QString comm = jso.take("COMMAND").toString();
 
-        if (comm == "GET_NEXTSTR") {
+        if (comm == "REMOVE") {
+            short userId = jso.take("USER_ID").toInt();
+            short dataId = jso.take("DATA_ID").toInt();
+            short processId = jso.take("PROCESS_ID").toInt();
+            int size = getSize(userId, dataId, processId);
+            jsAnswer.insert("COMMAND", "_REMOVE");
+            TableKey key(userId, dataId, processId);
+            IntWithHash* info = tableInfo.get(&key);
+            if (info != NULL){
+                remove(userId, dataId, processId);
+                jsAnswer.insert("SUCCESS", true);
+            }else{
+                jsAnswer.insert("SUCCESS", false);
+            }
+            sendToClient(pClientSocket, jsAnswer);
+        }else if (comm == "GET_SIZE") {
+            short userId = jso.take("USER_ID").toInt();
+            short dataId = jso.take("DATA_ID").toInt();
+            short processId = jso.take("PROCESS_ID").toInt();
+            int size = getSize(userId, dataId, processId);
+            jsAnswer.insert("COMMAND", "_GET_SIZE");
+            if (d >= 0) {
+                jsAnswer.insert("SIZE", size);
+            }
+            sendToClient(pClientSocket, jsAnswer);
+           //qDebug() << "Dispatcher: COMMAND GET_3 " << userId << ":" << dataId << ":" << processId << ":" << "; SIZE : " << d->size();
+        }else if (comm == "GET_NEXTSTR") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
             short processId = jso.take("PROCESS_ID").toInt();
@@ -340,6 +364,15 @@ MDPData* Dispatcher::getNextStrings(short int userId, short int dataId, short in
         increment->setValue(increment->getValue() + count);
     }
     return get(userId, dataId, processId, firstIndex, count);
+}
+
+int Dispatcher::getSize(short userId, short dataId, short processId){
+    TableKey key(userId, dataId, processId);
+    IntWithHash* info = tableInfo.get(&key);
+    if (info != NULL){
+        return info->getValue();
+    }
+    return 0;
 }
 
 #endif

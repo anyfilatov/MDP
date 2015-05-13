@@ -1,8 +1,8 @@
 #include "DBClient.h"
-#include "HashTable.h"
-#include "TableKey.h"
-#include "StringWithHash.h"
-#include "IntWithHash.h"
+#include "HashTable/HashTable.h"
+#include "HashTable/TableKey.h"
+#include "HashTable/StringWithHash.h"
+#include "HashTable/IntWithHash.h"
 #include "Data.h"
 #include <QString>
 #include <vector>
@@ -21,6 +21,7 @@ using namespace std;
 DBClient::DBClient(const QString& strHost, int nPort, QObject *parent) :
     QObject(parent), m_nNextBlockSize(0)
 {
+    maxCellsSize = 100000;
     m_pTcpSocket = new QTcpSocket(this);
 
     m_pTcpSocket->connectToHost(strHost, nPort);
@@ -47,6 +48,11 @@ QJsonObject DBClient::slotReadyRead()
                 continue;
             }else
                 break;
+        }else{
+            qDebug() << "TIME OUT!";
+            QJsonObject obj;
+            obj.insert("SUCCESS", false);
+            return obj;
         }
     }
     QByteArray arr;
@@ -102,39 +108,49 @@ bool DBClient::put(short int userId, short int dataId, short int processId, MDPD
     obj.insert("DATA_ID", dataId);
     obj.insert("PROCESS_ID", processId);
     obj.insert("DATA", data->serialize());
-    sendToServer(obj);
-    if (m_pTcpSocket->waitForReadyRead(5000)){
-        QJsonObject obj = slotReadyRead();
-        MDPData data;
-        if (obj.contains("SUCCESS")){
-            return obj.take("SUCCESS").toBool();
-        }else{
-            return false;
-        }
+    obj = slotReadyRead();
+    if (obj.contains("SUCCESS")){
+        return obj.take("SUCCESS").toBool();
     }
     return false;
 }
 
 MDPData* DBClient::get(short int userId, short int dataId, short int processId){
-    QJsonObject obj;
-    obj.insert("COMMAND", "GET_3");
-    obj.insert("USER_ID", userId);
-    obj.insert("DATA_ID", dataId);
-    obj.insert("PROCESS_ID", processId);
-    sendToServer(obj);
-        QJsonObject obj2 = slotReadyRead();
-        QJsonDocument doc(obj2);
-        qDebug() << doc.toJson();
-        /*MDPData* data = new MDPData;
-
+    int size = getSize(userId, dataId, processId);
+    if (size <= maxCellsSize){
+        QJsonObject obj;
+        obj.insert("COMMAND", "GET_3");
+        obj.insert("USER_ID", userId);
+        obj.insert("DATA_ID", dataId);
+        obj.insert("PROCESS_ID", processId);
+        sendToServer(obj);
+        obj = slotReadyRead();
+        MDPData* data = new MDPData;
         if (obj.contains("DATA")){
-            qDebug() << obj.take("DATA").toString();
-            //data->parse(obj.take("DATA").toString());
-            //data->serialize();
+            data->parse(obj.take("DATA").toString());
             return data;
-        }else{
-            return NULL;
-        }*/
+        }
+        return NULL;
+    }
+    int first = 0;
+    vector<vector<QString> > allCells;
+    vector<QString> headers;
+
+    while(first < size){
+        MDPData* data = get(userId, dataId, processId, first, maxCellsSize);
+        if (headers.size() == 0){
+            headers = data->getHeaders();
+        }
+        vector<vector<QString> > cells = data->getCells();
+        for (int i = 0; i < cells.size(); i++){
+            allCells.push_back(cells[i]);
+        }
+        if (data){
+            qDebug() << data->serialize();
+        }
+        first += maxCellsSize;
+    }
+    MDPData allData(headers, allCells, 0);
     return NULL;
 }
 
@@ -169,22 +185,27 @@ MDPData* DBClient::get(short int userId, short int dataId, short int processId, 
     obj.insert("STR_NUM", strNum);
     obj.insert("COUNT", count);
     sendToServer(obj);
-    if (m_pTcpSocket->waitForReadyRead(5000)){
-        QJsonObject obj = slotReadyRead();
-        MDPData* data = new MDPData;
-        if (obj.contains("DATA")){
-            data->parse(obj.take("DATA").toString());
-            data->serialize();
-            return data;
-        }else{
-            return NULL;
-        }
+    obj = slotReadyRead();
+    MDPData* data = new MDPData;
+    if (obj.contains("DATA")){
+        data->parse(obj.take("DATA").toString());
+        data->serialize();
+        return data;
     }
     return NULL;
 }
 
-void DBClient::remove(short int userId, short int dataId, short int processId){
-
+bool DBClient::remove(short int userId, short int dataId, short int processId){
+    QJsonObject obj;
+    obj.insert("COMMAND", "REMOVE");
+    obj.insert("USER_ID", userId);
+    obj.insert("DATA_ID", dataId);
+    obj.insert("PROCESS_ID", processId);
+    obj = slotReadyRead();
+    if (obj.contains("SUCCESS")){
+        return obj.take("SUCCESS").toBool();
+    }
+    return false;
 }
 
 MDPData* DBClient::getNextStrings(short int userId, short int dataId, short int processId, short int count){
@@ -207,4 +228,19 @@ MDPData* DBClient::getNextStrings(short int userId, short int dataId, short int 
         }
     }
     return NULL;
+}
+
+int DBClient::getSize(short userId, short dataId, short processId){
+    QJsonObject obj;
+    obj.insert("COMMAND", "GET_SIZE");
+    obj.insert("USER_ID", userId);
+    obj.insert("DATA_ID", dataId);
+    obj.insert("PROCESS_ID", processId);
+    sendToServer(obj);
+    obj = slotReadyRead();
+    if (obj.contains("SIZE")){
+        return obj.take("DATA").toInt();
+    }else{
+        return 0;
+    }
 }

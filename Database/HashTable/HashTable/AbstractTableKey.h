@@ -2,7 +2,7 @@
 #define TableKey_h
 
 #include "Clonable.h"
-#include "Hashable.h"
+#include "HashTable/Hashable.h"
 #include "Serializible.h"
 
 class AbstractTableKey: public Clonable, public Hashable, public Serializible{

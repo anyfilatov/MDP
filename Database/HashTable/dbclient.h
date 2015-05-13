@@ -1,10 +1,10 @@
 #ifndef DBCLIENT_H
 #define DBCLIENT_H
 
-#include "HashTable.h"
-#include "TableKey.h"
-#include "StringWithHash.h"
-#include "IntWithHash.h"
+#include "HashTable/HashTable.h"
+#include "HashTable/TableKey.h"
+#include "HashTable/StringWithHash.h"
+#include "HashTable/IntWithHash.h"
 #include "Data.h"
 #include <QThreadPool>
 #include <QTcpSocket>
@@ -19,15 +19,16 @@ private:
     QTcpSocket* m_pTcpSocket;
     quint64     m_nNextBlockSize;
     QThread* thread;
-
+    int maxCellsSize;
     //
 public:
     bool put(short int userId, short int dataId, short int processId, MDPData* data);
     MDPData* get(short int userId, short int dataId, short int processId);
     MDPData* get(short int userId, short int dataId, short int processId, int strNum);
     MDPData* get(short int userId, short int dataId, short int processId, int strNum, int count);
-    void remove(short int userId, short int dataId, short int processId);
+    bool remove(short int userId, short int dataId, short int processId);
     MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
+    int getSize(short int userId, short int dataId, short int processId);
 public:
     explicit DBClient(const QString& strHost, int nPort, QObject *parent = 0);
 public slots:
