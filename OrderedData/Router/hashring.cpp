@@ -139,15 +139,17 @@ void HashRing::stabilize() {
   _haveReplicaOf = to_be_predecessor;
 }
 
-size_t HashRing::hash(QString key) {
-  size_t hash = 0;
-
-  for (char c : key.toStdString()) {
-    hash = c + (hash << 6) + (hash << 16) - hash;
+unsigned int HashRing::hash(QString key) {
+  const char* str = key.toStdString().c_str();
+  const size_t length = strlen(str) + 1;
+  unsigned int hash = OFFSET_BASIS;
+  for (size_t i = 0; i < length; ++i) {
+    hash ^= *str++;
+    hash *= FNV_PRIME;
   }
-
   return hash;
 }
+
 
 bool HashRing::hashBasedLessThen(const Node* node1, const Node* node2) {
   return hash(node1->getAddress()) < hash(node2->getAddress());

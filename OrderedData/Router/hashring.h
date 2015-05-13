@@ -32,8 +32,12 @@ private:
   iCache<QString, QString>* _cache;
 
   void stabilize();
-  static size_t hash(QString key);
   static bool hashBasedLessThen(const Node* node1, const Node* node2);
+
+  static unsigned int hash(QString key);
+  static const unsigned int FNV_PRIME = 16777619u;
+  static const unsigned int OFFSET_BASIS = 2166136261u;
+
 };
 
 #endif  // HASHRING_H
