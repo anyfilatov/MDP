@@ -9,17 +9,22 @@
         <group>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/include/util.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/src/Server.cpp</file>
+            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/RbTree.h</file>
+            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/DataBase.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/include/Task.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/main.cpp</file>
+            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/OrGraph.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/include/JsonParser.h</file>
-            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/orgraph.h</file>
+            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/ThreadPool.h</file>
+            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/Node.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/include/LuaExecutor.h</file>
-            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/errors.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/src/Task.cpp</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/include/Server.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/include/wrapper.h</file>
+            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/Iterator.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/include/host.h</file>
             <file>file:/home/savinov/edu/mdp/mdp/Connection/CloudApp/config.json</file>
+            <file>file:/home/savinov/edu/mdp/mdp/Connection/include/Logger.h</file>
         </group>
     </open-files>
 </project-private>
