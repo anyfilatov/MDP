@@ -29,7 +29,7 @@
 using namespace std;
 
 void testGuiParser(){
-    vector<QString>* headers = new vector<QString>(14);
+    vector<QString>* headers = new vector<QString>();
    headers->push_back("Longtitude");
    headers->push_back("Latitude");
    headers->push_back("January");
@@ -44,15 +44,16 @@ void testGuiParser(){
    headers->push_back("October");
    headers->push_back("November");
    headers->push_back("December");
-   vector<int>* numberHeaders = new vector<int>(14);
+   vector<int>* numberHeaders = new vector<int>();
    for (int i=1;i<=14;i++){
        numberHeaders->push_back(i);
    }
     GuiFileParser parser;
     parser.setBlockSize(25);
     parser.setHeaders(headers,numberHeaders);
-    parser.setIds(0,2,3);
-    DBClient db("172.19.2.66", 2323);
+    parser.setIds(1,0,0);
+    DBClient db("192.168.2.1", 2323);
+
     parser.loadFile("D:\\MDP\\Global2011T\\air_temp.1900", db);
 }
 int main(int argc, char *argv[])

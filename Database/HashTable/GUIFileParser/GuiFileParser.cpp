@@ -24,6 +24,7 @@ void GuiFileParser::loadFile(QString fileName, DBClient& db){
                 db.put(userId,dataId,processId,datablock);
             }
             delete datablock;
+            flag=false;
         }while(flag);
         inputFile.close();
     }
@@ -58,6 +59,7 @@ MDPData* GuiFileParser::packDataBlock(QTextStream& inputStream){
             celss.push_back(cortege);
             delete line;
         }
+       lines++;
     }while (flag);
     MDPData* data = new MDPData(*headers, celss, 0);
     return data;
