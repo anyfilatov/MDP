@@ -1,3 +1,6 @@
+#ifndef DBCLIENT_CPP
+#define DBCLIENT_CPP
+
 #include "DBClient.h"
 #include "HashTable/HashTable.h"
 #include "HashTable/TableKey.h"
@@ -273,3 +276,27 @@ vector<short> DBClient::getUsers(){
     }
     return users;
 }
+
+
+vector<pair<short, short> > DBClient::getTableIds(short userId){
+    QJsonObject obj;
+    obj.insert("COMMAND", "GET_TABLEIDS");
+    obj.insert("USER_ID", userId);
+    sendToServer(obj);
+    obj = slotReadyRead();
+    vector<pair<short, short> > ids;
+    if (obj.contains("TABLE_IDS")){
+        QJsonArray array = obj.take("TABLE_IDS").toArray();
+        qDebug() << array;
+        for (short i = 0; i < array.size(); i++){
+            QJsonObject obj = array[i].toObject();
+            short dataId = obj.take("DATA_ID").toInt();
+            short processId = obj.take("PROCESS_ID").toInt();
+            pair<short, short> Pair(dataId, processId);
+            ids.push_back(Pair);
+        }
+    }
+    return ids;
+}
+
+#endif
