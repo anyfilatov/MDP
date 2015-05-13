@@ -18,7 +18,7 @@ typedef std::vector<int> UserDbTableIdArray;
 typedef lua_State* Lua;
 typedef std::map<int, std::vector<std::string>> MapDb;
 typedef std::map<int, std::map<std::string, std::list<std::string>>> ReduceDb;
-typedef std::vector<std::pair<std::string, std::string>> KeyValuePairsArray;
+typedef std::vector<std::vector<QString, QString>> KeyValuePairsArray;
 
 static KeyValuePairsArray getKeyValuePairs(Lua l);
 class LuaExecutor;
@@ -304,14 +304,16 @@ static KeyValuePairsArray getKeyValuePairs(lua_State *l) {
         
         // index -2 - there's index
         // index -1 - is a key, or value
+        ret.push_back(KeyValuePairsArray::value_type());
+        auto& vec = ret.back();
         if (lua_isstring(l, -1)) {
             size_t s = 0;
             auto* val = lua_tolstring(l, -1, &s);
             
             if(i%2 == 0) {//that mean key it's STACK!!!!!!!
-                ret.emplace_back(std::string(), std::string(val, s));
+                vec[0] = QString(val, s);
             } else { // that mean value
-                ret.back().first = std::move(std::string(val, s));
+                vec[1] = QString(val, s);
             }
         } else {
             std::string err = util::concat( "User function return variable by type ", lua_typename(l, lua_type(l, -1)), ". expected: string");
@@ -334,51 +336,16 @@ static void CallLuaFunction(LuaExecutor::LuaContextVariable* context, std::pair<
     }
 }
 
-template<>
-void CallLuaFunction<std::string>(LuaExecutor::LuaContextVariable* context, std::pair<std::string, std::string>& param, ActionFunction resultAction) {
-    auto* executor = context->e();
-    auto* l = executor->getLua();
-    lua_pushstring(l, param.first.c_str());
-    lua_call(l, 1, 1);
-    
-    LOG_DEBUG("after call" );
-    if( !lua_istable(l, lua_gettop(l)) ) {
-        std::string err = util::concat("user function ", " return ", lua_typename(l, lua_type(l, lua_gettop(l))), ". expected: table");
-        LOG_WARNING(err);
-        throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
+static void createTableFromDb(Lua l, DB::WrappedType::GetAtomType& content) {
+    lua_newtable(l);
+    int i = 0;
+    auto& vec = content->getCells();
+    for(auto& c : vec) {
+        LOG_TRACE("value=" << c );
+        auto str = c.toStdString();
+        l_pushtablestring(l, i, str.c_str());
+        i++;
     }
-    auto res = getKeyValuePairs(l);
-    for(auto& r : res) {
-        resultAction(r);
-    }
-}
-
-static void doMapForAtoms(LuaExecutor::LuaContextVariable* context) {
-    auto dbRow = context->e()->getNextFromDb();
-    LOG_TRACE("dbRow");
-    auto* executor = context->e();
-    auto* l = executor->getLua();
-    LOG_TRACE("lua_pushstring");
-    lua_pushstring(l, dbRow.c_str());
-    LOG_TRACE("call");
-    lua_call(l, 1, 1);
-    
-    LOG_DEBUG("after call" );
-    if( !lua_istable(l, lua_gettop(l)) ) {
-        std::string err = util::concat("user function ", " return ", lua_typename(l, lua_type(l, lua_gettop(l))), ". expected: table");
-        LOG_WARNING(err);
-        throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
-    }
-    auto res = getKeyValuePairs(l);
-    for(auto& r : res) {
-        context->e()->setSwapToRb(r);
-    }
-}
-
-static void l_pushtablestring(Lua l , int key , const char* value) {
-    lua_pushinteger(l, key);
-    lua_pushstring(l, value);
-    lua_settable(l, -3);
 }
 
 static void createTable(Lua l, RB::WrappedType::GetAtomType& content) {
@@ -389,6 +356,44 @@ static void createTable(Lua l, RB::WrappedType::GetAtomType& content) {
         l_pushtablestring(l, i, c.c_str());
         i++;
     }
+}
+
+
+static void doMapForAtoms(LuaExecutor::LuaContextVariable* context) {
+    while(1){
+        auto dbRow = context->e()->getNextFromDb();
+        if( dbRow->size() == 0 ) {
+            break;
+        }
+        LOG_TRACE("dbRow");
+        auto* executor = context->e();
+        auto* l = executor->getLua();
+        createTableFromDb(l, dbRow);
+        LOG_TRACE("call");
+        lua_call(l, 1, 1);
+
+        LOG_DEBUG("after call" );
+        if( !lua_istable(l, lua_gettop(l)) ) {
+            std::string err = util::concat("user function ", " return ", lua_typename(l, lua_type(l, lua_gettop(l))), ". expected: table");
+            LOG_WARNING(err);
+            throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
+        }
+        auto res = getKeyValuePairs(l);
+        std::vector<QString> headers;
+        headers.push_back("key");
+        headers.push_back("value");
+        dbRow->setHeaders();
+        dbRow->setCells(res);
+        for(auto& r : res) {
+            context->e()->setSwapToRb(r);
+        }
+    }
+}
+
+static void l_pushtablestring(Lua l , int key , const char* value) {
+    lua_pushinteger(l, key);
+    lua_pushstring(l, value);
+    lua_settable(l, -3);
 }
 
 static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context) {

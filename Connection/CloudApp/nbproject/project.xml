@@ -12,6 +12,7 @@
             <sourceRootList>
                 <sourceRootElem>../include</sourceRootElem>
                 <sourceRootElem>../src</sourceRootElem>
+                <sourceRootElem>../../Database/HashTable</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

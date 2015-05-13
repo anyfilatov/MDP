@@ -1,3 +1,4 @@
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -49,3 +50,7 @@ Temporary Items
 /Connection/tests/TestProject/dist/
 /Connection/tests/ExecutionClient/dist/
 /Connection/tests/ExecutionClient/build/
+
+# Qt Creator build directories for subprojects
+build-*
+

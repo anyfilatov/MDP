@@ -1,9 +1,11 @@
-#include <qt5/QtCore/qbytearray.h>
+#include <qbytearray.h>
 
 #include "Task.h"
 #include "LuaExecutor.h"
 #include <QList>
-#include <qt5/QtCore/qdebug.h>
+#include <qdebug.h>
+#include "dbclient.h"
+
 Task::Task(const HostContent& content, RB rb, DB db, OG og)
 : rb_(rb), db_(db), content_(content), og_(og) {
 }

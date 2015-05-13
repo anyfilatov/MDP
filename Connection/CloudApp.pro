@@ -4,16 +4,16 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core network
 
 QT       -= gui
 
-QT_INCLUDE_PATH = /usr/include/qt5/
+QT_INCLUDE_PATH = /home/savinov/Qt/5.4/gcc_64/include/
 LUA_INCLUDE_PATH = /usr/include/lua-5.2.3
 LUA_LIB_PATH = /usr/lib
 SOURCE_PATH=./src
 INCLUDE_PATH=./include
-LUA_STATE_PATH=../../Selene/include
+LUA_STATE_PATH=$$INCLUDE_PATH/selene
 
 TARGET = CloudApp
 CONFIG   += console
@@ -28,13 +28,14 @@ INCLUDEPATH += $$QT_INCLUDE_PATH/QtNetwork\
                $$LUA_INCLUDE_PATH\
                $$INCLUDE_PATH\
                $$LUA_STATE_PATH\
+                ../Database/HashTable/
 
 SOURCES += main.cpp \
     $$SOURCE_PATH/host.cpp \
-    $$SOURCE_PATH/Script.cpp \
     $$SOURCE_PATH/Server.cpp \
     $$SOURCE_PATH/Task.cpp \
-    src/LuaExecutor.cpp
+    ../Database/HashTable/dbclient.cpp \
+    ../Database/HashTable/Data.cpp
 
 HEADERS += \
     $$INCLUDE_PATH/Content.h \
@@ -43,12 +44,20 @@ HEADERS += \
     $$INCLUDE_PATH/hostsender.h \
     $$INCLUDE_PATH/Logger.h \
     $$INCLUDE_PATH/LuaExecutor.h \
-    $$INCLUDE_PATH/orgraph.h \
     $$INCLUDE_PATH/Queue.h \
     $$INCLUDE_PATH/RbTree.h \
-    $$INCLUDE_PATH/Script.h \
     $$INCLUDE_PATH/Server.h \
     $$INCLUDE_PATH/Task.h \
     $$INCLUDE_PATH/TaskScheduler.h \
     $$INCLUDE_PATH/ThreadPool.h \
-    $$INCLUDE_PATH/wrapper.h
+    $$INCLUDE_PATH/wrapper.h \
+    $$INCLUDE_PATH/util.h \
+    $$INCLUDE_PATH/OrGraph.h \
+    $$INCLUDE_PATH/Node.h \
+    $$INCLUDE_PATH/JsonParser.h \
+    $$INCLUDE_PATH/Iterator.h \
+    $$INCLUDE_PATH/errors.h \
+    ../Database/HashTable/dbclient.h \
+    ../Database/HashTable/Data.h \
+    ../Database/HashTable/Clonable.h \
+    ../Database/HashTable/Serializible.h
