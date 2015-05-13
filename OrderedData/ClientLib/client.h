@@ -11,8 +11,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QHostAddress>
-#include "Router/typerequest.h"
-#include "Router/StatusCodes.h"
+#include "typerequest.h"
+#include "StatusCodes.h"
 
 class Client : public QObject {
   Q_OBJECT
@@ -24,8 +24,9 @@ class Client : public QObject {
   int replace(QString key, QStringList values, QString bucket = NULL);
 
   QStringList get(QString key, QString bucket = NULL);
+  QStringList getBucketKeys(QString bucket);
 
-  int remove(QString key);
+  int remove(QString key, QString bucket = NULL);
   int removeBucket(QString bucket);
 
   QStringList getRingHosts();
