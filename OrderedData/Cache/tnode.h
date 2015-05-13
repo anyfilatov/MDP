@@ -19,10 +19,10 @@ public:
     TNode(Color color, TNode<K,V> *left, TNode<K,V> *right, TNode<K,V> *parent);
     TNode(const TNode<K,V>& node);
     ~TNode() {}
-    
+
     void addValue(V value);
     void addValues(vector<V> values);
-    
+
     K key() const { return key_; }
     vector<V> values() const { return values_; }
     Color color() const { return color_; }
@@ -30,7 +30,7 @@ public:
     TNode<K,V>* right() const { return right_; }
     TNode<K,V>* parent() const { return parent_; }
     bool is_replica() const { return replica_; }
-    
+
     void set_key(K key) { key_ = key; }
     void set_values(vector<V> values) { values_ = values; }
     void set_color(Color color) { color_ = color; }
@@ -38,7 +38,7 @@ public:
     void set_right(TNode<K,V> *right) { right_ = right; }
     void set_parent(TNode<K,V> *parent) { parent_ = parent; }
     void set_replica(bool replica) { replica_ = replica; }
-    
+
 private:
     K key_;
     vector<V> values_;
@@ -47,7 +47,7 @@ private:
     TNode<K,V> *right_;
     TNode<K,V> *parent_;
     bool replica_;
-    
+
     void init(K key, V value, Color color, TNode<K,V> *left, TNode<K,V> *right, TNode<K,V> *parent);
 };
 

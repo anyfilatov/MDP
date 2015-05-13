@@ -15,33 +15,34 @@ public:
     RBTree();
     RBTree(K key, V value);
     ~RBTree();
-    
+
     void insert(TNode<K,V> *z);
     void insert(K key, V value);
     void insert(K key, vector<V> values);
     void replace(K key, vector<V> values);
-    
+
     void remove(K key);
     TNode<K,V>* remove(TNode<K,V> *z); // don't delete memory
     void removeAll();
-    
+
     TNode<K,V>* search(TNode<K,V> *x, K key);
+    TNode<K,V>& getNode(K key);
     vector<V> search(K key);
-    
+
     void inorderWalk(TNode<K,V> *x, std::ostream_iterator<K> &iter);
     QList<TNode<K,V>*> nodes();
     QList<TNode<K,V>*> replicaNodes();
-    
+
     bool isEmpty() { return size_ == 0 ? true : false; }
     unsigned int size() { return size_; }
-    
+
     TNode<K,V>* root() { return root_; }
-    
+
 private:
     TNode<K,V> *root_;
     TNode<K,V> *nil_;
     unsigned int size_;
-    
+
     void leftRotate(TNode<K,V> *x);
     void rightRotate(TNode<K,V> *x);
     void insertFixup(TNode<K,V> *z);
@@ -145,6 +146,12 @@ template<typename K, typename V>
 vector<V> RBTree<K,V>::search(K key)
 {
     return search(root_, key)->values();
+}
+
+template<typename K, typename V>
+TNode<K,V>& RBTree<K,V>::getNode(K key)
+{
+    return *search(root_, key);
 }
 
 template<typename K, typename V>
