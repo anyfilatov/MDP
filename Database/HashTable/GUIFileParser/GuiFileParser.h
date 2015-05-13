@@ -13,11 +13,11 @@ private:
     int dataId;
     int processId;
 
-    MDPData* packDataBlock(ifstream& ifstream, DBClient& db);
+    MDPData* packDataBlock(QTextStream& inputStream, DBClient& db);
 public:
        void setHeaders(vector<QString>* headers, vector<int>* headersNums);
-       void loadFile(QString* fileName, DBClient& db);
-       void setIds(int userId, int dataId, int processId=0);
+       void loadFile(QString fileName, DBClient& db);
+       void setIds(int nuserId, int ndataId, int nprocessId);
        void setBlockSize(int blockSize);
 };
 

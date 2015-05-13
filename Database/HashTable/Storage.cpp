@@ -2,7 +2,7 @@
 #define STORAGE_CPP
 
 #include "Storage.h"
-#include "HashTable.h"
+#include "HashTable/HashTable.h"
 #include "HashTable/TableKey.h"
 #include "HashTable/StringWithHash.h"
 #include "HashTable/IntWithHash.h"

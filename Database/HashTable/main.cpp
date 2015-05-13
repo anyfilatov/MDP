@@ -25,9 +25,36 @@
 //#include <unistd.h>
 #include <QAbstractSocket>
 #include <QThread>
-
+#include "GUIFileParser/GuiFileParser.h"
 using namespace std;
 
+void testGuiParser(){
+    vector<QString>* headers = new vector<QString>(14);
+   headers->push_back("Longtitude");
+   headers->push_back("Latitude");
+   headers->push_back("January");
+   headers->push_back("February");
+   headers->push_back("Marth");
+   headers->push_back("April");
+   headers->push_back("May");
+   headers->push_back("June");
+   headers->push_back("July");
+   headers->push_back("August");
+   headers->push_back("Semptember");
+   headers->push_back("October");
+   headers->push_back("November");
+   headers->push_back("December");
+   vector<int>* numberHeaders = new vector<int>(14);
+   for (int i=1;i<=14;i++){
+       numberHeaders->push_back(i);
+   }
+    GuiFileParser parser;
+    parser.setBlockSize(25);
+    parser.setHeaders(headers,numberHeaders);
+    parser.setIds(0,2,3);
+    DBClient db("172.19.25.19", 2323);
+    parser.loadFile("D:\\MDP\\Global2011T\\air_temp.1900", db);
+}
 int main(int argc, char *argv[])
 {
     QTextStream cout(stdout);
@@ -128,8 +155,7 @@ int main(int argc, char *argv[])
     dispatcher.put(0, 3, 2, &data);
     dispatcher.put(0,2,1, &data1);
     dispatcher.put(2, 2, 1, &data2);
-    QJsonArray keys = dispatcher.getUsers();
-    qDebug() << keys;
+
     /*qDebug() << dispatcher.getSize(0,3,2);
     MDPData* d = dispatcher.get(0, 3, 2, 3, 10);
     if (d != NULL){
@@ -168,7 +194,7 @@ int main(int argc, char *argv[])
         if (newData != NULL)
             newData->serialize();
     }*/
-
+    testGuiParser();
     return app.exec();
 }
 

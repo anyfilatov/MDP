@@ -71,7 +71,23 @@ void Dispatcher::slotReadClient()
         MDPData* d;
         QString comm = jso.take("COMMAND").toString();
 
-        if (comm == "GET_USERS") {
+
+        if (comm == "ADD_HOST"){
+            QString ip = jso.take("IP").toString();
+            QString port = jso.take("PORT").toInt();
+        } else if (comm == "PING_ALL"){
+            QJsonArray ips;
+            jsAnswer.insert("COMMAND", "_PING_ALL");
+            jsAnswer.insert("HOSTS", ips);
+            sendToClient(pClientSocket, jsAnswer);
+        }
+        else if (comm == "GET_TABLEIDS") {
+            short userId = jso.take("USER_ID").toInt();
+            QJsonArray ids = getTableIds(userId);
+            jsAnswer.insert("COMMAND", "_GET_TABLEIDS");
+            jsAnswer.insert("TABLE_IDS", ids);
+            sendToClient(pClientSocket, jsAnswer);
+        }else if (comm == "GET_USERS") {
             QJsonArray users = getUsers();
             jsAnswer.insert("COMMAND", "_GET_USERS");
             jsAnswer.insert("USERS", users);
@@ -174,7 +190,7 @@ void Dispatcher::slotReadClient()
 
 
         //qDebug() << "Dispatcher: Incoming message : " << arr;
-        //qDebug() << "Dispatcher: Command -> " << comm;
+        qDebug() << "Dispatcher: Command -> " << comm;
         //qDebug() << "Dispatcher: Data -> " << d.serialize();
 
         m_nNextBlockSize = 0;
