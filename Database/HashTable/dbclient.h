@@ -23,6 +23,12 @@ private:
     quint64     m_nNextBlockSize;
     QThread* thread;
     int maxCellsSize;
+    QString ip;
+    QString spareIp;
+    int port;
+    int sparePort;
+    void _connect();
+    void switchIps();
 
 public:
     bool put(short int userId, short int dataId, short int processId, MDPData* data);
@@ -34,8 +40,9 @@ public:
     int getSize(short int userId, short int dataId, short int processId);
     vector<short> getUsers();
     vector<pair<short, short> > getTableIds(short userId);
+    void setIps(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort);
 public:
-    explicit DBClient(const QString& strHost, int nPort, QObject *parent = 0);
+    explicit DBClient(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort, QObject *parent = 0);
 public slots:
     QJsonObject slotReadyRead   (                            );
     void slotError       (QAbstractSocket::SocketError);

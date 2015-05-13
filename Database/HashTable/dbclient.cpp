@@ -22,17 +22,43 @@
 
 using namespace std;
 
-DBClient::DBClient(const QString& strHost, int nPort, QObject *parent) :
+DBClient::DBClient(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort, QObject *parent) :
     QObject(parent), m_nNextBlockSize(0)
 {
     maxCellsSize = 1000;
+    ip = strHost;
+    spareIp = strSpareHost;
+    port = nPort;
+    sparePort = nSparePort;
+    _connect();
+
+}
+
+void DBClient::_connect(){
     m_pTcpSocket = new QTcpSocket(this);
 
-    m_pTcpSocket->connectToHost(strHost, nPort);
+    m_pTcpSocket->connectToHost(ip, port);
     connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
     //connect(m_pTcpSocket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
     connect(m_pTcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
-    qDebug() << "DBClient: Started; server host: " << strHost << ", port: " << nPort;
+    qDebug() << "DBClient: Started; server host: " << ip << ", port: " << port;
+}
+
+void DBClient::switchIps(){
+    QString str = ip;
+    ip = spareIp;
+    spareIp = str;
+    int n = port;
+    port = sparePort;
+    sparePort = n;
+}
+
+void DBClient::setIps(const QString &strHost, int nPort, const QString &strSpareHost, int nSparePort){
+    ip = strHost;
+    spareIp = strSpareHost;
+    port = nPort;
+    sparePort = nSparePort;
+    _connect();
 }
 
 QJsonObject DBClient::slotReadyRead()
@@ -55,7 +81,7 @@ QJsonObject DBClient::slotReadyRead()
         }else{
             qDebug() << "TIME OUT!";
             QJsonObject obj;
-            obj.insert("SUCCESS", false);
+            obj.insert("TIME_OUT", true);
             return obj;
         }
     }
@@ -112,9 +138,21 @@ bool DBClient::put(short int userId, short int dataId, short int processId, MDPD
     obj.insert("DATA_ID", dataId);
     obj.insert("PROCESS_ID", processId);
     obj.insert("DATA", data->serialize());
-    obj = slotReadyRead();
-    if (obj.contains("SUCCESS")){
-        return obj.take("SUCCESS").toBool();
+    sendToServer(obj);
+    QJsonObject obj2 = slotReadyRead();
+    if (obj2.contains("TIME_OUT")){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+        switchIps();
+        _connect();
+        sendToServer(obj);
+        obj2 = slotReadyRead();
+        if (obj.contains("TIME_OUT")){
+            return false;
+        }
+    }
+    if (obj2.contains("SUCCESS")){
+        return obj2.take("SUCCESS").toBool();
     }
     return false;
 }
@@ -129,12 +167,23 @@ MDPData* DBClient::get(short int userId, short int dataId, short int processId){
         obj.insert("DATA_ID", dataId);
         obj.insert("PROCESS_ID", processId);
         sendToServer(obj);
-        obj = slotReadyRead();
-        QJsonDocument doc(obj);
+        QJsonObject obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            m_pTcpSocket->close();
+            delete m_pTcpSocket;
+            switchIps();
+            _connect();
+            sendToServer(obj);
+            obj2 = slotReadyRead();
+            if (obj2.contains("TIME_OUT")){
+                return NULL;
+            }
+        }
+        QJsonDocument doc(obj2);
         qDebug() << doc.toJson();
         MDPData* data = new MDPData;
-        if (obj.contains("DATA")){
-            data->parse(obj.take("DATA").toString());
+        if (obj2.contains("DATA")){
+            data->parse(obj2.take("DATA").toString());
             return data;
         }
         return NULL;
@@ -167,10 +216,21 @@ MDPData* DBClient::get(short int userId, short int dataId, short int processId, 
     obj.insert("PROCESS_ID", processId);
     obj.insert("STR_NUM", strNum);
     sendToServer(obj);
-    obj = slotReadyRead();
+    QJsonObject obj2 = slotReadyRead();
+    if (obj2.contains("TIME_OUT")){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+        switchIps();
+        _connect();
+        sendToServer(obj);
+        obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            return NULL;
+        }
+    }
     MDPData* data = new MDPData;
-    if (obj.contains("DATA")){
-        data->parse(obj.take("DATA").toString());
+    if (obj2.contains("DATA")){
+        data->parse(obj2.take("DATA").toString());
         return data;
     }
     return NULL;
@@ -186,10 +246,21 @@ MDPData* DBClient::get(short int userId, short int dataId, short int processId, 
         obj.insert("STR_NUM", strNum);
         obj.insert("COUNT", count);
         sendToServer(obj);
-        obj = slotReadyRead();
+        QJsonObject obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            m_pTcpSocket->close();
+            delete m_pTcpSocket;
+            switchIps();
+            _connect();
+            sendToServer(obj);
+            obj2 = slotReadyRead();
+            if (obj2.contains("TIME_OUT")){
+                return NULL;
+            }
+        }
         MDPData* data = new MDPData;
-        if (obj.contains("DATA")){
-            data->parse(obj.take("DATA").toString());
+        if (obj2.contains("DATA")){
+            data->parse(obj2.take("DATA").toString());
             return data;
         }
         return NULL;
@@ -224,9 +295,20 @@ bool DBClient::remove(short int userId, short int dataId, short int processId){
     obj.insert("DATA_ID", dataId);
     obj.insert("PROCESS_ID", processId);
     sendToServer(obj);
-    obj = slotReadyRead();
-    if (obj.contains("SUCCESS")){
-        return obj.take("SUCCESS").toBool();
+    QJsonObject obj2 = slotReadyRead();
+    if (obj2.contains("TIME_OUT")){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+        switchIps();
+        _connect();
+        sendToServer(obj);
+        obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            return false;
+        }
+    }
+    if (obj2.contains("SUCCESS")){
+        return obj2.take("SUCCESS").toBool();
     }
     return false;
 }
@@ -239,10 +321,21 @@ MDPData* DBClient::getNextStrings(short int userId, short int dataId, short int 
     obj.insert("PROCESS_ID", processId);
     obj.insert("COUNT", count);
     sendToServer(obj);
-    obj = slotReadyRead();
+    QJsonObject obj2 = slotReadyRead();
+    if (obj2.contains("TIME_OUT")){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+        switchIps();
+        _connect();
+        sendToServer(obj);
+        obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            return NULL;
+        }
+    }
     MDPData* data = new MDPData;
-    if (obj.contains("DATA")){
-        data->parse(obj.take("DATA").toString());
+    if (obj2.contains("DATA")){
+        data->parse(obj2.take("DATA").toString());
         return data;
     }
     return NULL;
@@ -255,9 +348,20 @@ int DBClient::getSize(short userId, short dataId, short processId){
     obj.insert("DATA_ID", dataId);
     obj.insert("PROCESS_ID", processId);
     sendToServer(obj);
-    obj = slotReadyRead();
-    if (obj.contains("SIZE")){
-        return obj.take("SIZE").toInt();
+    QJsonObject obj2 = slotReadyRead();
+    if (obj2.contains("TIME_OUT")){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+        switchIps();
+        _connect();
+        sendToServer(obj);
+        obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            return 0;
+        }
+    }
+    if (obj2.contains("SIZE")){
+        return obj2.take("SIZE").toInt();
     }
     return 0;
 }
@@ -266,10 +370,21 @@ vector<short> DBClient::getUsers(){
     QJsonObject obj;
     obj.insert("COMMAND", "GET_USERS");
     sendToServer(obj);
-    obj = slotReadyRead();
+    QJsonObject obj2 = slotReadyRead();
     vector<short> users;
-    if (obj.contains("USERS")){
-        QJsonArray array = obj.take("USERS").toArray();
+    if (obj2.contains("TIME_OUT")){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+        switchIps();
+        _connect();
+        sendToServer(obj);
+        obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            return users;
+        }
+    }
+    if (obj2.contains("USERS")){
+        QJsonArray array = obj2.take("USERS").toArray();
         for (short i = 0; i < array.size(); i++){
             users.push_back(array[i].toInt());
         }
@@ -283,8 +398,19 @@ vector<pair<short, short> > DBClient::getTableIds(short userId){
     obj.insert("COMMAND", "GET_TABLEIDS");
     obj.insert("USER_ID", userId);
     sendToServer(obj);
-    obj = slotReadyRead();
+    QJsonObject obj2 = slotReadyRead();
     vector<pair<short, short> > ids;
+    if (obj2.contains("TIME_OUT")){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+        switchIps();
+        _connect();
+        sendToServer(obj);
+        obj2 = slotReadyRead();
+        if (obj2.contains("TIME_OUT")){
+            return ids;
+        }
+    }
     if (obj.contains("TABLE_IDS")){
         QJsonArray array = obj.take("TABLE_IDS").toArray();
         qDebug() << array;
