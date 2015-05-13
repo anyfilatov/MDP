@@ -52,7 +52,7 @@ void testGuiParser(){
     parser.setBlockSize(25);
     parser.setHeaders(headers,numberHeaders);
     parser.setIds(0,2,3);
-    DBClient db("172.19.25.19", 2323);
+    DBClient db("172.19.2.66", 2323);
     parser.loadFile("D:\\MDP\\Global2011T\\air_temp.1900", db);
 }
 int main(int argc, char *argv[])
@@ -130,31 +130,31 @@ int main(int argc, char *argv[])
         IntWithHash* val = iter.next();
         cout << val->getValue() << endl;
     }*/
-    int dim = 10;
-    vector<QString> headers(3);
-    vector<vector<QString> > cells(dim);
-    headers[0] = "firstaeiurblsrun";
-    headers[1] = "secersgsregsergond";
-    headers[2] = "tegersgsergregserhird";
+//    int dim = 10;
+//    vector<QString> headers(3);
+//    vector<vector<QString> > cells(dim);
+//    headers[0] = "firstaeiurblsrun";
+//    headers[1] = "secersgsregsergond";
+//    headers[2] = "tegersgsergregserhird";
 
-    for (int i = 0; i < dim; i++){
-        for (int j = 0; j < 3; j++){
-            cells[i].push_back(QString::number(i) + QString::number(j));
-        }
-    }
+//    for (int i = 0; i < dim; i++){
+//        for (int j = 0; j < 3; j++){
+//            cells[i].push_back(QString::number(i) + QString::number(j));
+//        }
+//    }
 
 
-    MDPData data1(headers, cells, 0);
-    MDPData data2(headers, cells, 0);
-    MDPData data(headers, cells, 0);
+//    MDPData data1(headers, cells, 0);
+//    MDPData data2(headers, cells, 0);
+//    MDPData data(headers, cells, 0);
     //data.parse(data.serialize());
     //data.serialize();
     //MDPData data;
 
-    Dispatcher dispatcher(2323);
-    dispatcher.put(0, 3, 2, &data);
-    dispatcher.put(0,2,1, &data1);
-    dispatcher.put(2, 2, 1, &data2);
+//    Dispatcher dispatcher(2323);
+//    dispatcher.put(0, 3, 2, &data);
+//    dispatcher.put(0,2,1, &data1);
+//    dispatcher.put(2, 2, 1, &data2);
 
     /*qDebug() << dispatcher.getSize(0,3,2);
     MDPData* d = dispatcher.get(0, 3, 2, 3, 10);
