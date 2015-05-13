@@ -62,12 +62,8 @@ QJsonObject Connect::handleRequest(QJsonObject json) {
       return handleReplace(json);
     case GET:
       return handleGet(json);
-    case GET_BUCKET:
-      return handleGetBucket(json);
     case DEL:
       return handleRemove(json);
-    case DEL_BUCKET:
-      return handleRemoveBucket(json);
     case RINGCECK:
       return handleRingCheck(json);
     case OUTERJOIN:
@@ -94,47 +90,24 @@ QJsonObject Connect::handlePut(QJsonObject json) {
     jsonResp.insert("status", StatusCode::OK);
   } else {
     QList<Node*> nodes;
-    if (json.contains("bucket")) {
-      QString key =
-          json.value("bucket").toString() + "#" + json.value("key").toString();
-      nodes = _ring->findNodes(key);
-      RouterClient client;
-      QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(
-          json, nodes[0]->getHost(), nodes[0]->getPort());
-      QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(
-          json, nodes[1]->getHost(), nodes[1]->getPort(), true);
-      StatusCode codeBucket = (StatusCode)client.put(
-          json.value("bucket").toString().append("_keys"), key);
-      StatusCode codePrimary =
-          (StatusCode)jsonPrimaryResp.value("status").toInt();
-      StatusCode codeReplica =
-          (StatusCode)jsonReplicaResp.value("status").toInt();
-      if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK ||
-          codeBucket == StatusCode::OK) {
-        jsonResp.insert("status", StatusCode::OK);
-      } else {
-        jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
-      }
+    nodes = _ring->findNodes(json.value("key").toString());
+    qDebug() << "Found nodes:";
+    for (Node* node : nodes) {
+    qDebug() << node->getAddress();
+    }
+    RouterClient clientPrimary, clientReplica;
+    QJsonObject jsonPrimaryResp = clientPrimary.doRequestToOtherRouter(
+      json, nodes[0]->getHost(), nodes[0]->getPort());
+    QJsonObject jsonReplicaResp = clientReplica.doRequestToOtherRouter(
+      json, nodes[1]->getHost(), nodes[1]->getPort(), true);
+    StatusCode codePrimary =
+      (StatusCode)jsonPrimaryResp.value("status").toInt();
+    StatusCode codeReplica =
+      (StatusCode)jsonReplicaResp.value("status").toInt();
+    if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK) {
+      jsonResp.insert("status", StatusCode::OK);
     } else {
-      nodes = _ring->findNodes(json.value("key").toString());
-      qDebug() << "Found nodes:";
-      for (Node* node : nodes) {
-        qDebug() << node->getAddress();
-      }
-      RouterClient clientPrimary, clientReplica;
-      QJsonObject jsonPrimaryResp = clientPrimary.doRequestToOtherRouter(
-          json, nodes[0]->getHost(), nodes[0]->getPort());
-      QJsonObject jsonReplicaResp = clientReplica.doRequestToOtherRouter(
-          json, nodes[1]->getHost(), nodes[1]->getPort(), true);
-      StatusCode codePrimary =
-          (StatusCode)jsonPrimaryResp.value("status").toInt();
-      StatusCode codeReplica =
-          (StatusCode)jsonReplicaResp.value("status").toInt();
-      if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK) {
-        jsonResp.insert("status", StatusCode::OK);
-      } else {
-        jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
-      }
+      jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
     }
     for (Node* node : nodes) delete node;
   }
@@ -150,13 +123,7 @@ QJsonObject Connect::handleReplace(QJsonObject json) {
     jsonResp.insert("status", StatusCode::OK);
   } else {
     QList<Node*> nodes;
-    if (json.contains("bucket")) {
-      QString key =
-          json.value("bucket").toString() + "#" + json.value("key").toString();
-      nodes = _ring->findNodes(key);
-    } else {
-      nodes = _ring->findNodes(json.value("key").toString());
-    }
+    nodes = _ring->findNodes(json.value("key").toString());
 
     RouterClient client;
     QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(
@@ -188,13 +155,7 @@ QJsonObject Connect::handleGet(QJsonObject json) {
     jsonResp.insert("status", StatusCode::OK);
   } else {
     QList<Node*> nodes;
-    if (json.contains("bucket")) {
-      QString key =
-          json.value("bucket").toString() + "#" + json.value("key").toString();
-      nodes = _ring->findNodes(key);
-    } else {
-      nodes = _ring->findNodes(json.value("key").toString());
-    }
+    nodes = _ring->findNodes(json.value("key").toString());
 
     RouterClient client;
     QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(
@@ -225,94 +186,13 @@ QJsonObject Connect::handleGet(QJsonObject json) {
     for (Node* node : nodes) delete node;
   }
   return jsonResp;
-}
-
-QJsonObject Connect::handleGetBucket(QJsonObject json) {
-  QJsonObject jsonResp;
-  QString key = json.value("bucket").toString() + "_keys";
-  if (json.contains("not_forwards_requests") &&
-      json.value("not_forwards_requests").toBool()) {
-    QStringList values = _rbtree->search(key);
-    jsonResp.insert("key", json.value("bucket"));
-    jsonResp.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
-    jsonResp.insert("status", StatusCode::OK);
-  } else {
-    QList<Node*> nodes;
-    nodes = _ring->findNodes(key);
-
-    RouterClient client;
-    QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(
-        json, nodes[0]->getHost(), nodes[0]->getPort());
-    QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(
-        json, nodes[1]->getHost(), nodes[1]->getPort(), true);
-    StatusCode codePrimary =
-        (StatusCode)jsonPrimaryResp.value("status").toInt();
-    StatusCode codeReplica =
-        (StatusCode)jsonReplicaResp.value("status").toInt();
-
-    if (codePrimary == StatusCode::OK && codeReplica == StatusCode::OK) {
-      if (jsonPrimaryResp.value("values").toArray().size() >
-          jsonReplicaResp.value("values").toArray().size())
-        jsonResp.insert("values", jsonPrimaryResp.value("values"));
-      else
-        jsonResp.insert("values", jsonPrimaryResp.value("values"));
-      jsonResp.insert("status", StatusCode::OK);
-    } else if (codePrimary == StatusCode::OK) {
-      jsonResp.insert("values", jsonPrimaryResp.value("values"));
-      jsonResp.insert("status", StatusCode::OK);
-    } else if (codeReplica == StatusCode::OK) {
-      jsonResp.insert("values", jsonReplicaResp.value("values"));
-      jsonResp.insert("status", StatusCode::OK);
-    } else {
-      jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
-    }
-    for (Node* node : nodes) delete node;
-  }
-  return jsonResp;
-}
-
-QJsonObject Connect::handleRemoveBucket(QJsonObject json) {
-  QJsonObject jsonResp;
-  if (json.contains("not_forwards_requests") &&
-      json.value("not_forwards_requests").toBool()) {
-    RouterClient client;
-    QStringList values =
-        client.get(json.value("bucket").toString().append("_keys"));
-    for (QString value : values) {
-      client.remove(value);
-    }
-    StatusCode delCode =
-        (StatusCode)_rbtree->remove(json.value("bucket").toString());
-    jsonResp.insert("status", delCode);
-  } else {
-    QList<Node*> nodes;
-    nodes = _ring->findNodes(json.value("bucket").toString().append("_keys"));
-    RouterClient client;
-    QJsonObject jsonPrimaryResp = client.doRequestToOtherRouter(
-        json, nodes[0]->getHost(), nodes[0]->getPort());
-    QJsonObject jsonReplicaResp = client.doRequestToOtherRouter(
-        json, nodes[1]->getHost(), nodes[1]->getPort(), true);
-    StatusCode codePrimary =
-        (StatusCode)jsonPrimaryResp.value("status").toInt();
-    StatusCode codeReplica =
-        (StatusCode)jsonReplicaResp.value("status").toInt();
-
-    if (codePrimary == StatusCode::OK || codeReplica == StatusCode::OK) {
-      jsonResp.insert("status", StatusCode::OK);
-    } else {
-      jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
-    }
-
-    for (Node* node : nodes) delete node;
-  }
 }
 
 QJsonObject Connect::handleRemove(QJsonObject json) {
   QJsonObject jsonResp;
   if (json.contains("not_forwards_requests") &&
       json.value("not_forwards_requests").toBool()) {
-    StatusCode delCode =
-        (StatusCode)_rbtree->remove(json.value("key").toString());
+    StatusCode delCode = (StatusCode)_rbtree->remove(json.value("key").toString());
     jsonResp.insert("status", delCode);
   } else {
     QList<Node*> nodes;
