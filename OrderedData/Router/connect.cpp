@@ -356,7 +356,7 @@ QJsonObject Connect::handleRingCheck(QJsonObject json) {
 
 QJsonObject Connect::handleRingJoin(QJsonObject json) {
   QJsonObject jsonResp;
-  QStringList values = json.value("values").toVariant().toStringList();
+  QStringList values = json.value("ring").toVariant().toStringList();
   QList<Node*> members = _ring->getAllMember();
   QList<Node*> nodes;
   for (Node* node : members) {
