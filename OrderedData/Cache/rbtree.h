@@ -16,12 +16,13 @@ public:
     RBTree(K key, V value);
     ~RBTree();
 
-    void insert(TNode<K,V> *z);
-    void insert(K key, V value);
+    void insert(TNode<K,V> *z, bool override = false);
+    void insert(K key, V value, bool override = false);
     void insert(K key, vector<V> values);
     void replace(K key, vector<V> values);
 
     void remove(K key);
+    void remove(K key, V value);
     TNode<K,V>* remove(TNode<K,V> *z); // don't delete memory
     void removeAll();
 
@@ -195,10 +196,10 @@ void RBTree<K,V>::rightRotate(TNode<K,V> *x)
 }
 
 template<typename K, typename V>
-void RBTree<K,V>::insert(K key, V value)
+void RBTree<K,V>::insert(K key, V value, bool override)
 {
     TNode<K,V> *z = new TNode<K,V>(key, value, BLACK, nil_, nil_, nil_);
-    insert(z);
+    insert(z, override);
 }
 
 template<typename K, typename V>
@@ -215,7 +216,7 @@ void RBTree<K,V>::replace(K key, vector<V> values)
 }
 
 template<typename K, typename V>
-void RBTree<K,V>::insert(TNode<K,V> *z)
+void RBTree<K,V>::insert(TNode<K,V> *z, bool override)
 {
     size_++;
     TNode<K,V> *y = nil_;
@@ -223,7 +224,7 @@ void RBTree<K,V>::insert(TNode<K,V> *z)
     while (x != nil_) {
         y = x;
         if (z->key() == x->key()) {
-            x->addValues(z->values());
+            x->addValues(z->values(), override);
             delete z;
             return;
         } else if (z->key() < x->key()) {
@@ -307,6 +308,15 @@ template<typename K, typename V>
 void RBTree<K,V>::remove(K key)
 {
     delete remove(search(root_, key));
+}
+
+template<typename K, typename V>
+void RBTree<K,V>::remove(K key, V value)
+{
+    TNode<K,V>* node = search(root_, key);
+    node->removeValue(value);
+    if (node->values().size() == 0)
+        delete remove(node);
 }
 
 template<typename K, typename V>

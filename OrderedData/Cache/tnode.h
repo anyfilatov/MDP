@@ -21,7 +21,8 @@ public:
     ~TNode() {}
 
     void addValue(V value);
-    void addValues(vector<V> values);
+    void removeValue(V value);
+    void addValues(vector<V> values, bool override = false);
 
     K key() const { return key_; }
     vector<V> values() const { return values_; }
@@ -116,9 +117,19 @@ void TNode<K,V>::addValue(V value)
 }
 
 template<typename K, typename V>
-void TNode<K,V>::addValues(vector<V> values)
+void TNode<K,V>::removeValue(V value) {
+    values_.erase(std::remove(values_.begin(), values_.end(), value), values_.end());
+}
+
+template<typename K, typename V>
+void TNode<K,V>::addValues(vector<V> values, bool override)
 {
     for (V value : values) {
+        if (override) {
+            if (std::find(values_.begin(), values_.end(), value) != values_.end()) {
+                continue;
+            }
+        }
         values_.push_back(value);
     }
 }

@@ -73,7 +73,7 @@ QList<Node*> HashRing::findNodes(QString key) {
 
 void HashRing::update() {
   qDebug() << "update ring";
-  qDebug() << _ring;
+  qDebug() << "RB_TREE size: " << _cache->isEmpty();
   QList<Node*> curMemList;
   bool change = false;
 

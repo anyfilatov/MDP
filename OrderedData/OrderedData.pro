@@ -45,6 +45,8 @@ HEADERS += \
     Cache/icache.h \
     Cache/rbtree.h \
     Cache/tnode.h \
+    Cache/qrbtree.h \
+    Cache/qrbnode.h \
     NetworkManager/networkmanager.h \
     NetworkManager/node.h \
     NetworkManager/RecieveGossipTask.h \

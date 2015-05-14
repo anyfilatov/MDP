@@ -2,7 +2,7 @@
 #define CACHE
 
 #include "icache.h"
-#include "rbtree.h"
+#include "qrbtree.h"
 #include "Router/StatusCodes.h"
 #include <QList>
 #include <QVector>
@@ -12,37 +12,38 @@ class Cache : public iCache<K,V>
 {
 public:
     Cache();
-    virtual int insert(K key, V value);
+    virtual int insert(K key, V value, bool override = false);
     virtual int insert(K key, QList<V> values);
     virtual int replace(K key, QList<V> values);
     virtual QList<V> search(K key);
     virtual int remove(K key);
+    virtual int remove(K key, V value);
     virtual bool isEmpty();
 
 private:
-    RBTree<K,V> *rbtree;
+    QRBTree<K,V> *rbtree;
 };
 
 template<typename K, typename V>
 Cache<K,V>::Cache(){
-    rbtree = new RBTree<K, V>;
+    rbtree = new QRBTree<K, V>;
 }
 
 template<typename K, typename V>
-int Cache<K,V>::insert(K key, V value){
-    rbtree->insert(key, value);
+int Cache<K,V>::insert(K key, V value, bool override){
+    rbtree->insert(key, value, override);
     return 0;
 }
 
 template<typename K, typename V>
 int Cache<K,V>::insert(K key, QList<V> values){
-    rbtree->insert(key, values.toVector().toStdVector());
+    rbtree->insert(key, values);
     return 0;
 }
 
 template<typename K, typename V>
 int Cache<K,V>::replace(K key, QList<V> values){
-    rbtree->replace(key, values.toVector().toStdVector());
+    rbtree->replace(key, values);
     return 0;
 }
 
@@ -54,6 +55,12 @@ QList<V> Cache<K,V>::search(K key){
 template<typename K, typename V>
 int Cache<K,V>::remove(K key){
     rbtree->remove(key);
+    return 0;
+}
+
+template<typename K, typename V>
+int Cache<K,V>::remove(K key, V value){
+    rbtree->remove(key, value);
     return 0;
 }
 

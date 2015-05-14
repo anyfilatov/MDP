@@ -58,12 +58,16 @@ QJsonObject Connect::handleRequest(QJsonObject json) {
   switch (json.find("type").value().toInt()) {
     case PUT:
       return handlePut(json);
+    case PUT_OVERRIDE:
+      return handlePut(json);
     case REPLACE:
       return handleReplace(json);
     case GET:
       return handleGet(json);
     case DEL:
       return handleRemove(json);
+    case DEL_ONE:
+        return handleRemove(json);
     case RINGCECK:
       return handleRingCheck(json);
     case OUTERJOIN:
@@ -79,10 +83,13 @@ QJsonObject Connect::handlePut(QJsonObject json) {
   if (json.contains("not_forwards_requests") &&
       json.value("not_forwards_requests").toBool()) {
     if (json.contains("value")) {
-      qDebug() << "WHO: " << _ring->getManager()->getMyself()->getAddress()
-               << " PUT " << json;
+        if (json.find("type").value().toInt() == PUT_OVERRIDE) {
       _rbtree->insert(json.value("key").toString(),
-                      json.value("value").toString());
+                      json.value("value").toString(), true);
+        } else {
+            _rbtree->insert(json.value("key").toString(),
+                            json.value("value").toString());
+        }
     } else {
       _rbtree->insert(json.value("key").toString(),
                       json.value("values").toVariant().toStringList());
@@ -192,7 +199,12 @@ QJsonObject Connect::handleRemove(QJsonObject json) {
   QJsonObject jsonResp;
   if (json.contains("not_forwards_requests") &&
       json.value("not_forwards_requests").toBool()) {
-    StatusCode delCode = (StatusCode)_rbtree->remove(json.value("key").toString());
+      StatusCode delCode;
+      if (json.find("type").value().toInt() == DEL_ONE) {
+        delCode = (StatusCode)_rbtree->remove(json.value("key").toString(), json.value("value").toString());
+      } else {
+        delCode = (StatusCode)_rbtree->remove(json.value("key").toString());
+      }
     jsonResp.insert("status", delCode);
   } else {
     QList<Node*> nodes;

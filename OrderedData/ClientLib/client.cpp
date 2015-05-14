@@ -83,12 +83,16 @@ QByteArray Client::serialize(QJsonObject json) {
   return jdoc.toBinaryData();
 }
 
-int Client::put(QString key, QString value, QString bucket) {
+int Client::put(QString key, QString value, QString bucket, bool override) {
   QJsonObject jsonReq;
   QJsonObject jsonResp;
 
   if(bucket == NULL){
-      jsonReq.insert("type", PUT);
+      if (override) {
+        jsonReq.insert("type", PUT_OVERRIDE);
+      } else {
+        jsonReq.insert("type", PUT);
+      }
       jsonReq.insert("key", key);
       jsonReq.insert("value", value);
       openConnection();
@@ -96,8 +100,8 @@ int Client::put(QString key, QString value, QString bucket) {
       jsonResp = readMsg();
       return jsonResp.value("status").toInt();
   } else {
-      int codeKey = put(bucket+"#"+key, value);
-      int codeBucket = put(bucket+"_keys", key);
+      int codeKey = put(bucket+"-"+key, value);
+      int codeBucket = put(bucket+"_keys", key, NULL, true);
       if (codeKey != 0 || codeBucket != 0){
           throw ServerUnavailableException();
       }
@@ -118,8 +122,8 @@ int Client::put(QString key, QStringList values, QString bucket) {
         jsonResp = readMsg();
         return jsonResp.value("status").toInt();
     } else {
-        int codeKey = put(bucket+"#"+key, values);
-        int codeBucket = put(bucket+"_keys", key);
+        int codeKey = put(bucket+"-"+key, values);
+        int codeBucket = put(bucket+"_keys", key, NULL, true);
         if (codeKey != 0 || codeBucket != 0){
             throw ServerUnavailableException();
         }
@@ -140,7 +144,7 @@ int Client::replace(QString key, QStringList values, QString bucket) {
         jsonResp = readMsg();
         return jsonResp.value("status").toInt();
     } else {
-        int codeKey = replace(bucket+"#"+key, values);
+        int codeKey = replace(bucket+"-"+key, values);
         if (codeKey != 0){
             throw ServerUnavailableException();
         }
@@ -157,7 +161,7 @@ QStringList Client::get(QString key, QString bucket) {
     if(bucket == NULL){
         jsonReq.insert("key", key);
     } else {
-        jsonReq.insert("key", bucket+"#"+key);
+        jsonReq.insert("key", bucket+"-"+key);
     }
 
     openConnection();
@@ -205,18 +209,34 @@ int Client::remove(QString key, QString bucket) {
   QJsonObject jsonReq;
   QJsonObject jsonResp;
 
-  jsonReq.insert("type", DEL);
   if(bucket == NULL){
+      jsonReq.insert("type", DEL);
       jsonReq.insert("key", key);
+      openConnection();
+      writeMsg(jsonReq);
+      jsonResp = readMsg();
+      return jsonResp.value("status").toInt();
   } else {
-      jsonReq.insert("key", bucket+"#"+key);
+      int codeKey = remove(bucket+"-"+key);
+      int codeBucket = removeOne(bucket+"_keys", key);
+      if (codeKey != 0 || codeBucket != 0){
+          throw ServerUnavailableException();
+      }
+      return 0;
   }
+}
 
-  openConnection();
-  writeMsg(jsonReq);
-  jsonResp = readMsg();
+int Client::removeOne(QString key, QString value) {
+    QJsonObject jsonReq;
+    QJsonObject jsonResp;
 
-  return jsonResp.value("status").toInt();
+    jsonReq.insert("type", DEL_ONE);
+    jsonReq.insert("key", key);
+    jsonReq.insert("value", value);
+    openConnection();
+    writeMsg(jsonReq);
+    jsonResp = readMsg();
+    return jsonResp.value("status").toInt();
 }
 
 QStringList Client::getRingHosts() {

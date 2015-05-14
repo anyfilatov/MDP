@@ -16,7 +16,8 @@ public:
     QRBNode(vector<V> values, bool replica);
     ~QRBNode() {}
 
-    void addValue(V value);
+    void addValue(V value, bool override = false);
+    void removeValue(V value);
     void addValues(vector<V> values);
 
     vector<V> values() const { return values_; }
@@ -59,9 +60,20 @@ QRBNode<V>::QRBNode(vector<V> values, bool replica)
 }
 
 template<typename V>
-void QRBNode<V>::addValue(V value)
+void QRBNode<V>::addValue(V value, bool override)
 {
+    if (override) {
+        if (std::find(values_.begin(), values_.end(), value) != values_.end()) {
+            return;
+        }
+    }
     values_.push_back(value);
+}
+
+template<typename V>
+void QRBNode<V>::removeValue(V value)
+{
+    values_.erase(std::remove(values_.begin(), values_.end(), value), values_.end());
 }
 
 template<typename V>
