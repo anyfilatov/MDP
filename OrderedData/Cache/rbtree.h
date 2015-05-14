@@ -32,6 +32,7 @@ public:
 
     void inorderWalk(TNode<K,V> *x, std::ostream_iterator<K> &iter);
     QList<TNode<K,V>*> nodes();
+    QList<TNode<K,V>*> primaryNodes();
     QList<TNode<K,V>*> replicaNodes();
 
     bool isEmpty() { return size_ == 0 ? true : false; }
@@ -51,6 +52,7 @@ private:
     TNode<K,V>* minimum(TNode<K,V> *x);
     void removeFixup(TNode<K,V> *x);
     void inorderWalkNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
+    void inorderWalkPrimaryNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
     void inorderWalkReplicaNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
     void inorderWalkDelete(TNode<K,V> *x);
 };
@@ -106,6 +108,28 @@ void RBTree<K,V>::inorderWalkNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list
         inorderWalkNodesAppend(x->left(), list);
         list.append(x);
         inorderWalkNodesAppend(x->right(), list);
+    }
+}
+
+template<typename K, typename V>
+QList<TNode<K,V>*> RBTree<K,V>::primaryNodes()
+{
+    QList<TNode<K,V>*> list;
+    if(root_ != nil_) {
+        inorderWalkPrimaryNodesAppend(root_, list);
+    }
+    return list;
+}
+
+template<typename K, typename V>
+void RBTree<K,V>::inorderWalkPrimaryNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list)
+{
+    if (x != nil_) {
+        inorderWalkPrimaryNodesAppend(x->left(), list);
+        if (!x->is_replica()) {
+            list.append(x);
+        }
+        inorderWalkPrimaryNodesAppend(x->right(), list);
     }
 }
 

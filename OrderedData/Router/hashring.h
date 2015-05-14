@@ -1,3 +1,4 @@
+#pragma once
 #ifndef HASHRING_H
 #define HASHRING_H
 
@@ -5,14 +6,14 @@
 #include <QList>
 #include <QDebug>
 
-#include "../NetworkManager/networkmanager.h"
-#include "../Cache/icache.h"
+#include "NetworkManager/networkmanager.h"
+#include "Cache/cache.h"
 
 class HashRing : public QObject {
   Q_OBJECT
  public:
   HashRing();
-  explicit HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
+  explicit HashRing(NetworkManager* manager, Cache<QString, QString>* cache,
                     QObject* parent = 0);
   ~HashRing();
   QList<Node*> findNodes(QString key);
@@ -29,7 +30,7 @@ private:
   Node* _haveReplicaOf;
 
   NetworkManager* _manager;
-  iCache<QString, QString>* _cache;
+  Cache<QString, QString>* _cache;
 
   void stabilize();
   static bool hashBasedLessThen(const Node* node1, const Node* node2);

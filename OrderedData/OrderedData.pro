@@ -28,6 +28,7 @@ SOURCES += \
     NetworkManager/SendGossipTask.cpp \
     NetworkManager/NetworkSettings.cpp \
     Router/hashring.cpp \
+    Router/RouterClient/routerclient.cpp \
     Exception/abstractexception.cpp \
     Exception/clientexeption.cpp \
     Exception/serverunavailableexception.cpp \

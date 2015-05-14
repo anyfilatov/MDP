@@ -18,6 +18,7 @@ public:
     void replace(K key, QList<V> values);
 
     QRBNode<V>& getNode(K key);
+    QList<K> getKeys();
     vector<V> search(K key);
 
     int remove(K key);
@@ -77,6 +78,12 @@ template<typename K, typename V>
 QRBNode<V>& QRBTree<K,V>::getNode(K key)
 {
     return map[key];
+}
+
+template<typename K, typename V>
+QList<K> QRBTree<K,V>::getKeys()
+{
+    return map.keys();
 }
 
 template<typename K, typename V>

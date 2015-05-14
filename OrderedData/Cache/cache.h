@@ -19,7 +19,8 @@ public:
     virtual int remove(K key);
     virtual int remove(K key, V value);
     virtual bool isEmpty();
-
+    virtual unsigned int size();
+    virtual QRBTree<K, V> *getRBTree();
 private:
     QRBTree<K,V> *rbtree;
 };
@@ -67,6 +68,18 @@ int Cache<K,V>::remove(K key, V value){
 template<typename K, typename V>
 bool Cache<K, V>::isEmpty() {
     return rbtree->isEmpty();
+}
+
+template<typename K, typename V>
+unsigned int Cache<K, V>::size()
+{
+    return rbtree->size();
+}
+
+template<typename K, typename V>
+QRBTree<K, V> *Cache<K, V>::getRBTree()
+{
+    return rbtree;
 }
 
 #endif // CACHE

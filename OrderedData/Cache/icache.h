@@ -14,6 +14,8 @@ public:
     virtual int remove(K key) = 0;
     virtual int remove(K key, V value) = 0;
     virtual bool isEmpty() = 0;
+    virtual unsigned int size() = 0;
+
 };
 
 #endif // ICACHE_H
