@@ -11,21 +11,23 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QHostAddress>
-#include "Router/typerequest.h"
-#include "Router/StatusCodes.h"
+#include "typerequest.h"
+#include "StatusCodes.h"
 
 class Client : public QObject {
   Q_OBJECT
  public:
   explicit Client(QString settingsFileName, QObject* parent = 0);
 
-  int put(QString key, QString value, QString bucket = NULL);
+  int put(QString key, QString value, QString bucket = NULL, bool override = false);
   int put(QString key, QStringList values, QString bucket = NULL);
   int replace(QString key, QStringList values, QString bucket = NULL);
 
   QStringList get(QString key, QString bucket = NULL);
+  QStringList getBucketKeys(QString bucket);
 
-  int remove(QString key);
+  int remove(QString key, QString bucket = NULL);
+  int removeOne(QString key, QString value);
   int removeBucket(QString bucket);
 
   QStringList getRingHosts();

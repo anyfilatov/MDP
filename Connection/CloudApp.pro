@@ -9,7 +9,7 @@ QT       += core network
 QT       -= gui
 
 QT_INCLUDE_PATH = /home/savinov/Qt/5.4/gcc_64/include/
-LUA_INCLUDE_PATH = /usr/include/lua-5.2.3
+LUA_INCLUDE_PATH = /usr/include/lua/
 LUA_LIB_PATH = /usr/lib
 SOURCE_PATH=./src
 INCLUDE_PATH=./include
@@ -18,7 +18,7 @@ LUA_STATE_PATH=$$INCLUDE_PATH/selene
 TARGET = CloudApp
 CONFIG   += console
 CONFIG   -= app_bundle
-
+DEFINES += DEBUG
 TEMPLATE = app
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -28,14 +28,23 @@ INCLUDEPATH += $$QT_INCLUDE_PATH/QtNetwork\
                $$LUA_INCLUDE_PATH\
                $$INCLUDE_PATH\
                $$LUA_STATE_PATH\
-                ../Database/HashTable/
+                ../Database/HashTable/\
+                ../OrderedData/ClientLib/\
+                ../OrderedData/\
+                ../OrderedData/Exception/
 
 SOURCES += main.cpp \
     $$SOURCE_PATH/host.cpp \
     $$SOURCE_PATH/Server.cpp \
     $$SOURCE_PATH/Task.cpp \
     ../Database/HashTable/dbclient.cpp \
-    ../Database/HashTable/Data.cpp
+    ../Database/HashTable/Data.cpp \
+    ../OrderedData/ClientLib/client.cpp\
+    ../OrderedData/Exception/abstractexception.cpp \
+    ../OrderedData/Exception/clientexeption.cpp \
+    ../OrderedData/Exception/serverunavailableexception.cpp \
+    ../OrderedData/Exception/connectionisnotcreatedexception.cpp \
+    ../OrderedData/Exception/notfoundvalueexception.cpp
 
 HEADERS += \
     $$INCLUDE_PATH/Content.h \
@@ -60,4 +69,8 @@ HEADERS += \
     ../Database/HashTable/dbclient.h \
     ../Database/HashTable/Data.h \
     ../Database/HashTable/Clonable.h \
-    ../Database/HashTable/Serializible.h
+    ../Database/HashTable/Serializible.h \
+    ../OrderedData/ClientLib/client.h \
+    ../OrderedData/ClientLib/typerequest.h \
+    ../OrderedData/ClientLib/StatusCodes.h \
+    ../OrderedData/Exception/exception.h

@@ -24,7 +24,10 @@ public:
     DataBase(const DataBase& ) = delete;
     
     GetAtomType getNextAtom(util::Id& id) {
-        auto* d = client_.getNextStrings(id.i0, id.i1, id.i2, 1);
+        id.i1 = 1;
+        LOG_DEBUG(" " << id.i0 << " " << id.i1 << " "<< id.i2);
+//        auto* d = client_.getNextStrings(id.i0, id.i1, id.i2, 1);
+        auto* d = client_.getNextStrings(0, 2, 1, 1);
         std::shared_ptr<MDPData> ptr(d);
         return ptr;
     }
@@ -33,6 +36,9 @@ public:
         IntArray out;
         for( auto& a : client_.getTableIds(id.i0)) {
             out.push_back( a.first);
+        }
+        if(out.empty()){
+            out.push_back(1);
         }
         return out;
     }

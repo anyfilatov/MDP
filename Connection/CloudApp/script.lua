@@ -1,25 +1,38 @@
-
 function map(data)
-  print("in lua map")
-  t = {}
-  t[0] = data
-  t[1] = "1"
-  t[2] = "aaaa"
-  t[3] = "2"
-  return t
+ outTable = {}
+ sum = 0
+ for k, v in pairs(data) do
+ if tonumber(k) > 2 then
+ table.insert(outTable, tonumber(v))
+ sum = sum + tonumber(v)
+ end
+ end
+
+ if data[1] < 0 then
+ outTable["-1"] = sum/12
+ else 
+ outTable["-2"] = sum/12
+ end
+ lat_long = tostring(data[1]) .."_" ..tostring(data[2])
+ outTable[lat_long] = sum/12
+
+ return outTable;
 end 
 
 function reduce(key, value)
-  print(key)
-  for k,v in pairs(value) do print(k,v) end
-  return key, "1"
+ sum = 0
+
+ for k,v in pairs(value) do 
+ sum = sum + tonumber(v)
+ end
+ return key, sum/table.getn(value)
 end 
 
 function main()
-  a = "test"
-  print(a) 
-  funName = "map"
-  res2 = doMap(funName, in0)
-  print("start reduce")
-  res3 = doReduce("reduce", res2)
+ funName = "map"
+ print("start map")
+ res2 = doMap(funName, in0)
+ print("start reduce")
+ res3 = doReduce("reduce", res2)
+ print("start reduce")
 end

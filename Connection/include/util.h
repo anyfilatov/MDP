@@ -70,7 +70,7 @@ namespace util{
             scriptIdIndex,
             dataIdIndex
         };
-        int get(IdIndex i) {
+        int get(IdIndex i) const {
             switch(i) {
                 case userIdIndex: return i0;
                 case scriptIdIndex: return i1;
@@ -79,16 +79,32 @@ namespace util{
             return i2;
         }
         
+        void atoi(const QString& in) {
+            QStringList list = in.split(" ");
+            if(list.size() < 3) {
+                LOG_ERROR("atoi error:" << in.toStdString());
+                return;
+            }
+            auto it = list.begin();
+            i0 = it->toInt();
+            i1 = it->toInt();
+            i2 = it->toInt();
+        }
+
+        QString str() const {
+            return QString::number(i0) + " " + QString::number(i1) + " " + QString::number(i2);
+        }
+
         void set(IdIndex i, int newValue) {
             switch(i) {
                 case userIdIndex: 
                     i0 = newValue;
                     break;
                 case scriptIdIndex: 
-                    i1 = newValue;
+                    i2 = newValue;
                     break;
                 case dataIdIndex: 
-                    i2 = newValue;
+                    i1 = newValue;
                     break;
             }
         }

@@ -18,7 +18,7 @@ typedef std::vector<int> UserDbTableIdArray;
 typedef lua_State* Lua;
 typedef std::map<int, std::vector<std::string>> MapDb;
 typedef std::map<int, std::map<std::string, std::list<std::string>>> ReduceDb;
-typedef std::vector<std::vector<QString, QString>> KeyValuePairsArray;
+typedef std::vector<std::vector<QString>> KeyValuePairsArray;
 
 static KeyValuePairsArray getKeyValuePairs(Lua l);
 class LuaExecutor;
@@ -126,8 +126,13 @@ public:
     }
     
     RB::WrappedType::GetAtomType getNextFromRb() {
-        RB::ScopedLock lock(rb_);
-        return rb_->getNextAtom(id_);
+        RB::WrappedType::GetAtomType out;
+        if(it != keys_.end()) {
+            RB::ScopedLock lock(rb_);
+            out = rb_->getNextAtom(id_, *it);
+            it++;
+        }
+        return out;
     }
     
     int setSwapToRb(RB::WrappedType::SetAtomType& atom) {
@@ -135,19 +140,10 @@ public:
         return rb_->setSwap(id_, atom);
     }
     
-    int setToRb(RB::WrappedType::SetAtomType& atom) {
-        RB::ScopedLock lock(rb_);
-        return rb_->set(id_, atom);
-    }
-    
     int setSwapToDb(DB::WrappedType::SetAtomType& atom) {
         RB::ScopedLock lock(rb_);
-        return rb_->setSwap(id_, atom);
-    }
-    
-    int setToDb(const DB::WrappedType::SetAtomType& atom) {
-        RB::ScopedLock lock(rb_);
-        return rb_->set(id_, atom);
+        db_->setSwap(id_, atom);
+        return Errors::STATUS_OK;
     }
     
     friend std::ostream& operator << (std::ostream& os, const LuaExecutor& ) {
@@ -160,7 +156,7 @@ public:
     }
     
     void endMap() {
-        //++std::get<0>(id_);
+
         LOG_DEBUG("endMap");
     }
     
@@ -172,9 +168,35 @@ public:
         //++std::get<0>(id_);
     }
     
+    void splitKeys() {
+        int size = 0;
+        Iterator<Host> it(*og_);
+        while(!it.end()){
+            ++size;
+            it.next();
+        }
+        if(size == 0){
+            return;
+        }
+        splittedKeys_.resize(size);
+        auto sizeList = keys_.size()/size;
+        for(int i = 0; i < size; i++){
+            auto it = keys_.begin();
+            for( int j = 0; j < sizeList && it != keys_.end(); j++, it++){
+                splittedKeys_[i].append(*it);
+            }
+        }
+        keys_.clear();
+        splittedKeys_[0].swap(keys_);
+    }
+
     void startReduce() {
-        LOG_DEBUG("start Reduce");
-        LOG_DEBUG("start Map");
+        {
+            RB::ScopedLock lock(rb_);
+            keys_ = rb_->getAllKeys(id_);
+            splitKeys();
+            it = keys_.begin();
+        }
         int id = id_.get(util::Id::dataIdIndex);
         ++id;
         id_.set(util::Id::dataIdIndex, id);
@@ -182,11 +204,6 @@ public:
     
     void addLuaVariable(LuaContextVariablePtr variable) {
         luaVariables.push_back(variable);
-    }
-    
-    std::list<QString> getAllKeys() {
-        RB::ScopedLock lock(rb_);
-        return rb_->getAllKeys();
     }
     
     void sendTasksToChilds() {
@@ -204,13 +221,24 @@ public:
         
     }
     
+    void setKeys(QStringList& keys ) {
+        keys_.swap(keys);
+        it = keys_.begin();
+    }
+
+    QStringList getKeys(int i) {
+        return splittedKeys_[i];
+    }
+
     template<typename T> void forEachWithoutRoot(T action){
         OG::ScopedLock lock(og_);
         Iterator<Host> it(*og_);
         if(it.end()) return;
         it.next();
+        int i = 1;
         for(; !it.end(); it.next()) {
-            action(*it);
+            action(*it, i);
+            ++i;
         }
         
     }
@@ -221,10 +249,12 @@ private:
         using util::Id;
         auto* l = lua_.getLuaState();
         auto ids = db_->getAllTablesId(id_);
+        if(ids.empty()){
+            throw UnknownParametersException("No data in database");
+        }
         for(auto& tableId : ids) {
-            Id id(id_);
-            id.set(Id::dataIdIndex, tableId);
-            auto var = LuaContextVariable::create(this, id );
+            id_.set(Id::dataIdIndex, tableId);
+            auto var = LuaContextVariable::create(this, id_ );
             std::stringstream ss;
             ss << USER_DB_TABLE_ID_LUA_GLOBAL_VARIABLE_NAME << tableId;
             auto str = ss.str();
@@ -280,6 +310,9 @@ private:
     QString func_;
     int executionType_;
     CVariablesInLuaContainer luaVariables;
+    QStringList keys_;
+    QStringList::iterator it = keys_.begin();
+    std::vector<QStringList> splittedKeys_;
 };
 
 inline LuaExecutor::LuaContextVariablePtr LuaExecutor::LuaContextVariable::create(LuaExecutor* executor, util::Id& id) {
@@ -304,16 +337,16 @@ static KeyValuePairsArray getKeyValuePairs(lua_State *l) {
         
         // index -2 - there's index
         // index -1 - is a key, or value
-        ret.push_back(KeyValuePairsArray::value_type());
+        ret.push_back(KeyValuePairsArray::value_type(2));
         auto& vec = ret.back();
         if (lua_isstring(l, -1)) {
             size_t s = 0;
             auto* val = lua_tolstring(l, -1, &s);
             
             if(i%2 == 0) {//that mean key it's STACK!!!!!!!
-                vec[0] = QString(val, s);
+                vec[0] = QString(val);
             } else { // that mean value
-                vec[1] = QString(val, s);
+                vec[1] = QString(val);
             }
         } else {
             std::string err = util::concat( "User function return variable by type ", lua_typename(l, lua_type(l, -1)), ". expected: string");
@@ -336,12 +369,18 @@ static void CallLuaFunction(LuaExecutor::LuaContextVariable* context, std::pair<
     }
 }
 
+static void l_pushtablestring(Lua l , int key , const char* value) {
+    lua_pushinteger(l, key);
+    lua_pushstring(l, value);
+    lua_settable(l, -3);
+}
+
 static void createTableFromDb(Lua l, DB::WrappedType::GetAtomType& content) {
     lua_newtable(l);
     int i = 0;
-    auto& vec = content->getCells();
-    for(auto& c : vec) {
-        LOG_TRACE("value=" << c );
+    auto vec = content->getCells();
+    for(auto& c : vec[0]) {
+        //LOG_TRACE("value=" << c );
         auto str = c.toStdString();
         l_pushtablestring(l, i, str.c_str());
         i++;
@@ -352,24 +391,28 @@ static void createTable(Lua l, RB::WrappedType::GetAtomType& content) {
     lua_newtable(l);
     int i = 0;
     for(auto& c : content.second) {
-        LOG_TRACE("value=" << c );
-        l_pushtablestring(l, i, c.c_str());
+        auto str = c.toStdString();
+        //LOG_TRACE("value=" << str );
+        l_pushtablestring(l, i, str.c_str());
         i++;
     }
 }
 
 
-static void doMapForAtoms(LuaExecutor::LuaContextVariable* context) {
+static void doMapForAtoms(LuaExecutor::LuaContextVariable* context, const char* funcName) {
     while(1){
         auto dbRow = context->e()->getNextFromDb();
-        if( dbRow->size() == 0 ) {
+        if( !dbRow || dbRow->size() == 0 ) {
+            LOG_DEBUG("Null!!!");
             break;
         }
         LOG_TRACE("dbRow");
         auto* executor = context->e();
         auto* l = executor->getLua();
+        lua_getglobal(l, funcName);
         createTableFromDb(l, dbRow);
         LOG_TRACE("call");
+//        lua_call(l, 1, 1);
         lua_call(l, 1, 1);
 
         LOG_DEBUG("after call" );
@@ -379,45 +422,47 @@ static void doMapForAtoms(LuaExecutor::LuaContextVariable* context) {
             throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
         }
         auto res = getKeyValuePairs(l);
-        std::vector<QString> headers;
-        headers.push_back("key");
-        headers.push_back("value");
-        dbRow->setHeaders();
-        dbRow->setCells(res);
         for(auto& r : res) {
             context->e()->setSwapToRb(r);
         }
     }
 }
 
-static void l_pushtablestring(Lua l , int key , const char* value) {
-    lua_pushinteger(l, key);
-    lua_pushstring(l, value);
-    lua_settable(l, -3);
-}
-
 static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context) {
     auto* executor = context->e();
-    auto atom = executor->getNextFromRb();
     auto* l = executor->getLua();
-    lua_pushstring(l, atom.first.c_str());
-    createTable(l, atom);
-    LOG_TRACE("call");
-    lua_call(l, 2, 2);
-    
-    LOG_DEBUG("after call" );
-    if( !lua_isstring(l, lua_gettop(l)) ) {
-        std::string err = util::concat("user function ", " return ", lua_typename(l, lua_type(l, lua_gettop(l))), ". expected: table");
-        LOG_WARNING(err);
-        throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
+    auto setValue = DB::WrappedType::SetAtomType(new DB::WrappedType::SetAtomType::element_type());
+    std::vector<QString> headers = {"key", "value"};
+    setValue->setHeaders(headers);
+    while(1){
+        auto atom = executor->getNextFromRb();
+        if( atom.second.empty() ) {
+            break;
+        }
+        auto str = atom.first.toStdString();
+        lua_pushstring(l, str.c_str());
+        createTable(l, atom);
+        LOG_TRACE("call");
+        lua_call(l, 2, 2);
+
+        LOG_DEBUG("after call" );
+        if( !lua_isstring(l, lua_gettop(l)) ) {
+            std::string err = util::concat("user function ", " return ", lua_typename(l, lua_type(l, lua_gettop(l))), ". expected: table");
+            LOG_WARNING(err);
+            throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
+        }
+        const char* value = lua_tostring(l, lua_gettop(l));
+        LOG_DEBUG("value " << value);
+        lua_pop(l, 1);
+        const char* key = lua_tostring(l, lua_gettop(l));
+        LOG_DEBUG("key " << key);
+        lua_pop(l, 1);
+        vector<vector<QString> > cells(1);
+        cells[0].push_back(QString(key));
+        cells[0].push_back(QString(value));
+        setValue->setCells(cells);
+        executor->setSwapToDb(setValue);
     }
-    const char* value = lua_tostring(l, lua_gettop(l));
-    LOG_DEBUG("value " << value);
-    lua_pop(l, 1);
-    const char* key = lua_tostring(l, lua_gettop(l));
-    LOG_DEBUG("key " << key);
-    lua_pop(l, 1);
-    executor->setToDb(std::make_pair(std::string(key), std::string(value)));
 }
 
 static int doMapOnly(LuaExecutor* executor, util::Id& id) {
@@ -430,7 +475,7 @@ static int doMapOnly(LuaExecutor* executor, util::Id& id) {
         LuaExecutor::LuaContextVariablePtr luaVar 
                 = LuaExecutor::LuaContextVariable::create(executor, id);
         LOG_TRACE("doMapForAtoms");
-        doMapForAtoms(luaVar.get());
+        doMapForAtoms(luaVar.get(), funcName);
     } catch(const LuaExecutionExeption& e) {
         std::string err = util::concat(e.what(), " in function ", funcName);
         throw LuaExecutionExeption(err);
@@ -574,18 +619,25 @@ static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, 
         if (!waiter.empty()) {
             waiter.clear();
         }
-        executor->forEachWithoutRoot([&] (Host & host) -> void {
+        executor->forEachWithoutRoot([&] (Host & host, int i) -> void {
             int cmd = type;
             QString code = executor->getCode();
             auto id = *context->id();
             QString qFuncName(funcName);
-            QByteArray ar = util::pack(cmd, code, id, qFuncName);
+            QByteArray ar;
+            if( type == util::CMD_REDUCE){
+               auto keys = executor->getKeys(i);
+               ar = util::pack(cmd, code, id, qFuncName, keys);
+            } else {
+                ar = util::pack(cmd, code, id, qFuncName);
+            }
+
             
             LOG_DEBUG("ip=" << host.getIP().toStdString() << " port=" << host.getPort() << " ss=" << ar.size());
             auto socket = sendToHost(host.getIP(), host.getPort(), ar);
             waiter.addToWait(socket);
         });
-        lua_getglobal(l, funcName);
+//        lua_getglobal(l, funcName);
 
         try {
             LOG_TRACE("start action");
@@ -611,7 +663,7 @@ static int doMap(Lua l) {
     LOG_DEBUG("funcName=" << funcName << " id=" << *executor);
     lua_pop(l, 1);
     
-    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doMapForAtoms(context);}, context, funcName, util::CMD_MAP);
+    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doMapForAtoms(context, funcName);}, context, funcName, util::CMD_MAP);
     executor->endMap();
     context->pushOnStack();
     return 1;//count of returns value

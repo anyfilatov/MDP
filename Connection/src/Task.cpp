@@ -139,11 +139,12 @@ int Task::doReduce(QDataStream& stream) {
     auto socket = content_.getSocket();
     util::Id id;
     QString funcName;
-    stream >> id >> funcName;
+    QStringList keys;
+    stream >> id >> funcName >> keys;
     executor_->setId(id);
     executor_->setFuncName(funcName);
+    executor_->setKeys(keys);
     auto res = executor_->execute();
-    
     QByteArray arr = util::pack(res);
     socket->write(arr);
     return Errors::STATUS_OK;

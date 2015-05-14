@@ -6,5 +6,12 @@
     "relations": [
       {"parent": 1, "childs": [2] },
       {"parent": 2, "childs": [] }
+    ],
+    "db": [
+      {"ip": "192.168.2.190", "port": 2323, "id" : 1},
+      {"ip": "192.168.2.190", "port": 2323, "id" : 1}
+    ],
+    "rb": [
+      {"ip": "/home/savinov/edu/mdp/mdp/OrderedData/settings.json", "port": 1, "id" : 1}
     ]
 }

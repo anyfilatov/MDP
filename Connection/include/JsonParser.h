@@ -18,11 +18,11 @@ public:
     JsonParser(const JsonParser& orig) = delete;
     virtual ~JsonParser(){};
     
-    std::vector<Host> getHosts() {
+    std::vector<Host> getHosts(const std::string& name) {
         std::vector<Host> out;
         QJsonDocument d = QJsonDocument::fromJson(jsonStr_.toUtf8());
         QJsonObject sett2 = d.object();
-        auto hosts = sett2.value("hosts").toArray();
+        auto hosts = sett2.value(name.c_str()).toArray();
         LOG_DEBUG("hosts.size = " << hosts.size());
         for( int i = 0; i < hosts.size(); i++ ) {
             auto jHost = hosts[i].toObject();

@@ -7,42 +7,58 @@
 #include "util.h"
 #include <list>
 #include <QString>
+#include "client.h"
+#include "abstractexception.h"
 
 class RbTree {
-    typedef std::map<std::string, std::vector<std::string>> KeepedType;
+    Client client_;
 public:
-    typedef std::pair<std::string, std::vector<std::string>> GetAtomType;
-    typedef std::pair<std::string, std::string> SetAtomType;
-    RbTree(){
+    typedef std::pair<QString, QStringList> GetAtomType;
+    typedef std::vector<QString> SetAtomType;
+    RbTree(const QString& fileName) : client_(fileName){
         LOG_TRACE("RBTree");
     };
     RbTree(const RbTree& ) = delete;
-    
-    std::list<QString> getAllKeys() {
-        return std::list<QString>();
+
+    QStringList getAllKeys (const util::Id& id) {
+        QStringList out;
+        try{
+            out = client_.getBucketKeys(id.str());
+        } catch ( AbstractException& e ) {
+            LOG_ERROR("exception:" << e.getMessage().toStdString());
+        }
+        return out;
     }
     
-    int setSwap(util::Id& , SetAtomType& atom) {
-        rb_.insert(std::make_pair(atom.first, KeepedType::mapped_type()))
-        .first->second.push_back(std::move(atom.second));
+    int setSwap(util::Id& id, SetAtomType& atom) {
+
+        if(atom.size() == 2){
+            try{
+                client_.put(atom[0], atom[1], id.str());
+            } catch ( AbstractException& e ) {
+                LOG_ERROR("exception:" << e.getMessage().toStdString());
+                return Errors::STATUS_ERROR;
+            }
+        } else {
+            LOG_ERROR("in array size error:" << atom.size());
+            return Errors::STATUS_ERROR;
+        }
         return Errors::STATUS_OK;
     }
-    
-    int set(util::Id&, const SetAtomType& atom) {
-        rb_.insert(std::make_pair(atom.first, KeepedType::mapped_type()))
-        .first->second.push_back(atom.second);
-        return Errors::STATUS_OK;
-    }
-    
-    GetAtomType getNextAtom(util::Id&) {
-        return {"test", {"test1", "test2"}};
+
+    GetAtomType getNextAtom(util::Id& id, const QString& key) {
+        try{
+            return std::make_pair( key, client_.get(key, id.str()));
+        } catch ( AbstractException& e ) {
+            LOG_ERROR("exception:" << e.getMessage().toStdString());
+        }
+        return GetAtomType();
     }
     
     virtual ~RbTree(){
         LOG_TRACE("~RBTree");
     };
 private:
-    KeepedType rb_;
 };
 
 typedef Wrapper<RbTree> RB;

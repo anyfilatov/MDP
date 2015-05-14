@@ -57,38 +57,59 @@ void buildGraph(OrGraph<Host>& outOg, std::vector<Host>& hosts, std::map<int, st
 
 int main(int argc, char ** argv) {
     using namespace std::placeholders;
-    if(argc < 2) {
-        std:: cout << "./server <id>" << std::endl;
+    if(argc < 3) {
+        std:: cout << "./server <configFile> <id>" << std::endl;
         return 1;
     }
-    Logger::addConsoleLogger();
-    char* confFileName = argv[1];
-    int id = atoi(argv[2]);
-    QString fileName(confFileName);
-    DataBase dataBase;
-    DB db(&dataBase);
-    RbTree rbTree;
-    RB rb(&rbTree);
-    JsonParser parser(fileName);
-    auto hosts = parser.getHosts();
-    auto relations = parser.readRelations();
-    OrGraph<Host> org;
-    buildGraph(org, hosts, relations, id);
-    if(org.empty()) {
-        LOG_FATAL("Orgraph is emoty");
-        return -1;
-    }
-    Host currentHost;
-    for(auto it = hosts.begin(); it != hosts.end(); ++it) {
-        if(it->getId() == id){
-            currentHost = *it;
-            hosts.erase(it);
-            break;
+    try{
+        Logger::addConsoleLogger();
+        char* confFileName = argv[1];
+        int id = atoi(argv[2]);
+        QString fileName(confFileName);
+    //    getHosts
+        JsonParser parser(fileName);
+        auto hosts = parser.getHosts("hosts");
+        auto relations = parser.readRelations();
+        OrGraph<Host> org;
+        buildGraph(org, hosts, relations, id);
+        if(org.empty()) {
+            LOG_FATAL("Orgraph is emoty");
+            return -1;
         }
+        Host currentHost;
+        for(auto it = hosts.begin(); it != hosts.end(); ++it) {
+            if(it->getId() == id){
+                currentHost = *it;
+                hosts.erase(it);
+                break;
+            }
+        }
+        hosts = parser.getHosts("db");
+        if(hosts.size() != 2) {
+            LOG_ERROR("db hosts != 2");
+            return 1;
+        }
+        DataBase dataBase(hosts[0].getIP(), hosts[0].getPort(), hosts[1].getIP(), hosts[1].getPort());
+        hosts = parser.getHosts("db");
+        if(hosts.size() < 1) {
+            LOG_ERROR("no rb hosts");
+            return 1;
+        }
+        hosts = parser.getHosts("rb");
+        DB db(&dataBase);
+        auto ip = hosts[0].getIP();
+        LOG_DEBUG("ip=" << ip.toStdString());
+        RbTree rbTree(hosts[0].getIP());
+        RB rb(&rbTree);
+
+        OG og(&org);
+        Server server(currentHost.getIP(), currentHost.getPort(), db, rb, og, fileName);
+    //    OrGraph g(server);
+        server.run();
+    } catch( AbstractException& e) {
+        LOG_ERROR("Exception:" << e.getMessage().toStdString());
+    } catch (const std::exception& ex) {
+        LOG_ERROR("Exception:" << ex.what());
     }
-    OG og(&org);
-    Server server(currentHost.getIP(), currentHost.getPort(), db, rb, og, fileName);
-//    OrGraph g(server);
-    server.run();
     return 0;
 }
