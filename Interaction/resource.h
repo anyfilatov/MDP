@@ -13,6 +13,7 @@ namespace integration {
 
         IP PopResource(qint32 port);
         void SetResource();
+        std::vector<IP> &getAddresses();
     };
 
 }
