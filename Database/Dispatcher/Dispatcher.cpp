@@ -227,7 +227,7 @@ void Dispatcher::putDataInHashTable(MDPData* data, HashTable<StringWithHash, Has
             innerTable = new HashTable<IntWithHash, StringWithHash>();
             table->put(&header, innerTable);
         }
-//        qDebug() << table->get(&header)->serialize();
+ //       qDebug() << table->get(&header)->serialize();
         for (int j = 0; j < cells.size(); j++){
             IntWithHash strNum(data->getFirstIndex() + j);
             if (cells[j].size() >= i){
@@ -241,7 +241,7 @@ void Dispatcher::putDataInHashTable(MDPData* data, HashTable<StringWithHash, Has
                 }
             }
         }
-
+//    qDebug() <<"header1";
     }
     headers.clear();
     cells.clear();
@@ -269,9 +269,7 @@ void Dispatcher::put(short int userId, short int dataId, short int processId, MD
     }
 
     int firstIndex = updateTableInfo(&key, data->size());
-        qDebug()<<"new Hashtable1";
     data->setFirstIndex(firstIndex);
-        qDebug()<<"new Hashtable2";
     putDataInHashTable(data, table);
     qDebug()<<"end";
 }

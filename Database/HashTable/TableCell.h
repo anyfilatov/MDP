@@ -152,11 +152,12 @@ QString TableCell<V>::toString(){
 
 template <typename V>
 vector<AbstractTableKey*> TableCell<V>::keys(){
-    vector<AbstractTableKey*  > keys(size);
+    vector<AbstractTableKey*  > keys;
+//    qDebug()<<"CellSize " << size;
 	CellItem<V> *current = listRoot;
 	for (int i = 0; i < size; i++){
-		if (!current) break;
-		keys[i] = current->getKey();
+        if (!current) { qDebug() << i;continue;}
+        keys.push_back( current->getKey());
 		current = current->getNext();
 	}
 	return keys;

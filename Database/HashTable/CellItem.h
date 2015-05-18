@@ -103,6 +103,7 @@ void CellItem<V>::clear(){
         next->clear();
         delete next;
         next = NULL;
+
     }
     //else
         //cout << "  next: NULL\n";

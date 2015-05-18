@@ -24,14 +24,13 @@ class HashTable:public Serializible{
 		int tableSize;
         int cellsCount;
 		double coef;
-        vector<TableCell<V>* >* cells;
+        vector<TableCell<V>* > cells;
 		void createCellsArray();
 		int indexFor(int hash);
 		bool overSize();
 		void resize(int newCapacity);
         void transfer(vector<TableCell<V>* >* oldCells);
         void clean(vector<TableCell<V>* >* oldCells);
-
     public:
         class Iterator;
         HashTable();
@@ -55,7 +54,6 @@ class HashTable:public Serializible{
         void clear();
         QString serialize();
         void parse(QString json);
-        void printTable();
 };
 
 template <typename K, typename V>
@@ -82,10 +80,10 @@ public:
         num = 0;
         if (oldTableSize > 0){
             cellNum = 0;
-            while(!outerTable->cells->at(cellNum)->listRoot){
+            while(!outerTable->cells[cellNum]->listRoot){
                 cellNum++;
             }
-            currentItem = outerTable->cells->at(cellNum)->listRoot;
+            currentItem = outerTable->cells[cellNum]->listRoot;
         }else{
             currentItem = NULL;
         }
@@ -103,10 +101,10 @@ public:
                 return NULL;
             }else{
                 cellNum++;
-                while(!table->cells->at(cellNum)->listRoot){
+                while(!table->cells[cellNum]->listRoot){
                     cellNum++;
                 }
-                currentItem = table->cells->at(cellNum)->listRoot;
+                currentItem = table->cells[cellNum]->listRoot;
                 return currentItem->getValue();
             }
         }else return NULL;
@@ -140,9 +138,9 @@ public:
 
 template <typename K, typename V>
 HashTable<K, V>::HashTable(){
-    cellsCount = 10;
+    cellsCount = 30;
 	tableSize = 0;
-    coef = 0.6;
+	coef = 0.6;
 	createCellsArray();
 
 }
@@ -165,12 +163,12 @@ HashTable<K, V>::HashTable(int num, double coef){
 
 template <typename K, typename V>
 HashTable<K, V>::~HashTable(){
-    clean(cells);
+    clean(&cells);
 }
 
 template <typename K, typename V>
 void HashTable<K, V>::clear(){
-    clean(cells);
+    clean(&cells);
     cellsCount = 10;
     tableSize = 0;
     createCellsArray();
@@ -178,9 +176,10 @@ void HashTable<K, V>::clear(){
 
 template <typename K, typename V>
 void HashTable<K, V>::createCellsArray(){
-    cells = new vector<TableCell<V>* >(cellsCount);
-    for (int n = 0; n < cells->size(); n++){
-        cells->at(n) = new TableCell<V>(n);
+    cells.clear();
+    cells.resize(cellsCount);
+	for (int n = 0; n < cells.size(); n++){
+        cells[n] = new TableCell<V>(n);
 	}
 }
 
@@ -188,15 +187,14 @@ template <typename K, typename V>
 void HashTable<K, V>::put(K* key, V* value){
 	/*if (key == NULL){
 		throws new NullPointerException("Key can not be null");
-    }*/
+	}*/
     QTextStream cout(stdout);
     AbstractTableKey* keyWithHash = key;
-    Serializible* val = value;
     int hash = keyWithHash->hash();
 	int index = indexFor(hash);
-    //cout << "HashTable_PUT\n  key: " << keyWithHash->serialize() << "\n  index: " << index << "\n  value: " << val->serialize() << "\n  cellsSize: " << cells->size() << endl;
+    //cout << "HashTable_PUT\n  hash: " << hash << "\n  index: " << index << "\n  value: " << value << "\n  cellsSize: " << cells.size() << endl;
 
-    if (cells->at(index)->add(new CellItem<V>((AbstractTableKey*) key->clone(), value))){
+    if (cells[index]->add(new CellItem<V>((AbstractTableKey*) key->clone(), value))){
 		tableSize++;
         //cout << "  TableSize: " << tableSize << endl;
 		if (overSize()){
@@ -205,7 +203,6 @@ void HashTable<K, V>::put(K* key, V* value){
 	}else{
         //cout << "  KEY ALREADY EXISTS" << endl;
 	}
-    printTable();
 }
 
 template <typename K, typename V>
@@ -222,16 +219,17 @@ bool HashTable<K, V>::overSize(){
 
 template <typename K, typename V>
 vector<K*> HashTable<K, V>::keys(){
-    vector<K*> keys(tableSize);
+    vector<K*> Keys;
 	int j = 0;
     for (int i = 0; i < cellsCount; i++){
-        vector<AbstractTableKey*> cellKeys = cells->at(i)->keys();
+   //     qDebug() <cell[i];
+        vector<AbstractTableKey*> cellKeys = cells[i]->keys();
         for (int k = 0; k < cellKeys.size(); k++){
-            keys[j] = (K*) cellKeys[k]->clone();
+            Keys.push_back(((K*) cellKeys[k]));
 			j++;
         }
 	} 
-	return keys;
+    return Keys;
 }
 
 template <typename K, typename V>
@@ -239,7 +237,7 @@ vector<pair<K*, V> > HashTable<K, V>::entries(){
     vector<pair<K*, V> > entries(tableSize);
     int j = 0;
     for (int i = 0; i < cellsCount; i++){
-        vector<pair<AbstractTableKey*, V> > cellEntries = cells->at(i)->entries();
+        vector<pair<AbstractTableKey*, V> > cellEntries = cells[i]->entries();
         for (int k = 0; k < cellEntries.size(); k++){
             entries[j] = pair<K*, V>((K*)cellEntries[k].first->clone(), cellEntries[k].second);
             j++;
@@ -255,8 +253,8 @@ V* HashTable<K, V>::get(K* key){
     AbstractTableKey* keyWithHash = key;
     int hash = keyWithHash->hash();
 	int index = indexFor(hash);
-    //cout << "HashTable_GET\n  hash: " << hash << "\n  value: " << cells->at(index)->get(key) << endl;
-    return cells->at(index)->get(key);
+    //cout << "HashTable_GET\n  hash: " << hash << "\n  value: " << cells[index]->get(key) << endl;
+    return cells[index]->get(key);
 }
 
 template <typename K, typename V>
@@ -266,7 +264,7 @@ void HashTable<K, V>::update(K* key, V* value){
     int hash = keyWithHash->hash();
     //cout << "HashTable_UPDATE\n  hash: " << hash << "\n";
 	int index = indexFor(hash);
-    cells->at(index)->update(key, value);
+    cells[index]->update(key, value);
 }
 
 template <typename K, typename V>
@@ -275,10 +273,10 @@ void HashTable<K, V>::remove(K* key){
     AbstractTableKey* keyWithHash = key;
     int hash = keyWithHash->hash();
 	int index = indexFor(hash);
-    CellItem<V>* removed = cells->at(index)->remove(key);
+    CellItem<V>* removed = cells[index]->remove(key);
     if (removed != NULL){
         tableSize--;
-        delete removed;
+        delete [] removed;
     }
     //cout << "HashTable_REMOVE\n  hash: " << hash << "\n  tableSize: " << tableSize << endl;
 }
@@ -291,9 +289,13 @@ void HashTable<K, V>::resize(int newCapacity){
     QTextStream cout(stdout);
     //cout << "HashTable_RESIZE\n  oldCellsNUM: " << cellsCount << "\n  newCellsNUM: " << newCapacity << endl;
     cellsCount = newCapacity;
-    vector<TableCell<V>* >* oldcells = cells;
+    vector<TableCell<V>* > oldcells(cells.size());
+    for (int i = 0; i < cells.size(); i++){
+        oldcells[i] = cells[i];
+        cells[i] = NULL;
+    }
 	createCellsArray();
-    transfer(oldcells);
+    transfer(&oldcells);
 	return;
 }
 
@@ -321,9 +323,10 @@ void HashTable<K, V>::setResizeCoef(int coef){
 template <typename K, typename V>
 void HashTable<K, V>::transfer(vector<TableCell<V>* >* oldCells){
     QTextStream cout(stdout);
-    //cout << "HashTable_TRANSFER\n  oldCellsNum: " << oldCells->size() << " \n  newCellsNum: " << cells->size() << endl;
+    vector<TableCell<V>* > Cells = *oldCells;
+    //cout << "HashTable_TRANSFER\n  oldCellsNum: " << oldCells->size() << " \n  newCellsNum: " << cells.size() << endl;
     for (int i = 0; i < oldCells->size(); i++){
-        TableCell<V>* cell = oldCells->at(i);
+        TableCell<V>* cell = Cells[i];
         vector<AbstractTableKey*> cellKeys = cell->keys();
         //cout << "    " << i << " oldCell;  keysNum: " << cellKeys.size() << endl;
 		for (int j = 0; j < cellKeys.size(); j++){
@@ -332,7 +335,8 @@ void HashTable<K, V>::transfer(vector<TableCell<V>* >* oldCells){
             //cout << "      " << j << " key(" << cellKeys[j]->hash() << ", " << item->getValue() << ") goes to ";
 			int index = indexFor(item->getKey()->hash());
             //cout << index << " newCell\n";
-            cells->at(index)->add(item);
+            if (cell->listRoot == NULL) //cout << "      CellRoot: NULL\n";
+            cells[index]->add(item);
 		}
     }
     clean(oldCells);
@@ -342,13 +346,12 @@ template <typename K, typename V>
 void HashTable<K, V>::clean(vector<TableCell<V>* >* oldCells){
     QTextStream cout(stdout);
     //cout << "HashTable_CLEAN\n";
+    vector<TableCell<V>* > Cells = *oldCells;
     for (int i = 0; i < oldCells->size(); i++){
-        TableCell<V>* cell = oldCells->at(i);
+        TableCell<V>* cell = Cells[i];
         cell->clear();
-        delete cell;
 	}
     oldCells->clear();
-    delete oldCells;
 }
 
 template <typename K, typename V>
@@ -388,19 +391,5 @@ void HashTable<K, V>::parse(QString json){
     }
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::printTable(){
-    QTextStream cout(stdout);
-    //cout << "PRINT TABLE\n";
-    for (int i = 0; i < cells->size(); i++){
-        //cout << " cell " << i << ", size: " << cells->at(i)->getSize() << endl;
-        TableCell<V>* cell = cells->at(i);
-        vector<AbstractTableKey*> cellKeys = cell->keys();
-        for (int j = 0; j < cellKeys.size(); j++){
-            V* val = cell->get(cellKeys[j]);
-            //cout << "      " << j << " key(" << ((cellKeys[j] != NULL)? cellKeys[j]->serialize() : "NULL") << ", " << ((val != NULL)? val->serialize() : "NULL") << ")\n";
-        }
-    }
-}
 
 #endif
