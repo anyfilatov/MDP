@@ -38,6 +38,7 @@ public:
     MDPData* get(short int userId, short int dataId, short int processId, int strNum, int count);
     void remove(short int userId, short int dataId, short int processId);
     MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
+    void toStart(short int userId, short int dataId, short int processId);
     int getSize(short int userId, short int dataId, short int processId);
     QJsonArray getUsers();
     QJsonArray getTableIds(short int userId);

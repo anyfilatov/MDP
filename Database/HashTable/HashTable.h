@@ -335,7 +335,6 @@ void HashTable<K, V>::transfer(vector<TableCell<V>* >* oldCells){
             //cout << "      " << j << " key(" << cellKeys[j]->hash() << ", " << item->getValue() << ") goes to ";
 			int index = indexFor(item->getKey()->hash());
             //cout << index << " newCell\n";
-            if (cell->listRoot == NULL) //cout << "      CellRoot: NULL\n";
             cells[index]->add(item);
 		}
     }

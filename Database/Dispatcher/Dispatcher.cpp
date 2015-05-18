@@ -71,9 +71,18 @@ void Dispatcher::slotReadClient()
         MDPData* d;
         QString comm = jso.take("COMMAND").toString();
         qDebug() << comm;
-        if (comm == "ADD_HOST"){
+        if (comm == "TO_START"){
+            short userId = jso.take("USER_ID").toInt();
+            short dataId = jso.take("DATA_ID").toInt();
+            short processId = jso.take("PROCESS_ID").toInt();
+            toStart(userId, dataId, processId);
+            jsAnswer.insert("SUCCESS", true);
+            sendToClient(pClientSocket, jsAnswer);
+        }else if (comm == "ADD_HOST"){
             QString ip = jso.take("IP").toString();
             int port = jso.take("PORT").toInt();
+            jsAnswer.insert("SUCCESS", true);
+            sendToClient(pClientSocket, jsAnswer);
         }else if (comm == "PING_ALL"){
             QJsonArray ips;
             jsAnswer.insert("COMMAND", "_PING_ALL");
@@ -416,6 +425,17 @@ int Dispatcher::getSize(short userId, short dataId, short processId){
         return info->getValue();
     }
     return 0;
+}
+
+void Dispatcher::toStart(short int userId, short int dataId, short int processId){
+    TableKey key(userId, dataId, processId);
+    IntWithHash* increment = sessions.get(&key);
+    if (!increment){
+        increment = new IntWithHash(0);
+        sessions.put(&key, increment);
+    }else{
+        increment->setValue(0);
+    }
 }
 
 QJsonArray Dispatcher::getUsers(){

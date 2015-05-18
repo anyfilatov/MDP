@@ -38,6 +38,7 @@ public:
     MDPData* get(short int userId, short int dataId, short int processId, int strNum, int count);
     bool remove(short int userId, short int dataId, short int processId);
     MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
+    bool toStart(short int userId, short int dataId, short int processId);
     int getSize(short int userId, short int dataId, short int processId);
     vector<short> getUsers();
     vector<pair<short, short> > getTableIds(short userId);

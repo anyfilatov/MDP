@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 {
     QTextStream cout(stdout);
     QApplication app(argc, argv);
-    /*HashTable<StringWithHash, IntWithHash> table(10, 0.3);
+    HashTable<StringWithHash, IntWithHash> table(10, 0.5);
     IntWithHash* value1 = new IntWithHash(1);
     IntWithHash* value2 = new IntWithHash(2);
     IntWithHash* value3 = new IntWithHash(3);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     table.put(&key1, value2);
     table.put(&key2, value2);
     table.put(&key3, value3);
-    table.update(&key1, value4);
+    //table.update(&key1, value4);
     key1.setValue("rerfe");
     vector<StringWithHash*> keys = table.keys();
     for (int i = 0; i < keys.size(); i ++){
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
         cout << "  n: " << i << endl;
         cout << "  key: " << entries[i].first->serialize();
         cout << "  value: " << entries[i].second.getValue() << endl;
-    }*/
+    }
 
     /*QJsonObject jsonObj, outerObj;
     QByteArray msg;
@@ -205,10 +205,8 @@ int main(int argc, char *argv[])
             newData->serialize();
     }*/
 
-    Dispatcher db(2323);
-   testGuiParser(db);
-    NoSql gui;
-    gui.show();
+   //Dispatcher db(2323);
+   //testGuiParser(db);
  //  DBClient db("172.19.2.66", 2323, "172.19.2.66",2323);
 //   for (int i =1;i<12;i++){
 //      MDPData* data = db.getNextStrings(0,2,1,i);

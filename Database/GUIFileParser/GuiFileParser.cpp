@@ -39,7 +39,7 @@ void GuiFileParser::setBlockSize(int nblockSize){
 
 MDPData* GuiFileParser::packDataBlock(QTextStream& inputStream){
     bool flag = true;
-    vector<vector<QString>> celss;
+    vector<vector<QString> > celss;
     QString* line;
     int lines = 0;
     do{

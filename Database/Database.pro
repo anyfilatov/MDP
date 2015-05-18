@@ -17,7 +17,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     Data.cpp \
-    Storage.cpp \
     dbclient.cpp \
     Dispatcher/Dispatcher.cpp \
     Dispatcher/Session.cpp \
@@ -32,7 +31,6 @@ HEADERS += \
     Clonable.h \
     Serializible.h \
     Data.h \
-    Storage.h \
     dbclient.h \
     Dispatcher/Dispatcher.h \
     Dispatcher/Session.h \

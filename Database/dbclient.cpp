@@ -308,6 +308,24 @@ MDPData* DBClient::getNextStrings(short int userId, short int dataId, short int 
     return NULL;
 }
 
+bool DBClient::toStart(short userId, short dataId, short processId){
+    QJsonObject obj;
+    obj.insert("COMMAND", "GET_SIZE");
+    obj.insert("USER_ID", userId);
+    obj.insert("DATA_ID", dataId);
+    obj.insert("PROCESS_ID", processId);
+    sendToServer(obj);
+    tryNum = 0;
+    QJsonObject obj2 = slotReadyRead(obj);
+    if (obj2.contains("TIME_OUT")){
+        return false;
+    }
+    if (obj2.contains("SUCCESS")){
+        return obj2.take("SUCCESS").toBool();
+    }
+    return false;
+}
+
 int DBClient::getSize(short userId, short dataId, short processId){
     QJsonObject obj;
     obj.insert("COMMAND", "GET_SIZE");
