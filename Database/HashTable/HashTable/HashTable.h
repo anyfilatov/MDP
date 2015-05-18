@@ -138,7 +138,7 @@ public:
 
 template <typename K, typename V>
 HashTable<K, V>::HashTable(){
-    cellsCount = 10;
+    cellsCount = 30;
 	tableSize = 0;
 	coef = 0.6;
 	createCellsArray();
@@ -219,16 +219,17 @@ bool HashTable<K, V>::overSize(){
 
 template <typename K, typename V>
 vector<K*> HashTable<K, V>::keys(){
-    vector<K*> keys(tableSize);
+    vector<K*> Keys;
 	int j = 0;
     for (int i = 0; i < cellsCount; i++){
+   //     qDebug() <cell[i];
         vector<AbstractTableKey*> cellKeys = cells[i]->keys();
         for (int k = 0; k < cellKeys.size(); k++){
-            keys[j] = (K*) cellKeys[k]->clone();
+            Keys.push_back(((K*) cellKeys[k]));
 			j++;
         }
 	} 
-	return keys;
+    return Keys;
 }
 
 template <typename K, typename V>

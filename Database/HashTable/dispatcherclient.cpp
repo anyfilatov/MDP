@@ -1,6 +1,6 @@
 #ifndef DISPATCHERCLIENT_CPP
 #define DISPATCHERCLIENT_CPP
-
+#include <QString>
 #include "dispatcherclient.h"
 
 DispatcherClient::DispatcherClient(const QString& strHost, int nPort, QObject *parent) :
@@ -79,13 +79,18 @@ void DispatcherClient::slotConnected()
 
 //end of
 
-QJsonObject DispatcherClient::pingAll()
+vector<QString> DispatcherClient::pingAll()
 {
     QJsonObject obj;
     obj.insert("COMMAND", "PING_ALL");
     sendToServer(obj);
     QJsonObject receivedObj = slotReadyRead();
-    return receivedObj;
+	QJsonArray arr = receivedObj.take("HOSTS");
+	vector<QString> s;
+	for (int i=0; i<arr.size(); i++){
+		s.push_back(i);
+	}
+	return s
 }
 
 void DispatcherClient::addHost(const QString& ip, int port)

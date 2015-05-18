@@ -5,7 +5,7 @@
 #include <QTcpSocket>
 #include <QJsonObject>
 #include <QJsonDocument>
-
+#include <QString>
 
 class DispatcherClient : public QObject
 {
@@ -21,7 +21,7 @@ public slots:
     void slotConnected();
     void sendToServer(const QJsonObject& jso);
 public:
-    QJsonObject pingAll();
+    vector<QString> pingAll();
     void addHost(const QString& ip, int port);
 };
 

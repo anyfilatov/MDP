@@ -26,40 +26,46 @@
 #include <QAbstractSocket>
 #include <QThread>
 #include "GUIFileParser/GuiFileParser.h"
+#include <QtWidgets/QApplication>
+#include "gui.h"
+
 using namespace std;
 
-void testGuiParser(){
+void testGuiParser(Dispatcher& db){
     vector<QString>* headers = new vector<QString>();
-   headers->push_back("Longtitude");
-   headers->push_back("Latitude");
-   headers->push_back("January");
-   headers->push_back("February");
-   headers->push_back("Marth");
-   headers->push_back("April");
-   headers->push_back("May");
-   headers->push_back("June");
-   headers->push_back("July");
-   headers->push_back("August");
-   headers->push_back("Semptember");
-   headers->push_back("October");
-   headers->push_back("November");
-   headers->push_back("December");
-   vector<int>* numberHeaders = new vector<int>();
-   for (int i=1;i<=14;i++){
-       numberHeaders->push_back(i);
-   }
-    GuiFileParser parser;
-    parser.setBlockSize(25);
-    parser.setHeaders(headers,numberHeaders);
-    parser.setIds(1,0,0);
-    DBClient db("192.168.2.1", 2323);
-
-    parser.loadFile("D:\\MDP\\Global2011T\\air_temp.1900", db);
+    headers->push_back("Longtitude");
+    headers->push_back("Latitude");
+    headers->push_back("January");
+    headers->push_back("February");
+    headers->push_back("Marth");
+    headers->push_back("April");
+    headers->push_back("May");
+    headers->push_back("June");
+    headers->push_back("July");
+    headers->push_back("August");
+    headers->push_back("Semptember");
+    headers->push_back("October");
+    headers->push_back("November");
+    headers->push_back("December");
+    vector<int>* numberHeaders = new vector<int>();
+    for (int i=1;i<=14;i++){
+        numberHeaders->push_back(i);
+    }
+    for (int i =0;i<1;i++){
+        GuiFileParser parser;
+        parser.setBlockSize(10000);
+        parser.setHeaders(headers,numberHeaders);
+        parser.setIds(1,i+1,0);
+        int b = 1900 + i;
+        QString path =    "D:\\MDP\\Global2011T\\air_temp."+QString::number(b);
+        qDebug() << path;
+        parser.loadFile(path, db);
+    }
 }
 int main(int argc, char *argv[])
 {
     QTextStream cout(stdout);
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv);
     /*HashTable<StringWithHash, IntWithHash> table(10, 0.3);
     IntWithHash* value1 = new IntWithHash(1);
     IntWithHash* value2 = new IntWithHash(2);
@@ -108,10 +114,10 @@ int main(int argc, char *argv[])
     key.parse(key.serialize());
     cout << key.serialize() << endl;*/
 
-    /*QCoreApplication a(argc, argv);
-    Dispatcher dispatcher;
-    dispatcher.startServer(1234);
-    return a.exec();*/
+//   QCoreApplication a(argc, argv);
+//    Dispatcher dispatcher;
+ //   dispatcher.startServer(1234);
+ //   return a.exec();
 
     /*cout << table.serialize() << endl;
     HashTable<TableKey, HashTable<StringWithHash,IntWithHash> > table1(10, 0.3);
@@ -152,8 +158,11 @@ int main(int argc, char *argv[])
     //data.serialize();
     //MDPData data;
 
-//    Dispatcher dispatcher(2323);
-//    dispatcher.put(0, 3, 2, &data);
+ //   Dispatcher dispatcher(2323);
+//    for(int i=0; i<10000;i++){
+//        dispatcher.put(0, 3, 2, &data);
+//    }
+//    dispatcher.remove(0,3,2);
 //    dispatcher.put(0,2,1, &data1);
 //    dispatcher.put(2, 2, 1, &data2);
 
@@ -195,7 +204,22 @@ int main(int argc, char *argv[])
         if (newData != NULL)
             newData->serialize();
     }*/
-    testGuiParser();
+
+    Dispatcher db(2323);
+   testGuiParser(db);
+    NoSql gui;
+    gui.show();
+ //  DBClient db("172.19.2.66", 2323, "172.19.2.66",2323);
+//   for (int i =1;i<12;i++){
+//      MDPData* data = db.getNextStrings(0,2,1,i);
+//      if (data!=NULL){
+//        qDebug() << data->serialize();
+//      }else{
+//          qDebug() <<"ПУСТО";
+//      }
+//      delete data;
+//   }
+  // qDebug() << data->serialize();
     return app.exec();
 }
 

@@ -119,7 +119,7 @@ void DBClient::sendToServer(const QJsonObject& jso)
     out << quint64(arrBlock.size() - sizeof(quint64));
 
     m_pTcpSocket->write(arrBlock);
-    qDebug() << "DBClient: sended to server -> " << jsDoc.toJson();
+  //  qDebug() << "DBClient: sended to server -> " << jsDoc.toJson();
 }
 
 void DBClient::slotConnected()

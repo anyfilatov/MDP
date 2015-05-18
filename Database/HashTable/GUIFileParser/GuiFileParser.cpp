@@ -4,12 +4,14 @@
 #include <QFile>
 #include <QTextStream>
 #include "GuiFileParser.h"
+#include "Dispatcher/Dispatcher.h"
 
 void GuiFileParser::setHeaders(vector<QString>* nheaders, vector<int>* nheadersNums)  {
     headers = nheaders;
     headersNums = nheadersNums;
 }
-void GuiFileParser::loadFile(QString fileName, DBClient& db){
+
+void GuiFileParser::loadFile(QString fileName, Dispatcher& db){
     QFile inputFile(fileName);
     if (inputFile.open(QIODevice::ReadOnly))
     {
@@ -17,14 +19,16 @@ void GuiFileParser::loadFile(QString fileName, DBClient& db){
         bool flag = true;
         do{
             MDPData* datablock = packDataBlock(in);
+ //           qDebug() << datablock->getCells()[0][0];
             flag = datablock!=NULL && datablock->getCells().size()!=0;
             qDebug() << flag;
             if (flag){
-                qDebug() << datablock->serialize();
-                db.put(userId,dataId,processId,datablock);
+//                qDebug() << datablock->serialize();
+               db.put(userId,dataId,processId,datablock);
+               qDebug() << "put";
             }
             delete datablock;
-            flag=false;
+    //        flag = false;
         }while(flag);
         inputFile.close();
     }
@@ -54,6 +58,7 @@ MDPData* GuiFileParser::packDataBlock(QTextStream& inputStream){
                 if (std::find(headersNums->begin(), headersNums->end(), i) != headersNums->end()){
                     cortege.push_back(str);
                 }
+                i++;
             }
 //            qDebug() << cortege[1];
             celss.push_back(cortege);

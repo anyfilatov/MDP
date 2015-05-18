@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core network
+QT       += core gui network widgets
 
-QT       -= gui
+
 
 TARGET = HashTable
 CONFIG   += console
@@ -25,7 +25,8 @@ SOURCES += main.cpp \
     HashTable/IntWithHash.cpp \
     HashTable/StringWithHash.cpp \
     HashTable/TableKey.cpp \
-    GUIFileParser/GuiFileParser.cpp
+    GUIFileParser/GuiFileParser.cpp \
+    gui.cpp
 
 HEADERS += \
     Clonable.h \
@@ -44,4 +45,5 @@ HEADERS += \
     HashTable/StringWithHash.h \
     HashTable/TableCell.h \
     HashTable/TableKey.h \
-    GUIFileParser/GuiFileParser.h
+    GUIFileParser/GuiFileParser.h \
+    gui.h

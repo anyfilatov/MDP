@@ -80,6 +80,7 @@ void Dispatcher::slotReadClient()
             jsAnswer.insert("COMMAND", "_PING_ALL");
             jsAnswer.insert("HOSTS", ips);
             sendToClient(pClientSocket, jsAnswer);
+
         }
         else if (comm == "GET_TABLEIDS") {
             short userId = jso.take("USER_ID").toInt();
@@ -111,6 +112,7 @@ void Dispatcher::slotReadClient()
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
             short processId = jso.take("PROCESS_ID").toInt();
+            qDebug() << userId <<" "<< dataId << " "<< processId;
             int size = getSize(userId, dataId, processId);
             jsAnswer.insert("COMMAND", "_GET_SIZE");
             if (d >= 0) {
@@ -130,7 +132,7 @@ void Dispatcher::slotReadClient()
             }
             sendToClient(pClientSocket, jsAnswer);
             qDebug() << "Dispatcher: COMMAND GET_NEXTSTR " << userId << ":" << dataId << ":" << processId << ":" << count << ":" <<
-                        ((d != NULL) ? (d->serialize()) : ("DATA IS NULL"));
+                        ((d != NULL) ? ("firstIndex: "+ QString::number(d->getFirstIndex())) : ("DATA IS NULL"));
         } else if (comm == "GET_5") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
@@ -169,7 +171,7 @@ void Dispatcher::slotReadClient()
             }
             sendToClient(pClientSocket, jsAnswer);
             qDebug() << "Dispatcher: COMMAND GET_3 " << userId << ":" << dataId << ":" << processId << ":" <<
-                        ((d != NULL) ? (d->serialize()) : ("DATA IS NULL"));
+                        ((d != NULL) ? ("DATA IS NOT NULL") : ("DATA IS NULL"));
             //qDebug() << "Dispatcher: COMMAND GET_3 " << userId << ":" << dataId << ":" << processId << ":" << "; SIZE : " << d->size();
         } else if (comm == "PUT") {
             short userId = jso.take("USER_ID").toInt();
@@ -190,7 +192,7 @@ void Dispatcher::slotReadClient()
 
 
         //qDebug() << "Dispatcher: Incoming message : " << arr;
-        qDebug() << "Dispatcher: Command -> " << comm;
+    //    qDebug() << "Dispatcher: Command -> " << comm;
         //qDebug() << "Dispatcher: Data -> " << d.serialize();
 
         m_nNextBlockSize = 0;
@@ -216,15 +218,18 @@ void Dispatcher::sendToClient(QTcpSocket* pSocket, const QJsonObject& jso)
 //-------------------------------
 
 void Dispatcher::putDataInHashTable(MDPData* data, HashTable<StringWithHash, HashTable<IntWithHash, StringWithHash> >* table){
+ //   qDebug()<<"PUT data"<<data->serialize();
     vector<QString> headers = data->getHeaders();
     vector<vector<QString> > cells = data->getCells();
     for (short int i = 0; i < headers.size(); i++){
         StringWithHash header(headers[i]);
+       // qDebug() << header.getValue();
         HashTable<IntWithHash, StringWithHash>* innerTable = table->get(&header);
         if (!innerTable){
             innerTable = new HashTable<IntWithHash, StringWithHash>();
             table->put(&header, innerTable);
         }
+       // qDebug() << table->get(&header);
         for (int j = 0; j < cells.size(); j++){
             IntWithHash strNum(data->getFirstIndex() + j);
             if (cells[j].size() >= i){
@@ -255,6 +260,7 @@ int Dispatcher::updateTableInfo(TableKey* key, int num){
 }
 
 void Dispatcher::put(short int userId, short int dataId, short int processId, MDPData* data){
+  //  qDebug() << "Come to put" << data->serialize();
     TableKey key(userId, dataId, processId);
     HashTable<StringWithHash, HashTable<IntWithHash, StringWithHash> >* table = hashTable.get(&key);
     if (!table){
@@ -269,15 +275,25 @@ void Dispatcher::put(short int userId, short int dataId, short int processId, MD
 MDPData* Dispatcher::get(short int userId, short int dataId, short int processId){
     TableKey key(userId, dataId, processId);
     HashTable<StringWithHash, HashTable<IntWithHash, StringWithHash> >* table = hashTable.get(&key);
-    if (!table) return NULL;
+    if (!table){
+        qDebug()<<"NULL";
+        return NULL;
+    }
     vector<StringWithHash*> keys = table->keys();
     IntWithHash* info = tableInfo.get(&key);
     vector<QString> headers(keys.size());
     vector<vector<QString> > cells(info->getValue());
+ //   qDebug() << "Size=" <<keys.size();
     for (short int i = 0; i < keys.size(); i++){
-        QString header = keys[i]->getValue();
+        qDebug() << keys.at(i);
+        QString header = keys.at(i)->getValue();
+
         headers[i] = header;
+   //     qDebug() << header;
         HashTable<IntWithHash, StringWithHash>* column = table->get(keys[i]);
+
+ //       qDebug() << column->size();
+
         for (int j = 0; j < info->getValue(); j++){
             QString cell;
             if (!column){
@@ -382,7 +398,8 @@ MDPData* Dispatcher::getNextStrings(short int userId, short int dataId, short in
     }
     int firstIndex = increment->getValue();
     if ((increment->getValue() + count) >= (info->getValue())){
-        sessions.remove(&key);
+       // sessions.remove(&key);
+        return NULL;
     }else{
         increment->setValue(increment->getValue() + count);
     }
@@ -392,6 +409,7 @@ MDPData* Dispatcher::getNextStrings(short int userId, short int dataId, short in
 int Dispatcher::getSize(short userId, short dataId, short processId){
     TableKey key(userId, dataId, processId);
     IntWithHash* info = tableInfo.get(&key);
+    qDebug() << key.serialize();
     if (info != NULL){
         return info->getValue();
     }
