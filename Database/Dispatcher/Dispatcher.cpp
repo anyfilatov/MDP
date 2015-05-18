@@ -70,7 +70,7 @@ void Dispatcher::slotReadClient()
 
         MDPData* d;
         QString comm = jso.take("COMMAND").toString();
-
+        qDebug() << comm;
         if (comm == "ADD_HOST"){
             QString ip = jso.take("IP").toString();
             int port = jso.take("PORT").toInt();
@@ -177,6 +177,7 @@ void Dispatcher::slotReadClient()
             short processId = jso.take("PROCESS_ID").toInt();
             d = new MDPData;
             d->parse(jso.take("DATA").toString());
+            qDebug()<<d->serialize();
             put(userId, dataId, processId, d);
             jsAnswer.insert("COMMAND", "_PUT");
             if (d != NULL) {
@@ -221,17 +222,17 @@ void Dispatcher::putDataInHashTable(MDPData* data, HashTable<StringWithHash, Has
     vector<vector<QString> > cells = data->getCells();
     for (short int i = 0; i < headers.size(); i++){
         StringWithHash header(headers[i]);
-       // qDebug() << header.getValue();
         HashTable<IntWithHash, StringWithHash>* innerTable = table->get(&header);
         if (!innerTable){
             innerTable = new HashTable<IntWithHash, StringWithHash>();
             table->put(&header, innerTable);
         }
-       // qDebug() << table->get(&header);
+//        qDebug() << table->get(&header)->serialize();
         for (int j = 0; j < cells.size(); j++){
             IntWithHash strNum(data->getFirstIndex() + j);
             if (cells[j].size() >= i){
                 StringWithHash* cell = innerTable->get(&strNum);
+
                 if (!cell){
                     cell = new StringWithHash(cells[j][i]);
                     innerTable->put(&strNum, cell);
@@ -240,6 +241,7 @@ void Dispatcher::putDataInHashTable(MDPData* data, HashTable<StringWithHash, Has
                 }
             }
         }
+
     }
     headers.clear();
     cells.clear();
@@ -258,16 +260,20 @@ int Dispatcher::updateTableInfo(TableKey* key, int num){
 }
 
 void Dispatcher::put(short int userId, short int dataId, short int processId, MDPData* data){
-  //  qDebug() << "Come to put" << data->serialize();
+//   qDebug() << "Come to put" << data->serialize();
     TableKey key(userId, dataId, processId);
     HashTable<StringWithHash, HashTable<IntWithHash, StringWithHash> >* table = hashTable.get(&key);
     if (!table){
         table = new HashTable<StringWithHash, HashTable<IntWithHash, StringWithHash> >();
         hashTable.put(&key, table);
     }
+
     int firstIndex = updateTableInfo(&key, data->size());
+        qDebug()<<"new Hashtable1";
     data->setFirstIndex(firstIndex);
+        qDebug()<<"new Hashtable2";
     putDataInHashTable(data, table);
+    qDebug()<<"end";
 }
 
 MDPData* Dispatcher::get(short int userId, short int dataId, short int processId){

@@ -8,7 +8,7 @@ QT       += core gui network widgets
 
 
 
-TARGET = HashTable
+TARGET = Database
 CONFIG   += console
 CONFIG   -= app_bundle
 
