@@ -11,18 +11,33 @@ QT       -= gui
 TARGET = Client
 CONFIG   += console
 CONFIG   -= app_bundle
+CONFIG   += c++11
 
 TEMPLATE = app
 
 
 SOURCES += \ 
     main.cpp \
-    client.cpp
+    Exception/abstractexception.cpp \
+    Exception/clientexeption.cpp \
+    Exception/connectionisnotcreatedexception.cpp \
+    Exception/notfoundvalueexception.cpp \
+    Exception/serverunavailableexception.cpp \
+    remoteclient.cpp
+
+
+
 
 HEADERS += \
-    client.h 
-    ../Router/typerequest.h 
+    typerequest.h \
+    StatusCodes.h \
+    Exception/abstractexception.h \
+    Exception/clientexeption.h \
+    Exception/connectionisnotcreatedexception.h \
+    Exception/notfoundvalueexception.h \
+    Exception/serverunavailableexception.h \
+    Exception/exception.h \
+    Exception/exceptioncode.h \
+    remoteclient.h
 
-DISTFILES += \
-    ../settings/settings.conf \
-    ../build-Client-Desktop_Qt_5_4_1_GCC_64bit-Debug/settings.conf
+

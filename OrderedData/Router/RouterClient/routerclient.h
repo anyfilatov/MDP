@@ -1,9 +1,9 @@
 #ifndef ROUTERCLIENT_H
 #define ROUTERCLIENT_H
 
-#include "ClientLib/client.h"
+#include "ClientLib/remoteclient.h"
 
-class RouterClient : public Client
+class RouterClient : public RemoteClient
 {
 public:
     RouterClient();

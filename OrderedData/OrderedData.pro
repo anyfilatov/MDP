@@ -17,7 +17,7 @@ TEMPLATE = app
 
 
 SOURCES += \
-    ClientLib/client.cpp \
+    ClientLib/remoteclient.cpp \
     Router/connect.cpp \
     Router/router.cpp \
     cacheserver.cpp \
@@ -36,7 +36,7 @@ SOURCES += \
     Exception/notfoundvalueexception.cpp
 
 HEADERS += \
-    ClientLib/client.h \
+    ClientLib/remoteclient.h \
     Router/connect.h \
     Router/router.h \
     Router/typerequest.h \

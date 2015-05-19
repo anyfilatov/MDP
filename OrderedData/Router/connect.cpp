@@ -18,8 +18,13 @@ void Connect::run() {
       return;
 
   QJsonObject jsonReq = read();
-  QJsonObject jsonResp = handleRequest(jsonReq);
-  write(jsonResp);
+  if (jsonReq.value("type") == PUT){
+      handleRequest(jsonReq);
+  }
+  else{
+    QJsonObject jsonResp = handleRequest(jsonReq);
+    write(jsonResp);
+  }
 }
 
 QJsonObject Connect::deserialize(QByteArray data) {
