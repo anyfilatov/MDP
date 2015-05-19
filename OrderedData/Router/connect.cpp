@@ -4,44 +4,21 @@
 #include "RouterClient/routerclient.h"
 #include "Router/StatusCodes.h"
 
-Connect::Connect(HashRing* ring, Cache<QString, QString>* map, QObject* parent)
+Connect::Connect(quintptr handle, HashRing* ring, Cache<QString, QString>* map, QObject* parent)
     : QObject(parent) {
+  _socketDescriptor = handle;
   _ring = ring;
   _rbtree = map;
 }
 
 void Connect::run() {
-  if (!socketDescriptor) return;
   _socket = new QTcpSocket();
-  _socket->setSocketDescriptor(socketDescriptor);
+  if (!_socket->setSocketDescriptor(socketDescriptor))
+      return;
 
-  QByteArray msgReq;
-  QByteArray msgResp;
-  QJsonObject jsonReq;
-  QJsonObject jsonResp;
-  while (_socket->waitForReadyRead(10000)) {
-    while (_socket->bytesAvailable()) {
-      qDebug() << _socket->bytesAvailable();
-      msgReq.append(_socket->readAll());
-    }
-
-    if (msgReq.size() == 0) {
-      continue;
-    }
-    jsonReq = deserialize(msgReq);
-
-    jsonResp = handleRequest(jsonReq);
-    msgResp = serialize(jsonResp);
-
-    _socket->write(msgResp);
-    _socket->flush();
-    _socket->waitForBytesWritten();
-
-    msgReq.clear();
-    msgResp.clear();
-  }
-  qDebug() << "Closed";
-  _socket->disconnectFromHost();
+  QJsonObject jsonReq = read();
+  QJsonObject jsonResp = handleRequest(jsonReq);
+  write(jsonResp);
 }
 
 QJsonObject Connect::deserialize(QByteArray data) {
@@ -260,6 +237,53 @@ QJsonObject Connect::handleRingJoin(QJsonObject json) {
   _ring->getManager()->addMembers(values);
   jsonResp.insert("status", StatusCode::OK);
   return jsonResp;
+}
+
+void Connect::write(const QJsonObject &packet)
+{
+    QByteArray rawData = QJsonDocument(packet).toBinaryData();
+
+    QByteArray block;
+    QDataStream in(&block, QIODevice::WriteOnly);
+    in.setVersion(QDataStream::Qt_5_0);
+    in << (quint32)rawData.size();
+    in.writeRawData(rawData.constData(), rawData.size());
+
+    openConnection();
+    _socket->write(block);
+    _socket->flush();
+    _socket->waitForBytesWritten();
+}
+
+QJsonObject Connect::read()
+{
+    QByteArray response;
+
+    quint32 packetSize = 0;
+    bool packetRecieved = false;
+
+    QDataStream out(_socket);
+    out.setVersion(QDataStream::Qt_5_0);
+
+    if (_socket->waitForReadyRead(5000)) {
+        while(!packetRecieved) {
+            if (packetSize == 0) {
+                if (_socket->bytesAvailable() < (quint32) sizeof(quint32))
+                    continue;
+                out >> packetSize;
+            }
+
+            if (_socket->bytesAvailable() < packetSize)
+                continue;
+
+            response = QByteArray::fromRawData(out.readRawData(packetSize), packetSize);
+            packetRecieved = true;
+        }
+    } else {
+        throw new ServerUnavailableException();
+    }
+
+    return QJsonDocument::fromBinaryData(response).object();
 }
 
 Connect::~Connect() {

@@ -15,19 +15,17 @@ class Connect : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    explicit Connect(HashRing *ring, Cache<QString, QString> *_rbtree, QObject *parent = 0);
+    explicit Connect(qintptr socketDescriptor, HashRing *ring, Cache<QString, QString> *_rbtree, QObject *parent = 0);
     ~Connect();
 
 protected:
     void run();
 
-public:
-    qintptr socketDescriptor;
-
 private:
     Cache<QString, QString> *_rbtree;
     QTcpSocket *_socket;
     HashRing *_ring;
+    qintptr _socketDescriptor;
 
     QJsonObject handleRequest(QJsonObject json);
     QJsonObject handlePut(QJsonObject json);
@@ -38,6 +36,9 @@ private:
     QJsonObject handleRemoveBucket(QJsonObject json);
     QJsonObject handleRingCheck(QJsonObject json);
     QJsonObject handleRingJoin(QJsonObject json);
+
+    void write(const QJsonObject& json);
+    QJsonObject read();
 
     QByteArray serialize(QJsonObject json);
     QJsonObject deserialize(QByteArray data);
