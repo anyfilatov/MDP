@@ -290,18 +290,17 @@ MDPData* Dispatcher::get(short int userId, short int dataId, short int processId
         qDebug()<<"NULL";
         return NULL;
     }
-    vector<StringWithHash*> keys = table->keys();
+    vector<StringWithHash> keys = table->keys();
     IntWithHash* info = tableInfo.get(&key);
     vector<QString> headers(keys.size());
     vector<vector<QString> > cells(info->getValue());
- //   qDebug() << "Size=" <<keys.size();
     for (short int i = 0; i < keys.size(); i++){
-        qDebug() << keys.at(i);
-        QString header = keys.at(i)->getValue();
+        qDebug() << keys.at(i).serialize();
+        QString header = keys.at(i).getValue();
 
         headers[i] = header;
    //     qDebug() << header;
-        HashTable<IntWithHash, StringWithHash>* column = table->get(keys[i]);
+        HashTable<IntWithHash, StringWithHash>* column = table->get(&keys[i]);
 
  //       qDebug() << column->size();
 
@@ -331,13 +330,13 @@ MDPData* Dispatcher::get(short int userId, short int dataId, short int processId
     HashTable<StringWithHash, HashTable<IntWithHash, StringWithHash> >* table = hashTable.get(&key);
     IntWithHash* info = tableInfo.get(&key);
     if ((!table) || (strNum < 0) || (strNum >= info->getValue())) return NULL;
-    vector<StringWithHash*> keys = table->keys();
+    vector<StringWithHash> keys = table->keys();
     vector<QString> headers(keys.size());
     vector<vector<QString> > cells(1);
     for (short int i = 0; i < keys.size(); i++){
-        QString header = keys[i]->getValue();
+        QString header = keys[i].getValue();
         headers[i] = header;
-        HashTable<IntWithHash, StringWithHash>* column = table->get(keys[i]);
+        HashTable<IntWithHash, StringWithHash>* column = table->get(&keys[i]);
         QString cell;
         if (!column){
             cell = "";
@@ -362,15 +361,15 @@ MDPData* Dispatcher::get(short int userId, short int dataId, short int processId
     HashTable<StringWithHash, HashTable<IntWithHash, StringWithHash> >* table = hashTable.get(&key);
     IntWithHash* info = tableInfo.get(&key);
     if ((!table) || ((strNum + count) <= 0) || (strNum >= (info->getValue()))) return NULL;
-    vector<StringWithHash*> keys = table->keys();
+    vector<StringWithHash> keys = table->keys();
     vector<QString> headers(keys.size());
     int firstIndex = (strNum < 0)? 0 : strNum;
     int size = (((count + strNum) > (info->getValue()))? (info->getValue()) : (count + strNum)) - firstIndex;
     vector<vector<QString> > cells(size);
     for (short int i = 0; i < keys.size(); i++){
-        QString header = keys[i]->getValue();
+        QString header = keys[i].getValue();
         headers[i] = header;
-        HashTable<IntWithHash, StringWithHash>* column = table->get(keys[i]);
+        HashTable<IntWithHash, StringWithHash>* column = table->get(&keys[i]);
         for (int j = 0; j < size; j++){
             QString cell;
             if (!column){
@@ -440,9 +439,9 @@ void Dispatcher::toStart(short int userId, short int dataId, short int processId
 
 QJsonArray Dispatcher::getUsers(){
     QJsonArray array;
-    vector<TableKey*> keys = hashTable.keys();
+    vector<TableKey> keys = hashTable.keys();
     for (int i = 0; i < keys.size(); i++){
-        short userId = keys[i]->getUserId();
+        short userId = keys[i].getUserId();
         if (!array.contains(userId)){
             array.push_back(userId);
         };
@@ -452,12 +451,12 @@ QJsonArray Dispatcher::getUsers(){
 
 QJsonArray Dispatcher::getTableIds(short userId){
     QJsonArray array;
-    vector<TableKey*> keys = hashTable.keys();
+    vector<TableKey> keys = hashTable.keys();
     for (int i = 0; i < keys.size(); i++){
-        short currentId = keys[i]->getUserId();
+        short currentId = keys[i].getUserId();
         if (userId == currentId){
-            short dataId = keys[i]->getDataId();
-            short processId = keys[i]->getProcessId();
+            short dataId = keys[i].getDataId();
+            short processId = keys[i].getProcessId();
             QJsonObject key;
             key.insert("DATA_ID", dataId);
             key.insert("PROCESS_ID", processId);

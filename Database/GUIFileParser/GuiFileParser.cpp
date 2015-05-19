@@ -5,6 +5,7 @@
 #include <QTextStream>
 #include "GuiFileParser.h"
 #include "Dispatcher/Dispatcher.h"
+#include "Dispatcher/HardDiskWorker.h"
 
 void GuiFileParser::setHeaders(vector<QString>* nheaders, vector<int>* nheadersNums)  {
     headers = nheaders;
@@ -24,7 +25,8 @@ void GuiFileParser::loadFile(QString fileName, Dispatcher& db){
             qDebug() << flag;
             if (flag){
 //                qDebug() << datablock->serialize();
-               db.put(userId,dataId,processId,datablock);
+               //db.put(userId,dataId,processId,datablock);
+                HardDiskWorker::getInstance().put(userId,dataId,processId,datablock);
                qDebug() << "put";
             }
             delete datablock;

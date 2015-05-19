@@ -45,8 +45,9 @@ class HashTable:public Serializible{
         V* get(K* key);
         void update(K* key, V* value);
         void remove(K* key);
-        vector<K*> keys();
-        vector<pair<K*, V> > entries();
+        bool contains(K* key);
+        vector<K> keys();
+        vector<pair<K, V> > entries();
 		bool isEmpty();
 		int size();
 		void setResizeCoef(int coef);
@@ -218,14 +219,15 @@ bool HashTable<K, V>::overSize(){
 }
 
 template <typename K, typename V>
-vector<K*> HashTable<K, V>::keys(){
-    vector<K*> Keys;
+vector<K> HashTable<K, V>::keys(){
+    vector<K> Keys;
 	int j = 0;
     for (int i = 0; i < cellsCount; i++){
    //     qDebug() <cell[i];
         vector<AbstractTableKey*> cellKeys = cells[i]->keys();
         for (int k = 0; k < cellKeys.size(); k++){
-            Keys.push_back(((K*) cellKeys[k]));
+            K* key = (K*) cellKeys[k];
+            Keys.push_back(*key);
 			j++;
         }
 	} 
@@ -233,13 +235,14 @@ vector<K*> HashTable<K, V>::keys(){
 }
 
 template <typename K, typename V>
-vector<pair<K*, V> > HashTable<K, V>::entries(){
-    vector<pair<K*, V> > entries(tableSize);
+vector<pair<K, V> > HashTable<K, V>::entries(){
+    vector<pair<K, V> > entries(tableSize);
     int j = 0;
     for (int i = 0; i < cellsCount; i++){
         vector<pair<AbstractTableKey*, V> > cellEntries = cells[i]->entries();
         for (int k = 0; k < cellEntries.size(); k++){
-            entries[j] = pair<K*, V>((K*)cellEntries[k].first->clone(), cellEntries[k].second);
+            K* key = (K*) cellEntries[k].first;
+            entries[j] = pair<K*, V>(*key, cellEntries[k].second);
             j++;
         }
         cellEntries.clear();
@@ -279,6 +282,11 @@ void HashTable<K, V>::remove(K* key){
         delete [] removed;
     }
     //cout << "HashTable_REMOVE\n  hash: " << hash << "\n  tableSize: " << tableSize << endl;
+}
+
+template <typename K, typename V>
+bool HashTable<K, V>::contains(K* key){
+    return (this->get(key) != NULL);
 }
 
 template <typename K, typename V>
@@ -356,10 +364,10 @@ void HashTable<K, V>::clean(vector<TableCell<V>* >* oldCells){
 template <typename K, typename V>
 QString HashTable<K, V>::serialize(){
     QJsonObject jsonObj;
-    vector<K* > keys = this->keys();
+    vector<K> keys = this->keys();
     for (int i = 0; i < keys.size(); i++){
-        AbstractTableKey* key = keys[i];
-        Serializible* value = this->get((K*)key);
+        AbstractTableKey* key = &keys[i];
+        Serializible* value = this->get((K*) key);
         jsonObj.insert(key->serialize(),value->serialize());
     }
     QJsonDocument jdoc(jsonObj);

@@ -156,7 +156,7 @@ vector<AbstractTableKey*> TableCell<V>::keys(){
 //    qDebug()<<"CellSize " << size;
 	CellItem<V> *current = listRoot;
 	for (int i = 0; i < size; i++){
-        if (!current) { qDebug() << i;continue;}
+        if (!current) { continue;}
         keys.push_back( current->getKey());
 		current = current->getNext();
 	}

@@ -52,13 +52,13 @@ void testGuiParser(Dispatcher& db){
     for (int i=1;i<=14;i++){
         numberHeaders->push_back(i);
     }
-    for (int i =0;i<1;i++){
+    for (int i =0;i<111;i++){
         GuiFileParser parser;
-        parser.setBlockSize(10000);
+        parser.setBlockSize(30000);
         parser.setHeaders(headers,numberHeaders);
-        parser.setIds(1,i+1,0);
+        parser.setIds(1,1,0);
         int b = 1900 + i;
-        QString path =    "D:\\MDP\\Global2011T\\air_temp."+QString::number(b);
+        QString path =    "C:\\Global2011T\\air_temp."+QString::number(b);
         qDebug() << path;
         parser.loadFile(path, db);
     }
@@ -138,28 +138,29 @@ int main(int argc, char *argv[])
         IntWithHash* val = iter.next();
         cout << val->getValue() << endl;
     }*/
-//    int dim = 10;
-//    vector<QString> headers(3);
-//    vector<vector<QString> > cells(dim);
-//    headers[0] = "firstaeiurblsrun";
-//    headers[1] = "secersgsregsergond";
-//    headers[2] = "tegersgsergregserhird";
+    int dim = 10;
+    vector<QString> headers(3);
+    vector<vector<QString> > cells(dim);
+    headers[0] = "firstaeiurblsrun";
+    headers[1] = "secersgsregsergond";
+    headers[2] = "tegersgsergregserhird";
 
-//    for (int i = 0; i < dim; i++){
-//        for (int j = 0; j < 3; j++){
-//            cells[i].push_back(QString::number(i) + QString::number(j));
-//        }
-//    }
+    for (int i = 0; i < dim; i++){
+        for (int j = 0; j < 3; j++){
+            cells[i].push_back(QString::number(i) + QString::number(j));
+        }
+    }
 
 
-//    MDPData data1(headers, cells, 0);
-//    MDPData data2(headers, cells, 0);
-//    MDPData data(headers, cells, 0);
+    //MDPData data1(headers, cells, 0);
+    //MDPData data2(headers, cells, 0);
+    MDPData data(headers, cells, 0);
     //data.parse(data.serialize());
     //data.serialize();
     //MDPData data;
 
- //   Dispatcher dispatcher(2323);
+      //Dispatcher dispatcher(2323);
+      //testGuiParser(dispatcher);
 //    for(int i=0; i<10000;i++){
 //        dispatcher.put(0, 3, 2, &data);
 //    }
@@ -208,12 +209,25 @@ int main(int argc, char *argv[])
 
    //Dispatcher db(2323);
    //testGuiParser(db);
-     DBClient db("172.19.2.66", 2323, "172.19.2.66",2323);
+     //DBClient db("172.19.2.66", 2323, "172.19.2.66",2323);
      //db.get(1,1,0);
-     TableKey key(1, 1, 0);
-     qDebug() << HardDiskWorker::getInstance().contains(key);
-     vector<TableKey> keys = HardDiskWorker::getInstance().keys();
-     qDebug() << keys.size();
+
+     /*HardDiskWorker::getInstance().put(1, 3, 0, &data);
+     vector<vector<QString> > cells1(5);
+     for (int i = 0; i < 5; i++){
+         for (int j = 0; j < 3; j++){
+             cells1[i].push_back(QString::number(i) + QString::number(j));
+         }
+     }
+     MDPData data2(headers, cells1, 0);
+     HardDiskWorker::getInstance().put(1, 3, 0, &data2);*/
+     TableKey key1(1, 1, 0);
+     vector<QString> headers1 = HardDiskWorker::getInstance().getHeaders(key1);
+     qDebug() << headers1[0];
+     vector<vector<QString> > cells2 = HardDiskWorker::getInstance().get(1, 1, 0, 1);
+     qDebug() << cells2.size();
+     qDebug() << cells2[0][2];
+     qDebug() << HardDiskWorker::getInstance().keys().size();
 //   for (int i =1;i<12;i++){
 //      MDPData* data = db.getNextStrings(0,2,1,i);
 //      if (data!=NULL){

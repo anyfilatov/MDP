@@ -16,13 +16,14 @@ public:
     TableKey(short int userId, short int dataId);
     TableKey(short int userId, short int dataId, short int processId);
     ~TableKey();
+    //friend bool operator == (const TableKey& key1, const TableKey& key2);
     short getUserId() const;
-    void setUserId(short& userId);
+    void setUserId(short userId);
     short getDataId() const;
-    void setDataId(short& dataId);
+    void setDataId(short dataId);
     short getProcessId() const;
-    void setProcessId(short& processId);
-    void setKey(short& userId, short& dataId, short& processId);
+    void setProcessId(short processId);
+    void setKey(short userId, short dataId, short processId);
     int hash();
     Clonable* clone();
     bool equals(AbstractTableKey* other);

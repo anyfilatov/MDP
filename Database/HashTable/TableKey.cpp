@@ -37,7 +37,7 @@ short TableKey::getUserId() const{
     return userId;
 }
 
-void TableKey::setUserId(short& userId){
+void TableKey::setUserId(short userId){
     this->userId = userId;
 }
 
@@ -45,7 +45,7 @@ short TableKey::getDataId() const{
     return dataId;
 }
 
-void TableKey::setDataId(short& dataId){
+void TableKey::setDataId(short dataId){
     this->dataId = dataId;
 }
 
@@ -53,11 +53,11 @@ short TableKey::getProcessId() const{
     return processId;
 }
 
-void TableKey::setProcessId(short& processId){
+void TableKey::setProcessId(short processId){
     this->processId = processId;
 }
 
-void TableKey::setKey(short& userId, short& dataId, short& processId){
+void TableKey::setKey(short userId, short dataId, short processId){
     this->userId = userId;
     this->dataId = dataId;
     this->processId = processId;
