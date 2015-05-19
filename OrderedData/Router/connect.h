@@ -15,7 +15,7 @@ class Connect : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    explicit Connect(qintptr socketDescriptor, HashRing *ring, Cache<QString, QString> *_rbtree, QObject *parent = 0);
+    explicit Connect(qintptr handle, HashRing *ring, Cache<QString, QString> *_rbtree, QObject *parent = 0);
     ~Connect();
 
 protected:

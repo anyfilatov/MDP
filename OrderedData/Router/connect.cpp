@@ -3,8 +3,9 @@
 #include "typerequest.h"
 #include "RouterClient/routerclient.h"
 #include "Router/StatusCodes.h"
+#include "Exception/serverunavailableexception.h"
 
-Connect::Connect(quintptr handle, HashRing* ring, Cache<QString, QString>* map, QObject* parent)
+Connect::Connect(qintptr handle, HashRing* ring, Cache<QString, QString>* map, QObject* parent)
     : QObject(parent) {
   _socketDescriptor = handle;
   _ring = ring;
@@ -13,7 +14,7 @@ Connect::Connect(quintptr handle, HashRing* ring, Cache<QString, QString>* map, 
 
 void Connect::run() {
   _socket = new QTcpSocket();
-  if (!_socket->setSocketDescriptor(socketDescriptor))
+  if (!_socket->setSocketDescriptor(_socketDescriptor))
       return;
 
   QJsonObject jsonReq = read();
@@ -244,7 +245,6 @@ void Connect::write(const QJsonObject &packet)
     in << (quint32)rawData.size();
     in.writeRawData(rawData.constData(), rawData.size());
 
-    openConnection();
     _socket->write(block);
     _socket->flush();
     _socket->waitForBytesWritten();
@@ -271,7 +271,10 @@ QJsonObject Connect::read()
             if (_socket->bytesAvailable() < packetSize)
                 continue;
 
-            response = QByteArray::fromRawData(out.readRawData(packetSize), packetSize);
+            char * buf = new char [packetSize];
+            out.readRawData(buf, packetSize);
+            response = QByteArray::fromRawData(buf, packetSize);
+            delete [] buf;
             packetRecieved = true;
         }
     } else {
@@ -280,6 +283,7 @@ QJsonObject Connect::read()
 
     return QJsonDocument::fromBinaryData(response).object();
 }
+
 
 Connect::~Connect() {
   _socket->close();
