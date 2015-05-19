@@ -82,25 +82,20 @@ QJsonObject Connect::handlePut(QJsonObject json) {
   QJsonObject jsonResp;
   if (json.contains("not_forwards_requests") &&
       json.value("not_forwards_requests").toBool()) {
-    if (json.contains("value")) {
-        if (json.find("type").value().toInt() == PUT_OVERRIDE) {
-      _rbtree->insert(json.value("key").toString(),
-                      json.value("value").toString(), true);
-        } else {
-            _rbtree->insert(json.value("key").toString(),
-                            json.value("value").toString());
-        }
-    } else {
-      _rbtree->insert(json.value("key").toString(),
-                      json.value("values").toVariant().toStringList());
-    }
+
+      QJsonArray value = json.value("packet").toArray();
+      for (QJsonValue obj : value){
+          QJsonObject elem = obj.toObject();
+          _rbtree->insert(elem.value("key").toString(), elem.value("value").toString());
+      }
+
     jsonResp.insert("status", StatusCode::OK);
   } else {
     QList<Node*> nodes;
     nodes = _ring->findNodes(json.value("key").toString());
     qDebug() << "Found nodes:";
     for (Node* node : nodes) {
-    qDebug() << node->getAddress();
+        qDebug() << node->getAddress();
     }
     RouterClient clientPrimary, clientReplica;
     QJsonObject jsonPrimaryResp = clientPrimary.doRequestToOtherRouter(
