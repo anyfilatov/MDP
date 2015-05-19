@@ -25,7 +25,8 @@ SOURCES += main.cpp \
     HashTable/StringWithHash.cpp \
     HashTable/TableKey.cpp \
     GUIFileParser/GuiFileParser.cpp \
-    gui.cpp
+    gui.cpp \
+    Dispatcher/HardDiskWorker.cpp
 
 HEADERS += \
     Clonable.h \
@@ -44,4 +45,5 @@ HEADERS += \
     HashTable/TableCell.h \
     HashTable/TableKey.h \
     GUIFileParser/GuiFileParser.h \
-    gui.h
+    gui.h \
+    Dispatcher/HardDiskWorker.h

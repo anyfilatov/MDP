@@ -3,7 +3,6 @@
 
 //#include <conio.h>
 #include <fstream>
-#include <QString>
 #include <sys/stat.h>
 #include <vector>
 #include "HashTable/StringWithHash.h"
@@ -28,6 +27,8 @@
 #include "GUIFileParser/GuiFileParser.h"
 #include <QtWidgets/QApplication>
 #include "gui.h"
+#include "Dispatcher/HardDiskWorker.h"
+
 
 using namespace std;
 
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
 {
     QTextStream cout(stdout);
     QApplication app(argc, argv);
-    HashTable<StringWithHash, IntWithHash> table(10, 0.5);
+    /*HashTable<StringWithHash, IntWithHash> table(10, 0.5);
     IntWithHash* value1 = new IntWithHash(1);
     IntWithHash* value2 = new IntWithHash(2);
     IntWithHash* value3 = new IntWithHash(3);
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
         cout << "  n: " << i << endl;
         cout << "  key: " << entries[i].first->serialize();
         cout << "  value: " << entries[i].second.getValue() << endl;
-    }
+    }*/
 
     /*QJsonObject jsonObj, outerObj;
     QByteArray msg;
@@ -207,7 +208,12 @@ int main(int argc, char *argv[])
 
    //Dispatcher db(2323);
    //testGuiParser(db);
- //  DBClient db("172.19.2.66", 2323, "172.19.2.66",2323);
+     DBClient db("172.19.2.66", 2323, "172.19.2.66",2323);
+     //db.get(1,1,0);
+     TableKey key(1, 1, 0);
+     qDebug() << HardDiskWorker::getInstance().contains(key);
+     vector<TableKey> keys = HardDiskWorker::getInstance().keys();
+     qDebug() << keys.size();
 //   for (int i =1;i<12;i++){
 //      MDPData* data = db.getNextStrings(0,2,1,i);
 //      if (data!=NULL){

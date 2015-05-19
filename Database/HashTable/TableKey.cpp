@@ -33,31 +33,31 @@ TableKey::TableKey(short int userId, short int dataId, short int processId){
 TableKey::~TableKey(){
 }
 
-short int TableKey::getUserId(){
+short TableKey::getUserId() const{
     return userId;
 }
 
-void TableKey::setUserId(short int userId){
+void TableKey::setUserId(short& userId){
     this->userId = userId;
 }
 
-short int TableKey::getDataId(){
+short TableKey::getDataId() const{
     return dataId;
 }
 
-void TableKey::setDataId(short int dataId){
+void TableKey::setDataId(short& dataId){
     this->dataId = dataId;
 }
 
-short int TableKey::getProcessId(){
+short TableKey::getProcessId() const{
     return processId;
 }
 
-void TableKey::setProcessId(short int processId){
+void TableKey::setProcessId(short& processId){
     this->processId = processId;
 }
 
-void TableKey::setKey(short int userId, short int dataId, short int processId){
+void TableKey::setKey(short& userId, short& dataId, short& processId){
     this->userId = userId;
     this->dataId = dataId;
     this->processId = processId;
