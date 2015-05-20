@@ -34,10 +34,10 @@ class HardDiskWorker
     void updateMetaFile(short int userId, short int dataId, short int processId, MetaData* metaData);
     void putCells(short int userId, short int dataId, short int processId, int oldSize, const vector<vector<QString> > &cells);
   protected:
-    HardDiskWorker();
-    ~HardDiskWorker();
     friend class HardDiskWorkDestroyer;
   public:
+    HardDiskWorker();
+    ~HardDiskWorker();
     static HardDiskWorker& getInstance();
     bool contains(TableKey& key);
     int getSize(TableKey& key);

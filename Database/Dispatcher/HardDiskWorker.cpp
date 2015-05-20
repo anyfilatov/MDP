@@ -37,7 +37,7 @@ HardDiskWorker& HardDiskWorker::getInstance() {
 
 HardDiskWorker::HardDiskWorker(){
     DBSource = "C:/MDPDatabase/";
-    maxFileSize = 30000;
+    maxFileSize = 50000;
     uploadMetaData();
 }
 
@@ -135,7 +135,6 @@ const vector<QString>& HardDiskWorker::getHeaders(TableKey & key){
     if (metaData == NULL){
 
     }
-    metaData->getHeaders();
     return metaData->getHeaders();
 }
 
@@ -175,13 +174,14 @@ void HardDiskWorker::put(short int userId, short int dataId, short int processId
 }
 
 vector<vector<QString> > HardDiskWorker::get(short int userId, short int dataId, short int processId, int part){
+    qDebug() << "GET FROM HARD DISK: part " << part;
     TableKey key(userId, dataId, processId);
     MetaData* metaData = meta.get(&key);
     vector<vector<QString> > cells;
     if (metaData == NULL){
         throw "ERROR! WRONG TABLE ID IN GET METHOD";
     };
-    int lastPart = metaData->getSize() / maxFileSize;
+    int lastPart = metaData->getSize() / maxFileSize + 1;
     int size;
     if (part < lastPart && part > 0){
         size = maxFileSize;
@@ -213,7 +213,6 @@ vector<vector<QString> > HardDiskWorker::get(short int userId, short int dataId,
         }
        lines++;
     }while (flag && lines < size);
-    qDebug() << "lines: " << lines << ", size: " << cells.size();
     if (lines < size){
         cells.resize(lines);
     }

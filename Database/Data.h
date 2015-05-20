@@ -24,6 +24,7 @@ public:
     void setCells(vector<vector<QString> > cells);
     vector<vector<QString> > getCells();
     vector<QString> getString(int num);
+    bool containsString(int num);
     int addString(vector<QString> Str);
     vector<QString> getColumn(QString header);
     QString getCell(QString header, int num);

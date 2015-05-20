@@ -72,10 +72,14 @@ vector<vector<QString> > MDPData::getCells(){
 vector<QString> MDPData::getString(int num){
     vector<QString> str(0);
     int innerNum = num - firstIndex;
-    if ((innerNum < 0) || (innerNum > cells.size())){
+    if ((innerNum < 0) || (innerNum >= cells.size())){
         return str;
     }
     return cells[innerNum];
+}
+
+bool MDPData::containsString(int num){
+    return ((num >= firstIndex) && (num < firstIndex + cells.size()));
 }
 
 int MDPData::addString(vector<QString> Str){

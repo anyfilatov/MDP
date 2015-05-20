@@ -54,7 +54,7 @@ void testGuiParser(Dispatcher& db){
     }
     for (int i =0;i<111;i++){
         GuiFileParser parser;
-        parser.setBlockSize(30000);
+        parser.setBlockSize(50000);
         parser.setHeaders(headers,numberHeaders);
         parser.setIds(1,1,0);
         int b = 1900 + i;
@@ -158,9 +158,16 @@ int main(int argc, char *argv[])
     //data.parse(data.serialize());
     //data.serialize();
     //MDPData data;
-
-      //Dispatcher dispatcher(2323);
+      MDPData* d = new MDPData();
+      Dispatcher dispatcher(2323);
       //testGuiParser(dispatcher);
+      while(d != NULL){
+          delete d;
+          d = dispatcher.getNextStrings(1, 1, 0, 10000);
+          if (!d) qDebug() << "NULL";
+      }
+
+
 //    for(int i=0; i<10000;i++){
 //        dispatcher.put(0, 3, 2, &data);
 //    }
@@ -206,9 +213,6 @@ int main(int argc, char *argv[])
         if (newData != NULL)
             newData->serialize();
     }*/
-
-   //Dispatcher db(2323);
-   //testGuiParser(db);
      //DBClient db("172.19.2.66", 2323, "172.19.2.66",2323);
      //db.get(1,1,0);
 
@@ -221,13 +225,7 @@ int main(int argc, char *argv[])
      }
      MDPData data2(headers, cells1, 0);
      HardDiskWorker::getInstance().put(1, 3, 0, &data2);*/
-     TableKey key1(1, 1, 0);
-     vector<QString> headers1 = HardDiskWorker::getInstance().getHeaders(key1);
-     qDebug() << headers1[0];
-     vector<vector<QString> > cells2 = HardDiskWorker::getInstance().get(1, 1, 0, 1);
-     qDebug() << cells2.size();
-     qDebug() << cells2[0][2];
-     qDebug() << HardDiskWorker::getInstance().keys().size();
+
 //   for (int i =1;i<12;i++){
 //      MDPData* data = db.getNextStrings(0,2,1,i);
 //      if (data!=NULL){
