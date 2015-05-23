@@ -17,6 +17,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     Data.cpp \
+    Storage.cpp \
     dbclient.cpp \
     Dispatcher/Dispatcher.cpp \
     Dispatcher/Session.cpp \
@@ -24,15 +25,14 @@ SOURCES += main.cpp \
     HashTable/IntWithHash.cpp \
     HashTable/StringWithHash.cpp \
     HashTable/TableKey.cpp \
-    GUIFileParser/GuiFileParser.cpp \
-    gui.cpp \
-    Dispatcher/HardDiskWorker.cpp \
-    Dispatcher/MetaData.cpp
+    GUI/GUIFileParser/GuiFileParser.cpp \
+    GUI/gui.cpp
 
 HEADERS += \
     Clonable.h \
     Serializible.h \
     Data.h \
+    Storage.h \
     dbclient.h \
     Dispatcher/Dispatcher.h \
     Dispatcher/Session.h \
@@ -45,7 +45,5 @@ HEADERS += \
     HashTable/StringWithHash.h \
     HashTable/TableCell.h \
     HashTable/TableKey.h \
-    GUIFileParser/GuiFileParser.h \
-    gui.h \
-    Dispatcher/HardDiskWorker.h \
-    Dispatcher/MetaData.h
+    GUI/GUIFileParser/GuiFileParser.h \
+    GUI/gui.h

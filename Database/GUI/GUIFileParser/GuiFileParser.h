@@ -16,7 +16,7 @@ private:
     MDPData* packDataBlock(QTextStream& inputStream);
 public:
        void setHeaders(vector<QString>* headers, vector<int>* headersNums);
-       void loadFile(QString fileName, Dispatcher& db);
+       void loadFile(QString fileName, Dispatcher& db, int numberOfBlocks=INT_MAX);
        void setIds(int nuserId, int ndataId, int nprocessId);
        void setBlockSize(int blockSize);
 };
