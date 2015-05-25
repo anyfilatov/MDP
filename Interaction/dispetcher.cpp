@@ -9,11 +9,12 @@
 using namespace integration;
 
 std::vector<std::pair<QString,qint32> > ParseFile(QFile& inpfile, QString identity);
+std::pair<QString, qint32> CreateNewConfig(qint32 num, std::pair<QString, qint32> badIP);
 
 Dispetcher::Dispetcher(){
-    AbstractClient* clientBD = new RealClientBD();
-    AbstractClient* clientRBT = new RealClientRBT();
-    AbstractClient* clientDisp = new RealClientDisp();
+    AbstractClient* clientBD = new RealClientBD("169.254.99.4",2323);
+    AbstractClient* clientRBT = new RealClientRBT("settings.json");
+    AbstractClient* clientDisp = new RealClientDisp("169.254.99.3",4001);
 
     addL(clientBD);
     addL(clientRBT);
@@ -32,23 +33,45 @@ Dispetcher::Dispetcher(){
 }
 
 void Dispetcher::CheckClients(){
+    IP newIP;
+    newIP.SetFullAddress("169.254.99.2",12370);
+    getL(1).getNode()->SendConfig(newIP);
     while(carryOnChecking){
-        for(int i = 0; i < 3; i++){
+        //for(int i = 0; i < 3; i++){
+        int i = 1;
             IP badIP;
-            if(getL(i).getNode()->CheckHosts(badIP) == false){
-                //TODO определить по badIp и i, кто упал и что нужно
+            if(getL(i).getNode()->CheckHosts(badIP) == true){
+                //посылаем обновлённый конфиг
+                std::pair<QString,qint32> pairBadIp;
+                pairBadIp.first = badIP.GetIP();
+                pairBadIp.second = badIP.GetPort();
+                std::pair<QString,qint32> goodIP = CreateNewConfig(i,pairBadIp);
+                IP goodIPIP;
+                goodIPIP.SetFullAddress(goodIP.first,goodIP.second);
+                getL(i).getNode()->SendConfig(goodIPIP);
 
-                for(int i = 0; i < 3; i++){
-                    getL(i).getNode()->SendConfig();
-                    getL(i).getNode()->UpdateConfig();
+                //теперь убираем ресурс из свобоных в графе
+                int ippos = 0;
+                for (auto nod : getR(i).getNode().getAddresses()){
+                    if (nod.GetIP().compare(goodIPIP.GetIP()) == 0 && nod.GetPort() == goodIPIP.GetPort()){
+                        getR(i).getNode().getAddresses().erase(getR(i).getNode().getAddresses().begin()+ippos);
+
+                    }
+                    ippos++;
                 }
+                ;
+                /*for(int j = 0; j < 3; i++){
+
+                    getL(j).getNode()->SendConfig();
+                    getL(j).getNode()->UpdateConfig();
+                }*/
             }
-        }
-        QThread::sleep(1);
+       // }
+        QThread::sleep(2);
     }
 }
 
-void CreateNewConfig(qint32 num, std::pair<QString,qint32> badIP){
+std::pair<QString,qint32> CreateNewConfig(qint32 num, std::pair<QString,qint32> badIP){
     QFile conf("conf.txt");
     conf.open(QIODevice::ReadOnly);
     std::vector<std::vector<std::pair<QString,qint32> > > allIp;
@@ -90,6 +113,7 @@ void CreateNewConfig(qint32 num, std::pair<QString,qint32> badIP){
         }
         i++;
     }
+    std::pair<QString,qint32> answer = allIp.at(posRes_i).at(posRes_j);
     i = 0;
     j = 0;
     foreach (std::vector<Ippair > bufvec, allIp) {
@@ -118,5 +142,5 @@ void CreateNewConfig(qint32 num, std::pair<QString,qint32> badIP){
 
     }
     conf.close();
-
+    return answer;
 }

@@ -47,3 +47,7 @@ void Resource::SetResource(){
         address.push_back(item);
     }
 }
+
+std::vector<IP>& Resource::getAddresses(){
+    return address;
+}

@@ -7,7 +7,7 @@ namespace integration {
         //AbstractClient(){}
 
         virtual bool CheckHosts(IP&) = 0;
-        virtual void SendConfig() = 0;
+        virtual void SendConfig(IP &) = 0;
         virtual void UpdateConfig() = 0;
     };
 }
