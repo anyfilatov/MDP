@@ -22,7 +22,7 @@ public:
 
     void addValue(V value);
     void removeValue(V value);
-    void addValues(vector<V> values, bool override = false);
+    void addValues(vector<V> values, bool rewrite = false);
 
     K key() const { return key_; }
     vector<V> values() const { return values_; }
@@ -122,10 +122,10 @@ void TNode<K,V>::removeValue(V value) {
 }
 
 template<typename K, typename V>
-void TNode<K,V>::addValues(vector<V> values, bool override)
+void TNode<K,V>::addValues(vector<V> values, bool rewrite)
 {
     for (V value : values) {
-        if (override) {
+        if (rewrite) {
             if (std::find(values_.begin(), values_.end(), value) != values_.end()) {
                 continue;
             }
