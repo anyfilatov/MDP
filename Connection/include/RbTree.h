@@ -9,13 +9,14 @@
 #include <QString>
 #include "client.h"
 #include "abstractexception.h"
-
+const int BUFFER_SIZE = 1000;
 class RbTree {
-    Client client_;
+    std::shared_ptr<Client> client_;
+    QString fileName_;
 public:
     typedef std::pair<QString, QStringList> GetAtomType;
     typedef std::vector<QString> SetAtomType;
-    RbTree(const QString& fileName) : client_(fileName){
+    RbTree(const QString& fileName) : client_(new Client(BUFFER_SIZE, fileName)), fileName_(fileName){
         LOG_TRACE("RBTree");
     };
     RbTree(const RbTree& ) = delete;
@@ -23,8 +24,9 @@ public:
     QStringList getAllKeys (const util::Id& id) {
         QStringList out;
         try{
-            out = client_.getBucketKeys(id.str());
+            out = client_->getBucketKeys(id.str());
         } catch ( AbstractException& e ) {
+            client_.reset(new Client(BUFFER_SIZE, fileName_));
             LOG_ERROR("exception:" << e.getMessage().toStdString());
         }
         return out;
@@ -34,8 +36,9 @@ public:
 
         if(atom.size() == 2){
             try{
-                client_.put(atom[0], atom[1], id.str());
+                client_->put(atom[0], atom[1], id.str());
             } catch ( AbstractException& e ) {
+                client_.reset(new Client(BUFFER_SIZE, fileName_));
                 LOG_ERROR("exception:" << e.getMessage().toStdString());
                 return Errors::STATUS_ERROR;
             }
@@ -48,13 +51,18 @@ public:
 
     GetAtomType getNextAtom(util::Id& id, const QString& key) {
         try{
-            return std::make_pair( key, client_.get(key, id.str()));
+            return std::make_pair( key, client_->get(key, id.str()));
         } catch ( AbstractException& e ) {
+            client_.reset(new Client(BUFFER_SIZE, fileName_));
             LOG_ERROR("exception:" << e.getMessage().toStdString());
         }
         return GetAtomType();
     }
-    
+    void flush() {
+        if(client_) {
+            client_->flush();
+        }
+    }
     virtual ~RbTree(){
         LOG_TRACE("~RBTree");
     };

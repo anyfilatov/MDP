@@ -1,7 +1,6 @@
-#ifndef CLIENT
-#define CLIENT
+#ifndef REMOTECLIENT_H
+#define REMOTECLIENT_H
 
-#include <QString>
 #include <QTcpSocket>
 #include <QSettings>
 #include <QString>
@@ -11,42 +10,44 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QHostAddress>
-#include "typerequest.h"
-#include "StatusCodes.h"
+#include "Router/typerequest.h"
+#include "Router/StatusCodes.h"
 
-class Client : public QObject {
-  Q_OBJECT
- public:
-  explicit Client(QString settingsFileName, QObject* parent = 0);
 
-  int put(QString key, QString value, QString bucket = NULL, bool override = false);
-  int put(QString key, QStringList values, QString bucket = NULL);
-  int replace(QString key, QStringList values, QString bucket = NULL);
+class Client : public QObject
+{
+    Q_OBJECT
+public:
+    explicit Client(int maxBufferSize,QObject *parent = 0);
+    explicit Client(int maxBufferSize, QString settingsFileName,QObject *parent = 0);
+    ~Client();
 
-  QStringList get(QString key, QString bucket = NULL);
-  QStringList getBucketKeys(QString bucket);
+    int put(QString key, QString value, QString bucket = NULL);
+    QStringList get(QString key, QString bucket = NULL);
+    QStringList getBucketKeys(QString bucket);
+    int remove(QString key, QString bucket = NULL);
+    int removeOne(QString key, QString value, QString bucket = NULL);
+    QStringList getRingHosts();
+    void joinToRing(QString who, QStringList ring);
 
-  int remove(QString key, QString bucket = NULL);
-  int removeOne(QString key, QString value);
-  int removeBucket(QString bucket);
+    void flush();
+    bool isConnected();
+    void disconnectFromHost();
 
-  QStringList getRingHosts();
-  void joinToRing(QString who, QStringList ring);
+signals:
 
- protected:
-  Client(QObject* parent = 0);
-  QTcpSocket* _socket = NULL;
-  QStringList _hosts;
+public slots:
 
-  void writeMsg(QJsonObject msg);
-  QJsonObject readMsg();
-  QJsonObject deserialize(QByteArray data);
-  QByteArray serialize(QJsonObject json);
+protected:
+    QTcpSocket* _socket = NULL;
+    QJsonArray _buffer;
+    const int MAX_BUFFER_SIZE;
+    const int WAIT_TIME_MLS;
+    QStringList _hosts;
 
-  int openConnection();
-
- protected slots:
-  void disconnected();
+    void openConnection();
+    void write(const QJsonObject &packet);
+    QJsonObject read();
 };
 
-#endif  // CLIENT
+#endif // REMOTECLIENT_H

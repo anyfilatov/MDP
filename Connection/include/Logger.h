@@ -114,4 +114,5 @@ private:
 //#define LOG_DEBUG(CHAIN)
 //#endif
 #define LOG_TRACE(CHAIN)   LOG(LOG_LEVEL_TRACE, CHAIN)
+//#define LOG_TRACE(CHAIN)
 

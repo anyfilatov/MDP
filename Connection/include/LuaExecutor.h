@@ -140,6 +140,11 @@ public:
         return rb_->setSwap(id_, atom);
     }
     
+    void flush() {
+        RB::ScopedLock lock(rb_);
+        return rb_->flush();
+    }
+
     int setSwapToDb(DB::WrappedType::SetAtomType& atom) {
         RB::ScopedLock lock(rb_);
         db_->setSwap(id_, atom);
@@ -193,7 +198,11 @@ public:
     void startReduce() {
         {
             RB::ScopedLock lock(rb_);
+            LOG_DEBUG("start Reduce get all keys");
             keys_ = rb_->getAllKeys(id_);
+            for(auto& key : keys_) {
+                LOG_DEBUG("key=" << key.toStdString());
+            }
             splitKeys();
             it = keys_.begin();
         }
@@ -253,7 +262,10 @@ private:
             throw UnknownParametersException("No data in database");
         }
         for(auto& tableId : ids) {
-            id_.set(Id::dataIdIndex, tableId);
+            id_.i0 = 1;
+            id_.i1 = 1;
+            id_.i2 = 0;
+//            id_.set(Id::dataIdIndex, tableId);
             auto var = LuaContextVariable::create(this, id_ );
             std::stringstream ss;
             ss << USER_DB_TABLE_ID_LUA_GLOBAL_VARIABLE_NAME << tableId;
@@ -340,14 +352,19 @@ static KeyValuePairsArray getKeyValuePairs(lua_State *l) {
         ret.push_back(KeyValuePairsArray::value_type(2));
         auto& vec = ret.back();
         if (lua_isstring(l, -1)) {
-            size_t s = 0;
-            auto* val = lua_tolstring(l, -1, &s);
-            
-            if(i%2 == 0) {//that mean key it's STACK!!!!!!!
-                vec[0] = QString(val);
-            } else { // that mean value
-                vec[1] = QString(val);
-            }
+            size_t sk = 0;
+            size_t sv = 0;
+            auto* key = lua_tolstring(l, -2, &sk);
+            auto* val = lua_tolstring(l, -1, &sv);
+            LOG_DEBUG("key from lua:" << key << " s=" << sk);
+            LOG_DEBUG("value from lua:" << val << " s=" << sv);
+            vec[0] = QString(key);
+            vec[1] = QString(val);
+//            if(i%2 == 0) {//that mean key it's STACK!!!!!!!
+
+//            } else { // that mean value
+//                vec[1] = QString(val);
+//            }
         } else {
             std::string err = util::concat( "User function return variable by type ", lua_typename(l, lua_type(l, -1)), ". expected: string");
             LOG_WARNING(err);
@@ -375,12 +392,12 @@ static void l_pushtablestring(Lua l , int key , const char* value) {
     lua_settable(l, -3);
 }
 
-static void createTableFromDb(Lua l, DB::WrappedType::GetAtomType& content) {
+//static void createTableFromDb(Lua l, DB::WrappedType::GetAtomType& content) {
+static void createTableFromDb(Lua l, std::vector<QString>& content) {
     lua_newtable(l);
     int i = 0;
-    auto vec = content->getCells();
-    for(auto& c : vec[0]) {
-        //LOG_TRACE("value=" << c );
+    for(auto& c : content) {
+        LOG_TRACE("value=" << c.toStdString() );
         auto str = c.toStdString();
         l_pushtablestring(l, i, str.c_str());
         i++;
@@ -391,8 +408,12 @@ static void createTable(Lua l, RB::WrappedType::GetAtomType& content) {
     lua_newtable(l);
     int i = 0;
     for(auto& c : content.second) {
+        LOG_DEBUG("string in create:" << c.toStdString());
+        if(c.isEmpty()){
+            continue;
+        }
         auto str = c.toStdString();
-        //LOG_TRACE("value=" << str );
+        LOG_TRACE("value=" << str );
         l_pushtablestring(l, i, str.c_str());
         i++;
     }
@@ -409,38 +430,51 @@ static void doMapForAtoms(LuaExecutor::LuaContextVariable* context, const char* 
         LOG_TRACE("dbRow");
         auto* executor = context->e();
         auto* l = executor->getLua();
-        lua_getglobal(l, funcName);
-        createTableFromDb(l, dbRow);
-        LOG_TRACE("call");
-//        lua_call(l, 1, 1);
-        lua_call(l, 1, 1);
+        auto cells = dbRow->getCells();
+        for(auto& c : cells) {
+            lua_getglobal(l, funcName);
+            createTableFromDb(l, c);
+            LOG_TRACE("call");
+  //        lua_call(l, 1, 1);
+            lua_call(l, 1, 1);
 
-        LOG_DEBUG("after call" );
-        if( !lua_istable(l, lua_gettop(l)) ) {
-            std::string err = util::concat("user function ", " return ", lua_typename(l, lua_type(l, lua_gettop(l))), ". expected: table");
-            LOG_WARNING(err);
-            throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
+            LOG_DEBUG("after call" );
+            if( !lua_istable(l, lua_gettop(l)) ) {
+                std::string err = util::concat("user function ", " return ", lua_typename(l, lua_type(l, lua_gettop(l))), ". expected: table");
+                LOG_WARNING(err);
+                throw LuaExecutionExeption(err, Errors::STATUS_UNEXPECTED_USER_VALUE);
+            }
+            auto res = getKeyValuePairs(l);
+            for(auto& r : res) {
+                LOG_DEBUG("Set Key:" << r[0].toStdString());
+                context->e()->setSwapToRb(r);
+            }
         }
-        auto res = getKeyValuePairs(l);
-        for(auto& r : res) {
-            context->e()->setSwapToRb(r);
-        }
+
+//        context->e()->flush();
     }
 }
 
-static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context) {
+static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context,  const char* funcName) {
     auto* executor = context->e();
     auto* l = executor->getLua();
     auto setValue = DB::WrappedType::SetAtomType(new DB::WrappedType::SetAtomType::element_type());
     std::vector<QString> headers = {"key", "value"};
     setValue->setHeaders(headers);
     while(1){
+        LOG_DEBUG("get next from rb");
         auto atom = executor->getNextFromRb();
         if( atom.second.empty() ) {
+            LOG_DEBUG("rb return empty value");
             break;
         }
+        LOG_DEBUG("get global");
+        lua_getglobal(l, funcName);
+
         auto str = atom.first.toStdString();
+        LOG_DEBUG("str=" + str);
         lua_pushstring(l, str.c_str());
+        LOG_DEBUG("create table");
         createTable(l, atom);
         LOG_TRACE("call");
         lua_call(l, 2, 2);
@@ -493,7 +527,7 @@ static int doReduceOnly(LuaExecutor* executor, util::Id& id) {
         LuaExecutor::LuaContextVariablePtr luaVar 
                 = LuaExecutor::LuaContextVariable::create(executor, id);
         LOG_TRACE("doMapForAtoms");
-        doReduceForAtoms(luaVar.get());
+        doReduceForAtoms(luaVar.get(), funcName);
     } catch(const LuaExecutionExeption& e) {
         std::string err = util::concat(e.what(), " in function ", funcName);
         throw LuaExecutionExeption(err);
@@ -679,9 +713,9 @@ static int doReduce(Lua l) {
     lua_pop(l, 1);
     const char* funcName = lua_tolstring(l, lua_gettop(l), &s);
     LOG_DEBUG("funcName=" << funcName << " id=" << *executor);
-    lua_pop(l, 1);
+    //lua_pop(l, 1);
        
-    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doReduceForAtoms(context);}, context, funcName, util::CMD_REDUCE);
+    executeFunction([&](LuaExecutor::LuaContextVariable* context) -> void {doReduceForAtoms(context, funcName);}, context, funcName, util::CMD_REDUCE);
     
     LOG_TRACE("");
     executor->endReduce();

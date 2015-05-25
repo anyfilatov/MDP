@@ -55,6 +55,29 @@ void buildGraph(OrGraph<Host>& outOg, std::vector<Host>& hosts, std::map<int, st
     }
 }
 
+void test(RB rb) {
+    util::Id id{1, 1, 0};
+    RB::WrappedType::SetAtomType atom(2);
+    for(int i = 0; i < 100; i++){
+        atom[0] = QString::number(i);
+        atom[1] = QString::number(i);
+        rb->setSwap(id, atom);
+        atom[0] = QString::number(i);
+        atom[1] = QString::number(i);
+        rb->setSwap(id, atom);
+    }
+    auto allKeys = rb->getAllKeys(id);
+    for(auto& key: allKeys){
+        auto res = rb->getNextAtom(id, key);
+        int sum = 0;
+        for(auto& r : res.second){
+            int val = r.toInt();
+            sum += val;
+        }
+        LOG_DEBUG(key.toStdString() << " " << sum);
+    }
+}
+
 int main(int argc, char ** argv) {
     using namespace std::placeholders;
     if(argc < 3) {
@@ -103,6 +126,7 @@ int main(int argc, char ** argv) {
         RB rb(&rbTree);
 
         OG og(&org);
+//        test(rb);
         Server server(currentHost.getIP(), currentHost.getPort(), db, rb, og, fileName);
     //    OrGraph g(server);
         server.run();

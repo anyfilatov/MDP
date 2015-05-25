@@ -6,9 +6,10 @@
 #include <thread>
 #include <functional>
 #include <atomic>
-
+#include <QException>
 #include "Queue.h"
 #include "Logger.h"
+#include "abstractexception.h"
 
 static const int DEFAULT_PRIORITY = 0;
 static const int SLEEP_MSEC_IN_WAIT_LIMIT = 100;
@@ -193,6 +194,10 @@ void ThreadPool<TTask>::ThreadFunctor<TQueue>::operator()() {
                 (*t)();
             }
         } catch (const std::exception& e) {
+            LOG_ERROR("Exception:" << e.what());
+        } catch ( AbstractException& e) {
+            LOG_ERROR("Exception:" << e.getMessage().toStdString());
+        } catch (const QException& e) {
             LOG_ERROR("Exception:" << e.what());
         } catch (...) {
             LOG_ERROR("Exception:unknown");

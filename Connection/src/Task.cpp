@@ -42,13 +42,15 @@ int Task::operator()() {
         int id = 0;
         data >> cmd;
         QString code;
-        data >> code;
-        LOG_DEBUG("cmd=" << cmd );
-        if (code.isEmpty()) {
-            throw UnknownParametersException(util::concat("Lua code is empty"));
+        if(cmd != util::CMD_PING && cmd != util::CMD_SET_CONFIG){
+            data >> code;
+            LOG_DEBUG("cmd=" << cmd );
+            if (code.isEmpty()) {
+                throw UnknownParametersException(util::concat("Lua code is empty"));
+            }
+            LOG_DEBUG("code=" + code.toStdString());
+            executor_ = std::make_shared<LuaExecutor>(db_, rb_, og_, code, cmd);
         }
-        LOG_DEBUG("code=" + code.toStdString());
-        executor_ = std::make_shared<LuaExecutor>(db_, rb_, og_, code, cmd);
         LOG_DEBUG("cmd=" << cmd << " id=" << id);
         switch (cmd) {
             case util::CMD_MAP:

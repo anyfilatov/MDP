@@ -17,26 +17,33 @@ public:
     typedef std::vector<int> IntArray;
     typedef std::shared_ptr<MDPData> GetAtomType;
     typedef std::shared_ptr<MDPData> SetAtomType;
-    DataBase(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort) : client_( strHost, nPort, strSpareHost, nSparePort) {
+    DataBase(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort)
+        : client_( strHost, nPort, strSpareHost, nSparePort)
+    {
         LOG_TRACE("DataBase");
     };
 
     DataBase(const DataBase& ) = delete;
     
     GetAtomType getNextAtom(util::Id& id) {
-        id.i1 = 1;
         LOG_DEBUG(" " << id.i0 << " " << id.i1 << " "<< id.i2);
-//        auto* d = client_.getNextStrings(id.i0, id.i1, id.i2, 1);
-        auto* d = client_.getNextStrings(0, 2, 1, 1);
+        auto* d = client_.getNextStrings(id.i0, id.i1, id.i2, 1000);
+//        auto* d = client_.getNextStrings(0, 2, 1, 1);
         std::shared_ptr<MDPData> ptr(d);
+//        std::shared_ptr<MDPData> ptr;
+//        if(a==0){
+//            ptr.reset(new MDPData());
+//            ptr->generateRandom();
+//            a++;
+//        }
         return ptr;
     }
     
     IntArray getAllTablesId(util::Id& id) {
         IntArray out;
-        for( auto& a : client_.getTableIds(id.i0)) {
-            out.push_back( a.first);
-        }
+//        for( auto& a : client_.getTableIds(id.i0)) {
+//            out.push_back( a.first);
+//        }
         if(out.empty()){
             out.push_back(1);
         }
@@ -52,5 +59,6 @@ public:
     }
     
 private:
+    int a =0;
 };
 

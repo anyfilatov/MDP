@@ -60,12 +60,11 @@ vector<QString> MDPData::getHeaders(){
     return headers;
 }
 
-void MDPData::setCells(vector<vector<QString> > cells){
-    this->cells.clear();
-    this->cells = cells;
+void MDPData::setCells(vector<vector<QString> >& cells){
+    this->cells.swap(cells);
 }
 
-vector<vector<QString> > MDPData::getCells(){
+vector<vector<QString> >& MDPData::getCells(){
     return cells;
 }
 
