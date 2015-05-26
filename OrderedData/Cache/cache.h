@@ -2,8 +2,8 @@
 #define CACHE
 
 #include "icache.h"
-#include "qrbtree.h"
-#include "Router/StatusCodes.h"
+#include "rbtree.h"
+#include "ClientLib/StatusCodes.h"
 #include <QList>
 #include <QVector>
 
@@ -12,41 +12,41 @@ class Cache : public iCache<K,V>
 {
 public:
     Cache();
-    virtual int insert(K key, V value, bool override = false);
-    virtual int insert(K key, QList<V> values);
-    virtual int replace(K key, QList<V> values);
+    virtual int insert(K key, V value, bool rewrite = false, bool replica = false);
+//    virtual int insert(K key, QList<V> values);
+//    virtual int replace(K key, QList<V> values);
     virtual QList<V> search(K key);
     virtual int remove(K key);
     virtual int remove(K key, V value);
     virtual bool isEmpty();
     virtual unsigned int size();
-    virtual QRBTree<K, V> *getRBTree();
+    virtual RBTree<K, V> *getRBTree();
 private:
-    QRBTree<K,V> *rbtree;
+    RBTree<K,V> *rbtree;
 };
 
 template<typename K, typename V>
 Cache<K,V>::Cache(){
-    rbtree = new QRBTree<K, V>;
+    rbtree = new RBTree<K, V>;
 }
 
 template<typename K, typename V>
-int Cache<K,V>::insert(K key, V value, bool override){
-    rbtree->insert(key, value, override);
+int Cache<K,V>::insert(K key, V value, bool rewrite, bool replica){
+    rbtree->insert(key, value, rewrite, replica);
     return 0;
 }
 
-template<typename K, typename V>
-int Cache<K,V>::insert(K key, QList<V> values){
-    rbtree->insert(key, values);
-    return 0;
-}
+//template<typename K, typename V>
+//int Cache<K,V>::insert(K key, QList<V> values){
+//    rbtree->insert(key, values);
+//    return 0;
+//}
 
-template<typename K, typename V>
-int Cache<K,V>::replace(K key, QList<V> values){
-    rbtree->replace(key, values);
-    return 0;
-}
+//template<typename K, typename V>
+//int Cache<K,V>::replace(K key, QList<V> values){
+//    rbtree->replace(key, values);
+//    return 0;
+//}
 
 template<typename K, typename V>
 QList<V> Cache<K,V>::search(K key){
@@ -77,7 +77,7 @@ unsigned int Cache<K, V>::size()
 }
 
 template<typename K, typename V>
-QRBTree<K, V> *Cache<K, V>::getRBTree()
+RBTree<K, V> *Cache<K, V>::getRBTree()
 {
     return rbtree;
 }

@@ -367,7 +367,7 @@ void RBTree<K,V>::remove(K key, V value)
 template<typename K, typename V>
 TNode<K,V>* RBTree<K,V>::remove(TNode<K,V> *z) // don't delete memory
 {
-    cout << "root.k = " << root_->key() << endl;
+//    cout << "root.k = " << root_->key() << endl;
     size_--;
     TNode<K,V> *y = nil_;
     if (z->left() == nil_ || z->right() == nil_) {

@@ -17,8 +17,6 @@ TEMPLATE = app
 
 
 SOURCES += \
-    ClientLib/remoteclient.cpp \
-    Router/connect.cpp \
     Router/router.cpp \
     cacheserver.cpp \
     main.cpp \
@@ -33,13 +31,14 @@ SOURCES += \
     Exception/clientexeption.cpp \
     Exception/serverunavailableexception.cpp \
     Exception/connectionisnotcreatedexception.cpp \
-    Exception/notfoundvalueexception.cpp
+    Exception/notfoundvalueexception.cpp \
+    ClientLib/client.cpp \
+    ClientLib/abstractclient.cpp \
+    Router/connection.cpp
 
 HEADERS += \
-    ClientLib/remoteclient.h \
-    Router/connect.h \
     Router/router.h \
-    Router/typerequest.h \
+    ClientLib/typerequest.h \
     Router/RouterClient/routerclient.h \
     cacheserver.h \
     Cache/cache.h \
@@ -54,11 +53,14 @@ HEADERS += \
     NetworkManager/SendGossipTask.h \
     NetworkManager/NetworkSettings.h \
     Router/hashring.h \
-    Router/StatusCodes.h \
+    ClientLib/StatusCodes.h \
     Exception/abstractexception.h \
     Exception/exceptioncode.h \
     Exception/clientexeption.h \
     Exception/serverunavailableexception.h \
     Exception/connectionisnotcreatedexception.h \
     Exception/exception.h \
-    Exception/notfoundvalueexception.h
+    Exception/notfoundvalueexception.h \
+    ClientLib/abstractclient.h \
+    ClientLib/client.h \
+    Router/connection.h

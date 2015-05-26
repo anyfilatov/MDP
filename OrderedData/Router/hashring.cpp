@@ -60,7 +60,6 @@ QList<Node*> HashRing::findNodes(QString key) {
       nodes.push_back(new Node(secondNode->getHost(), secondNode->getPort()+1));
     } else {
       for (int i = 0; i < _ring.size(); ++i) {
-        qDebug() << hash(_ring.at(i)->getAddress());
         if (pos <= hash(_ring.at(i)->getAddress())) {
             firstNode = _ring.at(i);
             secondNode = _ring.at((i + 1) % _ring.size());
@@ -130,20 +129,20 @@ void HashRing::stabilize() {
              << _manager->getMyself()->getAddress() << " to "
              << to_be_successor->getAddress();
     RouterClient client;
-    for (QString key : _cache->getRBTree()->getKeys()) {
-      QJsonObject jsonReq;
-      jsonReq.insert("type", REPLACE);
-      jsonReq.insert("key", key);
+//    for (QString key : _cache->getRBTree()->getKeys()) {
+//      QJsonObject jsonReq;
+//      jsonReq.insert("type", REPLACE);
+//      jsonReq.insert("key", key);
 
-      QRBNode<QString> node = _cache->getRBTree()->getNode(key);
-      if (!node.is_replica()) {
-          QList<QString> values = QVector<QString>::fromStdVector(node.values()).toList();
-          jsonReq.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
+//      QRBNode<QString> node = _cache->getRBTree()->getNode(key);
+//      if (!node.is_replica()) {
+//          QList<QString> values = QVector<QString>::fromStdVector(node.values()).toList();
+//          jsonReq.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
 
-          client.doRequestToOtherRouter(jsonReq, to_be_successor->getHost(),
-                                        to_be_successor->getPort() + 1, true);
-      }
-    }
+//          client.doRequestToOtherRouter(jsonReq, to_be_successor->getHost(),
+//                                        to_be_successor->getPort() + 1, true);
+//      }
+//    }
   }
 
   if (_haveReplicaOf->getAddress() != to_be_predecessor->getAddress()) {
@@ -153,20 +152,20 @@ void HashRing::stabilize() {
              << _manager->getMyself()->getAddress() << " to "
              << to_be_predecessor->getAddress();
     RouterClient client;
-    for (QString key : _cache->getRBTree()->getKeys()) {
-      QJsonObject jsonReq;
-      jsonReq.insert("type", REPLACE);
-      jsonReq.insert("key", key);
+//    for (QString key : _cache->getRBTree()->getKeys()) {
+//      QJsonObject jsonReq;
+//      jsonReq.insert("type", REPLACE);
+//      jsonReq.insert("key", key);
 
-      QRBNode<QString> node = _cache->getRBTree()->getNode(key);
-      if (node.is_replica()) {
-          QList<QString> values = QVector<QString>::fromStdVector(node.values()).toList();
-          jsonReq.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
-          qDebug() << "Request" << jsonReq;
-          client.doRequestToOtherRouter(jsonReq, to_be_predecessor->getHost(),
-                                        to_be_predecessor->getPort() + 1);
-      }
-    }
+//      QRBNode<QString> node = _cache->getRBTree()->getNode(key);
+//      if (node.is_replica()) {
+//          QList<QString> values = QVector<QString>::fromStdVector(node.values()).toList();
+//          jsonReq.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
+//          qDebug() << "Request" << jsonReq;
+//          client.doRequestToOtherRouter(jsonReq, to_be_predecessor->getHost(),
+//                                        to_be_predecessor->getPort() + 1);
+//      }
+//    }
   }
 
   _hasMyReplica = to_be_successor;

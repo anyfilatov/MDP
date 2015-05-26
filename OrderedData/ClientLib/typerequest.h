@@ -2,11 +2,13 @@
 #define TYPEREQUEST
 enum TypeRequest{
     PUT,
+    PUT_REWRITE,
     GET,
     DEL,
     DEL_ONE,
     RINGCECK,
-    OUTERJOIN
+    OUTERJOIN,
+    BATCH
 };
 
 #endif // TYPEREQUEST

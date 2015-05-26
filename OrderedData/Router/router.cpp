@@ -1,19 +1,20 @@
 #include "router.h"
-#include "connect.h"
+#include "connection.h"
 
 Router::Router(QObject *parent) : QTcpServer(parent) {
   pool = new QThreadPool(this);
-  pool->setMaxThreadCount(3);
+  pool->setMaxThreadCount(1024);
 }
 
 Router::Router(Cache<QString, QString> *rbtree, NetworkManager *manager,
                QObject *parent)
     : QTcpServer(parent) {
   pool = new QThreadPool(this);
-  pool->setMaxThreadCount(3);
+  pool->setMaxThreadCount(1024);
   this->rbtree = rbtree;
   _manager = manager;
   _ring = new HashRing(_manager, this->rbtree);
+  _mutex = new QMutex();
 }
 
 void Router::startServer() {
@@ -32,11 +33,11 @@ void Router::incomingConnection(qintptr handle) {
   // 4. The server throws the runnable to the thread.
 
   // Note: Rannable is a task not a thread
-  Connect *task = new Connect(handle, _ring, this->rbtree);
+  Connection *task = new Connection(handle, _ring, this->rbtree, _mutex);
 
   task->setAutoDelete(true);
 
   pool->start(task);
 
-  qDebug() << "pool started";
+//  qDebug() << "pool started";
 }

@@ -1,52 +1,81 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTimer>
-#include "remoteclient.h"
-#include "Exception/exception.h"
+#include "abstractclient.h"
+#include "server.h"
 
-QString getRandomString(int length)
-{
-    const QString alphabet(
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
-    const int randomStringLength = length;
 
-    QString randomString;
-    for (int i = 0; i < randomStringLength; ++i) {
-        int index = qrand() % alphabet.length();
-        QChar nextChar = alphabet.at(index);
-        randomString.append(nextChar);
-    }
-    return randomString;
-}
+int main(int argc, char** argv) {
 
-QList<QPair<QString, QString> > generateStubData(int size, int keySize, int valueSize) {
-    QList<QPair<QString, QString> > randomKeyValuePairsList;
-    for (int i = 0; i < size; ++i) {
-        randomKeyValuePairsList << QPair<QString, QString>(getRandomString(keySize),
-                                                           getRandomString(valueSize));
-        if (i % 100000 == 0) {
-            qDebug() << i;
+    QCoreApplication a(argc, argv);
+
+    if (!strcmp(argv[1], "1")) {
+        Server server;
+        server.run();
+    } else {
+
+        AbstractClient client;
+        qDebug() << client.connectToHost("127.0.0.1", 12345);
+        QJsonObject object;
+        object.insert("key", "value");
+
+        client.write(object);
+        try {
+            QJsonObject repsonse = client.read();
+        } catch (...) {
+            qDebug() << "catched";
         }
     }
-    qDebug() << "Generated";
-    return randomKeyValuePairsList;
+
+    return a.exec();
 }
 
-int main()
-{
-    //    QCoreApplication a(argc, argv);
-    RemoteClient client(100,"settings.json");
 
 
-    QList<QPair<QString, QString> > randomKeyValuePairsList = generateStubData(1000000, 10, 10);
-    for (QPair<QString, QString> keyValue: randomKeyValuePairsList) {
-        qDebug() << client.put(keyValue.first, keyValue.second);
-    }
+//QString getRandomString(int length)
+//{
+//    const QString alphabet(
+//        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+
+//    const int randomStringLength = length;
+
+//    QString randomString;
+//    for (int i = 0; i < randomStringLength; ++i) {
+//        int index = qrand() % alphabet.length();
+//        QChar nextChar = alphabet.at(index);
+//        randomString.append(nextChar);
+//    }
+//    return randomString;
+//}
+
+//QList<QPair<QString, QString> > generateStubData(int size, int keySize, int valueSize) {
+//    QList<QPair<QString, QString> > randomKeyValuePairsList;
+//    for (int i = 0; i < size; ++i) {
+//        randomKeyValuePairsList << QPair<QString, QString>(getRandomString(keySize),
+//                                                           getRandomString(valueSize));
+//        if (i % 100000 == 0) {
+//            qDebug() << i;
+//        }
+//    }
+//    qDebug() << "Generated";
+//    return randomKeyValuePairsList;
+//}
+
+//int main()
+//{
+//    //    QCoreApplication a(argc, argv);
+//    RemoteClient client(100,"settings.json");
 
 
-    //    return a.exec();
-}
+//    QList<QPair<QString, QString> > randomKeyValuePairsList = generateStubData(1000000, 10, 10);
+//    for (QPair<QString, QString> keyValue: randomKeyValuePairsList) {
+//        qDebug() << client.put(keyValue.first, keyValue.second);
+//    }
+
+
+//    //    return a.exec();
+//}
 
 
 
