@@ -30,6 +30,7 @@ public:
     vector<V> search(K key);
 
     void inorderWalk(TNode<K,V> *x, std::ostream_iterator<K> &iter);
+    QList<K> getKeys();
     QList<TNode<K,V>*> nodes();
     QList<TNode<K,V>*> primaryNodes();
     QList<TNode<K,V>*> replicaNodes();
@@ -50,6 +51,7 @@ private:
     TNode<K,V>* successor(TNode<K,V> *x);
     TNode<K,V>* minimum(TNode<K,V> *x);
     void removeFixup(TNode<K,V> *x);
+    void inorderWalkKeysAppend(TNode<K,V> *x, QList<K>& list);
     void inorderWalkNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
     void inorderWalkPrimaryNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
     void inorderWalkReplicaNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
@@ -78,6 +80,26 @@ void RBTree<K,V>::inorderWalk(TNode<K,V> *x, std::ostream_iterator<K> &iter)
         inorderWalk(x->left(), iter);
         *iter++ = x->key();
         inorderWalk(x->right(), iter);
+    }
+}
+
+template<typename K, typename V>
+QList<K> RBTree<K,V>::getKeys()
+{
+    QList<K> list;
+    if (root_ != nil_) {
+        inorderWalkKeysAppend(root_, list);
+    }
+    return list;
+}
+
+template<typename K, typename V>
+void RBTree<K,V>::inorderWalkKeysAppend(TNode<K,V> *x, QList<K>& list)
+{
+    if (x != nil_) {
+        inorderWalkKeysAppend(x->left(), list);
+        list.append(x->key());
+        inorderWalkKeysAppend(x->right(), list);
     }
 }
 

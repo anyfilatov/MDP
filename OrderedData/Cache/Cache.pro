@@ -11,6 +11,7 @@ QT       -= gui
 TARGET = Cache
 CONFIG   += console
 CONFIG   -= app_bundle
+CONFIG   += c++11
 
 TEMPLATE = app
 
@@ -22,4 +23,7 @@ SOURCES += \
 HEADERS += \
     icache.h \
     cache.h \
-    rbtree.h
+    rbtree.h \
+    qrbtree.h \
+    tnode.h \
+    qrbnode.h
