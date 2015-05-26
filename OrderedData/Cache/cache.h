@@ -3,7 +3,7 @@
 
 #include "icache.h"
 #include "rbtree.h"
-#include "Router/StatusCodes.h"
+#include "ClientLib/StatusCodes.h"
 #include <QList>
 #include <QVector>
 
@@ -12,13 +12,15 @@ class Cache : public iCache<K,V>
 {
 public:
     Cache();
-    virtual int insert(K key, V value);
-    virtual int insert(K key, QList<V> values);
-    virtual int replace(K key, QList<V> values);
+    virtual int insert(K key, V value, bool rewrite = false, bool replica = false);
+//    virtual int insert(K key, QList<V> values);
+//    virtual int replace(K key, QList<V> values);
     virtual QList<V> search(K key);
     virtual int remove(K key);
+    virtual int remove(K key, V value);
     virtual bool isEmpty();
-
+    virtual unsigned int size();
+    virtual RBTree<K, V> *getRBTree();
 private:
     RBTree<K,V> *rbtree;
 };
@@ -29,22 +31,22 @@ Cache<K,V>::Cache(){
 }
 
 template<typename K, typename V>
-int Cache<K,V>::insert(K key, V value){
-    rbtree->insert(key, value);
+int Cache<K,V>::insert(K key, V value, bool rewrite, bool replica){
+    rbtree->insert(key, value, rewrite, replica);
     return 0;
 }
 
-template<typename K, typename V>
-int Cache<K,V>::insert(K key, QList<V> values){
-    rbtree->insert(key, values.toVector().toStdVector());
-    return 0;
-}
+//template<typename K, typename V>
+//int Cache<K,V>::insert(K key, QList<V> values){
+//    rbtree->insert(key, values);
+//    return 0;
+//}
 
-template<typename K, typename V>
-int Cache<K,V>::replace(K key, QList<V> values){
-    rbtree->replace(key, values.toVector().toStdVector());
-    return 0;
-}
+//template<typename K, typename V>
+//int Cache<K,V>::replace(K key, QList<V> values){
+//    rbtree->replace(key, values);
+//    return 0;
+//}
 
 template<typename K, typename V>
 QList<V> Cache<K,V>::search(K key){
@@ -58,8 +60,26 @@ int Cache<K,V>::remove(K key){
 }
 
 template<typename K, typename V>
+int Cache<K,V>::remove(K key, V value){
+    rbtree->remove(key, value);
+    return 0;
+}
+
+template<typename K, typename V>
 bool Cache<K, V>::isEmpty() {
     return rbtree->isEmpty();
+}
+
+template<typename K, typename V>
+unsigned int Cache<K, V>::size()
+{
+    return rbtree->size();
+}
+
+template<typename K, typename V>
+RBTree<K, V> *Cache<K, V>::getRBTree()
+{
+    return rbtree;
 }
 
 #endif // CACHE

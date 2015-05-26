@@ -35,7 +35,7 @@ QList<Node*>& NetworkManager::getMemberList() { return _memberList; }
 void NetworkManager::addMembers(QStringList nodes) {
   for (QString node : nodes) {
     Node* member =
-        new Node(node.split(":").first(), node.split(":").back().toInt(), 0,
+        new Node(node.split(":").first(), node.split(":").back().toInt() - 1, 0,
                  _settings->getCleanupInterval(), *this);
     _memberList.push_back(member);
   }

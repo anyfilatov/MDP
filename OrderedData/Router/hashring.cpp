@@ -2,9 +2,12 @@
 #include <QtAlgorithms>
 #include <QTimer>
 
+#include "RouterClient/routerclient.h"
+#include "Cache/qrbnode.h"
+
 HashRing::HashRing() {}
 
-HashRing::HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
+HashRing::HashRing(NetworkManager* manager, Cache<QString, QString>* cache,
                    QObject* parent)
     : QObject(parent) {
   _manager = manager;
@@ -42,8 +45,7 @@ HashRing::HashRing(NetworkManager* manager, iCache<QString, QString>* cache,
 HashRing::~HashRing() {}
 
 QList<Node*> HashRing::findNodes(QString key) {
-  size_t pos = hash(key);
-  qDebug() << "KEY HASH " << pos;
+  unsigned int pos = hash(key);
   QList<Node*> nodes;
 
   Node* firstNode;
@@ -58,7 +60,6 @@ QList<Node*> HashRing::findNodes(QString key) {
       nodes.push_back(new Node(secondNode->getHost(), secondNode->getPort()+1));
     } else {
       for (int i = 0; i < _ring.size(); ++i) {
-        qDebug() << hash(_ring.at(i)->getAddress());
         if (pos <= hash(_ring.at(i)->getAddress())) {
             firstNode = _ring.at(i);
             secondNode = _ring.at((i + 1) % _ring.size());
@@ -74,6 +75,7 @@ QList<Node*> HashRing::findNodes(QString key) {
 
 void HashRing::update() {
   qDebug() << "update ring";
+  qDebug() << "RBTree nodes size: " << _cache->getRBTree()->size();
   qDebug() << _ring;
   QList<Node*> curMemList;
   bool change = false;
@@ -84,7 +86,7 @@ void HashRing::update() {
 
   qSort(curMemList.begin(), curMemList.end(), hashBasedLessThen);
 
-  qDebug() << "Cyr member list: " << curMemList;
+  qDebug() << "Current member list: " << curMemList;
   if (_ring.size() != curMemList.size() && !_cache->isEmpty() ) {
     change = true;
   }
@@ -126,6 +128,21 @@ void HashRing::stabilize() {
     qDebug() << "UPDATE REPLICA KEYS. From "
              << _manager->getMyself()->getAddress() << " to "
              << to_be_successor->getAddress();
+    RouterClient client;
+//    for (QString key : _cache->getRBTree()->getKeys()) {
+//      QJsonObject jsonReq;
+//      jsonReq.insert("type", REPLACE);
+//      jsonReq.insert("key", key);
+
+//      QRBNode<QString> node = _cache->getRBTree()->getNode(key);
+//      if (!node.is_replica()) {
+//          QList<QString> values = QVector<QString>::fromStdVector(node.values()).toList();
+//          jsonReq.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
+
+//          client.doRequestToOtherRouter(jsonReq, to_be_successor->getHost(),
+//                                        to_be_successor->getPort() + 1, true);
+//      }
+//    }
   }
 
   if (_haveReplicaOf->getAddress() != to_be_predecessor->getAddress()) {
@@ -134,21 +151,38 @@ void HashRing::stabilize() {
     qDebug() << "UPDATE PRIMARIES KEYS. From "
              << _manager->getMyself()->getAddress() << " to "
              << to_be_predecessor->getAddress();
+    RouterClient client;
+//    for (QString key : _cache->getRBTree()->getKeys()) {
+//      QJsonObject jsonReq;
+//      jsonReq.insert("type", REPLACE);
+//      jsonReq.insert("key", key);
+
+//      QRBNode<QString> node = _cache->getRBTree()->getNode(key);
+//      if (node.is_replica()) {
+//          QList<QString> values = QVector<QString>::fromStdVector(node.values()).toList();
+//          jsonReq.insert("values", QJsonValue(QJsonArray::fromStringList(values)));
+//          qDebug() << "Request" << jsonReq;
+//          client.doRequestToOtherRouter(jsonReq, to_be_predecessor->getHost(),
+//                                        to_be_predecessor->getPort() + 1);
+//      }
+//    }
   }
 
   _hasMyReplica = to_be_successor;
   _haveReplicaOf = to_be_predecessor;
 }
 
-size_t HashRing::hash(QString key) {
-  size_t hash = 0;
-
-  for (char c : key.toStdString()) {
-    hash = c + (hash << 6) + (hash << 16) - hash;
+unsigned int HashRing::hash(QString key) {
+  const char* str = key.toStdString().c_str();
+  const size_t length = strlen(str) + 1;
+  unsigned int hash = OFFSET_BASIS;
+  for (size_t i = 0; i < length; ++i) {
+    hash ^= *str++;
+    hash *= FNV_PRIME;
   }
-
   return hash;
 }
+
 
 bool HashRing::hashBasedLessThen(const Node* node1, const Node* node2) {
   return hash(node1->getAddress()) < hash(node2->getAddress());

@@ -4,10 +4,10 @@ enum TypeRequest{
     PUT,
     PUT_OVERRIDE,
     GET,
-    REPLACE,
     DEL,
     DEL_ONE,
     RINGCECK,
+    REPLACE,
     OUTERJOIN
 };
 

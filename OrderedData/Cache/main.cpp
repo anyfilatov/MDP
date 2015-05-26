@@ -2,6 +2,7 @@
 #include "cache.h"
 #include <QDebug>
 #include <QPair>
+#include "RBTree.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,16 @@ int main(int argc, char *argv[])
     qDebug() << "search: " << cache.search("testKey");
     qDebug() << "remove: " << cache.remove("testKey");
     qDebug() << "search: " << cache.search("testKey");
+
+    RBTree<int, string> tree;
+    tree.insert(1, "1");
+    tree.insert(1, "1");
+    tree.insert(3, "1");
+    tree.insert(4, "1");
+
+    foreach (int x, tree.getKeys()) {
+        qDebug() << x;
+     }
 
     return a.exec();
 }
