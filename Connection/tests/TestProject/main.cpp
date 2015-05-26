@@ -97,10 +97,10 @@ const char* uCode = "\n"
 "   print(\"start reduce\")\n"
 "end";
 
-void test1() {
-    QString ip = "169.254.99.4";
+void test1(QString ip, int port) {
+//    QString ip = "169.254.99.4";
 //    QString ip = "127.0.0.1";
-    int port = 4001;
+//    int port = 4001;
     std::cout << "SendTask test 1" << std::endl;
     int cmd(util::CMD_START_USER_SCRIPT);
     int id = 1;
@@ -135,9 +135,15 @@ void test2() {
 int main(int argc, char** argv) {
 //    std::cout << "%SUITE_STARTING% SendTask" << std::endl;
 //    std::cout << "%SUITE_STARTED%" << std::endl;
+    if(argc < 3){
+        std::cout << "use: ./TestProject <ip> <port>" << std::endl;
+        return 1;
+    }
+    QString ip(argv[1]);
+    int port = atoi(argv[2]);
     Logger::addConsoleLogger();
-    std::cout << "%TEST_STARTED% test1 (SendTask)" << std::endl;
-    test1();
+    std::cout << "test1 " << ip.toStdString() << ":" << port << std::endl;
+    test1(ip, port);
     std::cout << "%TEST_FINISHED% time=0 test1 (SendTask)" << std::endl;
 //
 //    std::cout << "%TEST_STARTED% test2 (SendTask)\n" << std::endl;

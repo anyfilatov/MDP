@@ -28,7 +28,7 @@ INCLUDEPATH += $$QT_INCLUDE_PATH/QtNetwork\
                $$LUA_INCLUDE_PATH\
                $$INCLUDE_PATH\
                $$LUA_STATE_PATH\
-                ../Database/HashTable/\
+                ../Database/\
                 ../OrderedData/ClientLib/\
                 ../OrderedData/\
                 ../OrderedData/Exception/
@@ -37,8 +37,8 @@ SOURCES += main.cpp \
     $$SOURCE_PATH/host.cpp \
     $$SOURCE_PATH/Server.cpp \
     $$SOURCE_PATH/Task.cpp \
-    ../Database/HashTable/dbclient.cpp \
-    ../Database/HashTable/Data.cpp \
+    ../Database/dbclient.cpp \
+    ../Database/Data.cpp \
     ../OrderedData/ClientLib/client.cpp\
     ../OrderedData/Exception/abstractexception.cpp \
     ../OrderedData/Exception/clientexeption.cpp \
@@ -66,10 +66,10 @@ HEADERS += \
     $$INCLUDE_PATH/JsonParser.h \
     $$INCLUDE_PATH/Iterator.h \
     $$INCLUDE_PATH/errors.h \
-    ../Database/HashTable/dbclient.h \
-    ../Database/HashTable/Data.h \
-    ../Database/HashTable/Clonable.h \
-    ../Database/HashTable/Serializible.h \
+    ../Database/dbclient.h \
+    ../Database/Data.h \
+    ../Database/Clonable.h \
+    ../Database/Serializible.h \
     ../OrderedData/ClientLib/client.h \
     ../OrderedData/ClientLib/typerequest.h \
     ../OrderedData/ClientLib/StatusCodes.h \

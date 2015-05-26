@@ -1,7 +1,7 @@
 #ifndef DBCLIENT_CPP
 #define DBCLIENT_CPP
 
-#include "DBClient.h"
+#include "dbclient.h"
 #include "HashTable/HashTable.h"
 #include "HashTable/TableKey.h"
 #include "HashTable/StringWithHash.h"
