@@ -40,6 +40,7 @@ SOURCES += main.cpp \
     ../Database/dbclient.cpp \
     ../Database/Data.cpp \
     ../OrderedData/ClientLib/client.cpp\
+    ../OrderedData/ClientLib/abstractclient.cpp\
     ../OrderedData/Exception/abstractexception.cpp \
     ../OrderedData/Exception/clientexeption.cpp \
     ../OrderedData/Exception/serverunavailableexception.cpp \

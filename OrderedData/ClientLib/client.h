@@ -19,7 +19,7 @@ public:
     QStringList get(const QString& key);
     QStringList get(const QString& key, const QString& bucket);
 
-    QStringList getBucketKyes(const QString& bucket);
+    QStringList getBucketKeys(const QString& bucket);
 
     void remove(const QString& key);
     void remove(const QString& key, const QString& bucket);

@@ -73,7 +73,7 @@ QStringList Client::get(const QString& key, const QString& bucket)
     return get(bucket + "#" + key);
 }
 
-QStringList Client::getBucketKyes(const QString &bucket)
+QStringList Client::getBucketKeys(const QString &bucket)
 {
     return get(bucket+"_keys");
 }
