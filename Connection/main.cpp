@@ -9,6 +9,7 @@
 using namespace std;
 INST_LOGGGER();
 thread_local Client* RbTree::client_ = nullptr;
+thread_local DBClient* DataBase::client_ = nullptr;
 
 void buildGraph(OrGraph<Host>& outOg, std::vector<Host>& hosts, std::map<int, std::vector<int>>& relations, int myId) {
     std::map<int, int> indexMap;
