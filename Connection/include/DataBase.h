@@ -13,6 +13,8 @@ typedef Wrapper<DataBase> DB;
 class DataBase {
 
     DBClient client_;
+    int setLimit = 10000;
+    int getLimit = 10000;
 public:
     typedef std::vector<int> IntArray;
     typedef std::shared_ptr<MDPData> GetAtomType;
@@ -27,7 +29,7 @@ public:
     
     GetAtomType getNextAtom(util::Id& id) {
         LOG_DEBUG(" " << id.i0 << " " << id.i1 << " "<< id.i2);
-        auto* d = client_.getNextStrings(id.i0, id.i1, id.i2, 10000);
+        auto* d = client_.getNextStrings(id.i0, id.i1, id.i2, getLimit);
 //        auto* d = client_.getNextStrings(0, 2, 1, 1);
         std::shared_ptr<MDPData> ptr(d);
 //        std::shared_ptr<MDPData> ptr;
@@ -52,7 +54,19 @@ public:
     
     void setSwap(util::Id& id, SetAtomType val) {
         LOG_DEBUG("Set id: " << id.str().toStdString());
-        client_.put(id.i0, id.i1, id.i2, val.get());
+        if(!atoms){
+            atoms.reset(new SetAtomType::element_type(*val));
+        } else {
+            if( val->getCells().size() == 2 ){
+                auto& cells = atoms->getCells();
+                cells.push_back(vector<QString>());
+                cells.back().swap(val->getCells()[0]);
+            }
+            if(atoms->size() >= setLimit){
+                client_.put(id.i0, id.i1, id.i2, atoms.get());
+                atoms.reset();
+            }
+        }
     }
     
     virtual ~DataBase(){
@@ -60,6 +74,8 @@ public:
     }
     
 private:
+    int limit = 10000;
     int a =0;
+    SetAtomType atoms;
 };
 
