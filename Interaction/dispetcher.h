@@ -7,11 +7,10 @@ namespace integration {
     class Dispetcher : public BiGraph<AbstractClient*, Resource>{
         bool carryOnChecking;
     public:
-        Dispetcher();
+        Dispetcher(/*QTextEdit* logForRBT, QTextEdit* logForDisp, QTextEdit* logForBD*/);
         void CheckClients();
         void SendConfigToAll();
         void SendReinitializeMessage();
-
     };
 }
 

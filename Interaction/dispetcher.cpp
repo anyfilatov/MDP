@@ -1,20 +1,25 @@
 #include "dispetcher.h"
 #include "realclients.h"
 #include <QThread>
+#include <QObject>
 #include <QFile>
 #include <iostream>
 #include <vector>
 #include <QStringList>
 #include <QTextStream>
+#include "threadpinger.h"
+#include <QCoreApplication>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QTextEdit>
 using namespace integration;
 
 std::vector<std::pair<QString,qint32> > ParseFile(QFile& inpfile, QString identity);
 std::pair<QString, qint32> CreateNewConfig(qint32 num, std::pair<QString, qint32> badIP);
 
 Dispetcher::Dispetcher(){
-    AbstractClient* clientBD = new RealClientBD("169.254.99.4",2323);
+    AbstractClient* clientBD = new RealClientBD("169.254.99.102",2323);
     AbstractClient* clientRBT = new RealClientRBT("settings.json");
-    AbstractClient* clientDisp = new RealClientDisp("169.254.99.3",4001);
+    AbstractClient* clientDisp = new RealClientDisp("169.254.99.101",4001);
 
     addL(clientBD);
     addL(clientRBT);
@@ -33,14 +38,12 @@ Dispetcher::Dispetcher(){
 }
 
 void Dispetcher::CheckClients(){
-    IP newIP;
-    newIP.SetFullAddress("169.254.99.2",12370);
-    getL(1).getNode()->SendConfig(newIP);
-    while(carryOnChecking){
+    /*while(carryOnChecking){
         //for(int i = 0; i < 3; i++){
         int i = 1;
             IP badIP;
-            if(getL(i).getNode()->CheckHosts(badIP) == true){
+            std::vector<QString> buffer;
+            if(getL(i).getNode()->CheckHosts(badIP, buffer) == false){
                 //посылаем обновлённый конфиг
                 std::pair<QString,qint32> pairBadIp;
                 pairBadIp.first = badIP.GetIP();
@@ -48,7 +51,7 @@ void Dispetcher::CheckClients(){
                 std::pair<QString,qint32> goodIP = CreateNewConfig(i,pairBadIp);
                 IP goodIPIP;
                 goodIPIP.SetFullAddress(goodIP.first,goodIP.second);
-                getL(i).getNode()->SendConfig(goodIPIP);
+                getL(i).getNode()->SendConfig(goodIPIP, buffer);
 
                 //теперь убираем ресурс из свобоных в графе
                 int ippos = 0;
@@ -60,15 +63,29 @@ void Dispetcher::CheckClients(){
                     ippos++;
                 }
                 ;
-                /*for(int j = 0; j < 3; i++){
-
-                    getL(j).getNode()->SendConfig();
-                    getL(j).getNode()->UpdateConfig();
-                }*/
+                //for(int j = 0; j < 3; i++){
+                //
+                //    getL(j).getNode()->SendConfig();
+                //    getL(j).getNode()->UpdateConfig();
+                //}
+                std::cout << std::endl;
             }
-       // }
+        //}
         QThread::sleep(2);
-    }
+    }*/
+   /* ThreadPinger PingerBD(this,0);
+    PingerBD.start();
+    ThreadPinger PingerDisp(this,1);
+    PingerDisp.start();*/
+    //QThread tRBT;
+    ThreadPinger* PingerBD = new ThreadPinger(this,0);
+    ThreadPinger* PingerRBT = new ThreadPinger(this,1);
+    ThreadPinger* PingerDisp = new ThreadPinger(this,2);
+
+    QtConcurrent::run(PingerBD,&ThreadPinger::run);
+    QtConcurrent::run(PingerRBT,&ThreadPinger::run);
+    QtConcurrent::run(PingerDisp,&ThreadPinger::run);
+
 }
 
 std::pair<QString,qint32> CreateNewConfig(qint32 num, std::pair<QString,qint32> badIP){

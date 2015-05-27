@@ -8,6 +8,8 @@ QT       += core
 QT       += network
 QT       -= gui
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TARGET = biGraph
 CONFIG   += console
 CONFIG   -= app_bundle
@@ -27,7 +29,8 @@ SOURCES += main.cpp \
     client/Exception/connectionisnotcreatedexception.cpp \
     client/Exception/notfoundvalueexception.cpp \
     client/Exception/serverunavailableexception.cpp \
-    DispatcherData/dispatcherclient.cpp
+    DispatcherData/dispatcherclient.cpp \
+    mywindow.cpp
 
 HEADERS += \
     biGraph.h \
@@ -38,6 +41,7 @@ HEADERS += \
     ip.h \
     realclients.h \
     allocator.h \
+    mywindow.h \
     client/client.h \
     client/typerequest.h \
     client/StatusCodes.h \
@@ -49,4 +53,7 @@ HEADERS += \
     client/Exception/exception.h \
     client/Exception/exceptioncode.h \
     clientDisp/ExecutionClient.h \
-    DispatcherData/dispatcherclient.h
+    DispatcherData/dispatcherclient.h \
+    threadpinger.h \
+    bigraphexceptions.h \
+    mymanipulators.h

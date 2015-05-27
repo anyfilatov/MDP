@@ -3,24 +3,54 @@
 #include <QString>
 #include "dispatcherclient.h"
 
-DispatcherClient::DispatcherClient(const QString& strHost, int nPort, QObject *parent) :
+DispatcherClient::DispatcherClient(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort, QObject *parent) :
     QObject(parent), m_nNextBlockSize(0)
 {
+    tryNum = 0;
+    ip = strHost;
+    spareIp = strSpareHost;
+    port = nPort;
+    sparePort = nSparePort;
+    //_connect();
+
+}
+
+
+
+void DispatcherClient::_connect(){
     m_pTcpSocket = new QTcpSocket(this);
 
-    m_pTcpSocket->connectToHost(strHost, nPort);
+    m_pTcpSocket->connectToHost(ip, port);
     connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
     //connect(m_pTcpSocket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
     connect(m_pTcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
-    qDebug() << "DispatcherClient: Started; server host: " << strHost << ", port: " << nPort;
+    qDebug() << "DBClient: Started; server host: " << ip << ", port: " << port;
 }
 
-QJsonObject DispatcherClient::slotReadyRead()
+void DispatcherClient::switchIps(){
+    QString str = ip;
+    ip = spareIp;
+    spareIp = str;
+    int n = port;
+    port = sparePort;
+    sparePort = n;
+}
+
+void DispatcherClient::setIps(const QString &strHost, int nPort, const QString &strSpareHost, int nSparePort){
+    ip = strHost;
+    spareIp = strSpareHost;
+    port = nPort;
+    sparePort = nSparePort;
+    _connect();
+}
+
+QJsonObject DispatcherClient::slotReadyRead(QJsonObject &obj)
 {
     QDataStream in(m_pTcpSocket);
     in.setVersion(QDataStream::Qt_4_2);
     for (;;) {
-        if (m_pTcpSocket->waitForReadyRead(10000)){
+        //bool l = m_pTcpSocket->
+        if (m_pTcpSocket->waitForReadyRead(2000)){
             if (!m_nNextBlockSize) {
                 if (m_pTcpSocket->bytesAvailable() < sizeof(quint64)) {
                     break;
@@ -32,11 +62,23 @@ QJsonObject DispatcherClient::slotReadyRead()
                 continue;
             }else
                 break;
+        }else{
+            if (tryNum > 4){
+                QJsonObject jso;
+                jso.insert("TIME_OUT", true);
+                return jso;
+            }
+            m_pTcpSocket->close();
+            delete m_pTcpSocket;
+            switchIps();
+            _connect();
+            sendToServer(obj);
+            tryNum++;
+            return slotReadyRead(obj);
         }
     }
     QByteArray arr;
     in >> arr;
-    qDebug() << "DispatcherClient: received array from server: " << arr;
     m_nNextBlockSize = 0;
     QJsonObject jso = QJsonDocument::fromJson(arr).object();
     return jso;
@@ -84,8 +126,11 @@ std::vector<QString> DispatcherClient::pingAll()
     QJsonObject obj;
     obj.insert("COMMAND", "PING_ALL");
     sendToServer(obj);
-    QJsonObject receivedObj = slotReadyRead();
-    QJsonArray arr = receivedObj.take("HOSTS").toArray();
+    QJsonObject obj2 = slotReadyRead(obj);
+    if (obj2.contains("TIME_OUT")){
+        throw QString("DBClient: Request time out!");
+    }
+    QJsonArray arr = obj2.take("HOSTS").toArray();
     std::vector<QString> s;
 	for (int i=0; i<arr.size(); i++){
         s.push_back(arr[i].toString());
@@ -100,6 +145,10 @@ void DispatcherClient::addHost(const QString& ip, int port)
     obj.insert("IP", ip);
     obj.insert("PORT", port);
     sendToServer(obj);
+    QJsonObject obj2 = slotReadyRead(obj);
+    if (obj2.contains("TIME_OUT")){
+        throw "DBClient: Request time out!";
+    }
 }
 
 #endif
