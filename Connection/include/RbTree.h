@@ -9,36 +9,37 @@
 #include <QString>
 #include "client.h"
 #include "abstractexception.h"
-const int BUFFER_SIZE = 1000;
+const int BUFFER_SIZE = 10000;
 class RbTree {
-    std::shared_ptr<Client> client_;
+    static thread_local Client* client_;
     QString fileName_;
 public:
     typedef std::pair<QString, QStringList> GetAtomType;
     typedef std::vector<QString> SetAtomType;
-    RbTree(const QString& fileName) : client_(new Client(BUFFER_SIZE, fileName)), fileName_(fileName){
+    RbTree(const QString& fileName) : fileName_(fileName){
         LOG_TRACE("RBTree");
     };
     RbTree(const RbTree& ) = delete;
 
     QStringList getAllKeys (const util::Id& id) {
+        create();
         QStringList out;
         try{
             out = client_->getBucketKeys(id.str());
         } catch ( AbstractException& e ) {
-            client_.reset(new Client(BUFFER_SIZE, fileName_));
+            reset();
             LOG_ERROR("exception:" << e.getMessage().toStdString());
         }
         return out;
     }
     
     int setSwap(util::Id& id, SetAtomType& atom) {
-
+        create();
         if(atom.size() == 2){
             try{
                 client_->put(atom[0], atom[1], id.str());
             } catch ( AbstractException& e ) {
-                client_.reset(new Client(BUFFER_SIZE, fileName_));
+                reset();
                 LOG_ERROR("exception:" << e.getMessage().toStdString());
                 return Errors::STATUS_ERROR;
             }
@@ -50,23 +51,42 @@ public:
     }
 
     GetAtomType getNextAtom(util::Id& id, const QString& key) {
+        create();
         try{
             return std::make_pair( key, client_->get(key, id.str()));
         } catch ( AbstractException& e ) {
-            client_.reset(new Client(BUFFER_SIZE, fileName_));
+            reset();
             LOG_ERROR("exception:" << e.getMessage().toStdString());
         }
         return GetAtomType();
     }
     void flush() {
         if(client_) {
+            LOG_INFO("flush");
             client_->flush();
         }
     }
     virtual ~RbTree(){
         LOG_TRACE("~RBTree");
+        if(client_){
+            delete client_;
+            client_ = nullptr;
+        }
     };
 private:
+    void create(){
+        if(!client_){
+            reset();
+        }
+    }
+
+    void reset(){
+        if(client_){
+            delete client_;
+            client_ = nullptr;
+        }
+        client_ = new Client(BUFFER_SIZE, fileName_);
+    }
 };
 
 typedef Wrapper<RbTree> RB;

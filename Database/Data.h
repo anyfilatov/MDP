@@ -32,7 +32,7 @@ public:
     QString serialize();
     void parse(QString json);
     void generateRandom() {
-        for(int j =0; j < 1000000; j++){
+        for(int j =0; j < 100000; j++){
             vector<QString>  v(14);
             for(int i =0; i < 14; i++){
                 v[i] = QString::number(1.0);

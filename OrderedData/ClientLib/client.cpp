@@ -84,8 +84,10 @@ void Client::remove(const QString &key)
     reqJson.insert("type", DEL);
     reqJson.insert("key", key);
     _buffer.append(reqJson);
-    if (_buffer.size() >= MAX_BUFFER_SIZE)
+    if (_buffer.size() >= MAX_BUFFER_SIZE){
+        qDebug() << "full";
         flush();
+    }
 }
 
 void Client::remove(const QString &key, const QString &bucket)
@@ -147,13 +149,16 @@ void Client::joinToRing(const QString &who, const QStringList &ring)
 
 void Client::flush()
 {
+    qDebug() << "flush";
     if (_buffer.isEmpty()) {
         return;
     }
     QJsonObject packet;
     packet.insert("type", BATCH);
     packet.insert("packet", _buffer);
-    connectToHost();
+    if( !connectToHost() ){
+        throw ServerUnavailableException();
+    };
     write(packet);
 
     while (!_buffer.isEmpty()) {
@@ -168,8 +173,10 @@ void Client::putRewriteValue(const QString &key, const QString &value)
     json.insert("key", key);
     json.insert("value", value);
     _buffer.append(json);
-    if (_buffer.size() >= MAX_BUFFER_SIZE)
+    if (_buffer.size() >= MAX_BUFFER_SIZE){
+        qDebug() << "full";
         flush();
+    }
 }
 
 void Client::removeValue(const QString &key, const QString &value)
@@ -179,8 +186,10 @@ void Client::removeValue(const QString &key, const QString &value)
     json.insert("key", key);
     json.insert("value", value);
     _buffer.append(json);
-    if (_buffer.size() >= MAX_BUFFER_SIZE)
+    if (_buffer.size() >= MAX_BUFFER_SIZE){
+        qDebug() << "full";
         flush();
+    }
 }
 
 bool Client::connectToHost()

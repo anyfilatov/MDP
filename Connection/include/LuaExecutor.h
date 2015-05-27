@@ -451,7 +451,7 @@ static void doMapForAtoms(LuaExecutor::LuaContextVariable* context, const char* 
             }
         }
 
-//        context->e()->flush();
+        context->e()->flush();
     }
 }
 
@@ -489,7 +489,7 @@ static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context,  const ch
         LOG_DEBUG("value " << value);
         lua_pop(l, 1);
         const char* key = lua_tostring(l, lua_gettop(l));
-        LOG_DEBUG("key " << key);
+        LOG_INFO("" << key << "=" << value);
         lua_pop(l, 1);
         vector<vector<QString> > cells(1);
         cells[0].push_back(QString(key));
