@@ -16,7 +16,7 @@ class HashRing : public QObject {
   explicit HashRing(NetworkManager* manager, Cache<QString, QString>* cache,
                     QObject* parent = 0);
   ~HashRing();
-  QList<Node*> findNodes(QString key);
+  QList<Node> findNodes(QString key);
   QList<Node*> getAllMember();
 
   NetworkManager *getManager() const;

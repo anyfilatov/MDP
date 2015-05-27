@@ -44,9 +44,9 @@ HashRing::HashRing(NetworkManager* manager, Cache<QString, QString>* cache,
 
 HashRing::~HashRing() {}
 
-QList<Node*> HashRing::findNodes(QString key) {
+QList<Node> HashRing::findNodes(QString key) {
   unsigned int pos = hash(key);
-  QList<Node*> nodes;
+  QList<Node> nodes;
 
   Node* firstNode;
   Node* secondNode;
@@ -56,15 +56,15 @@ QList<Node*> HashRing::findNodes(QString key) {
         pos > hash(_ring.at(_ring.size() - 1)->getAddress())) {
         firstNode = _ring.at(0);
         secondNode = _ring.at(1);
-      nodes.push_back(new Node(firstNode->getHost(), firstNode->getPort()+1));
-      nodes.push_back(new Node(secondNode->getHost(), secondNode->getPort()+1));
+      nodes.push_back(Node(firstNode->getHost(), firstNode->getPort()+1));
+      nodes.push_back(Node(secondNode->getHost(), secondNode->getPort()+1));
     } else {
       for (int i = 0; i < _ring.size(); ++i) {
         if (pos <= hash(_ring.at(i)->getAddress())) {
             firstNode = _ring.at(i);
             secondNode = _ring.at((i + 1) % _ring.size());
-          nodes.push_back(new Node(firstNode->getHost(), firstNode->getPort() + 1));
-          nodes.push_back(new Node(secondNode->getHost(), secondNode->getPort() + 1));
+          nodes.push_back(Node(firstNode->getHost(), firstNode->getPort() + 1));
+          nodes.push_back(Node(secondNode->getHost(), secondNode->getPort() + 1));
           break;
         }
       }

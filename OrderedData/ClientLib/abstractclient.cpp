@@ -81,6 +81,7 @@ QJsonObject AbstractClient::read()
 
 void AbstractClient::disconnectFromHost()
 {
+    _socket.waitForBytesWritten();
     _socket.disconnectFromHost();
 }
 

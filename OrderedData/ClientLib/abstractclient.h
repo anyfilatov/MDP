@@ -16,7 +16,7 @@ public:
     virtual void disconnectFromHost();
 protected:
     QTcpSocket _socket;
-    static const int MAX_WAIT_TIME_MLS = 5000;
+    static const int MAX_WAIT_TIME_MLS = 30000;
 };
 
 #endif // ABSTRACTCLIENT_H
