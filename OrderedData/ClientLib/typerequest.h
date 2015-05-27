@@ -8,7 +8,8 @@ enum TypeRequest{
     DEL_ONE,
     RINGCECK,
     OUTERJOIN,
-    BATCH
+    BATCH,
+    STATS
 };
 
 #endif // TYPEREQUEST
