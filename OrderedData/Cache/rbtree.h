@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <QList>
+#include <cmath>
 
 using namespace std;
 
@@ -35,6 +36,14 @@ public:
     QList<TNode<K,V>*> primaryNodes();
     QList<TNode<K,V>*> replicaNodes();
 
+    // For GUI
+    unsigned int redNodesCount();
+    unsigned int blackNodesCount();
+    unsigned int primaryNodesCount();
+    unsigned int replicaNodesCount();
+    unsigned int treeHeight();
+    unsigned int valuesCount();
+
     bool isEmpty() { return size_ == 0 ? true : false; }
     unsigned int size() { return size_; }
 
@@ -56,6 +65,8 @@ private:
     void inorderWalkPrimaryNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
     void inorderWalkReplicaNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*>& list);
     void inorderWalkDelete(TNode<K,V> *x);
+    void inorderWalkRedNodesCount(TNode<K,V> *x, unsigned int& count);
+    void inorderWalkValuesCount(TNode<K,V> *x, unsigned int& count);
 };
 
 template<typename K, typename V>
@@ -63,7 +74,7 @@ RBTree<K,V>::RBTree()
 {
     size_ = 0;
     nil_ = new TNode<K,V>(BLACK, NULL, NULL, NULL);
-    root_ = new TNode<K,V>(BLACK, nil_, nil_, nil_);
+    root_ = nil_;
 }
 
 template<typename K, typename V>
@@ -149,7 +160,7 @@ template<typename K, typename V>
 QList<TNode<K,V>*> RBTree<K,V>::replicaNodes()
 {
     QList<TNode<K,V>*> list;
-    if(root_ != nil_) {
+    if (root_ != nil_) {
         inorderWalkReplicaNodesAppend(root_, list);
     }
     return list;
@@ -164,6 +175,79 @@ void RBTree<K,V>::inorderWalkReplicaNodesAppend(TNode<K,V> *x, QList<TNode<K,V>*
             list.append(x);
         }
         inorderWalkReplicaNodesAppend(x->right(), list);
+    }
+}
+
+template<typename K, typename V>
+unsigned int RBTree<K,V>::redNodesCount()
+{
+    unsigned int count = 0;
+    if (root_ != nil_) {
+        inorderWalkRedNodesCount(root_, count);
+    }
+    return count;
+}
+
+template<typename K, typename V>
+void RBTree<K,V>::inorderWalkRedNodesCount(TNode<K,V> *x, unsigned int& count)
+{
+    if (x != nil_) {
+        inorderWalkRedNodesCount(x->left(), count);
+        if (x->color() == RED) {
+            count++;
+        }
+        inorderWalkRedNodesCount(x->right(), count);
+    }
+}
+
+template<typename K, typename V>
+unsigned int RBTree<K,V>::blackNodesCount()
+{
+    return size_ - redNodesCount();
+}
+
+template<typename K, typename V>
+unsigned int RBTree<K,V>::primaryNodesCount()
+{
+    return primaryNodes().size();
+}
+
+template<typename K, typename V>
+unsigned int RBTree<K,V>::replicaNodesCount()
+{
+    return replicaNodes().size();
+}
+
+template<typename K, typename V>
+unsigned int RBTree<K,V>::treeHeight()
+{
+    unsigned int height = 0;
+    int count = size_;
+    while (count > 0) {
+        count -= pow(2, height);
+        height++;
+    }
+    return height;
+}
+
+template<typename K, typename V>
+unsigned int RBTree<K,V>::valuesCount()
+{
+    unsigned int count = 0;
+    if (root_ != nil_) {
+        inorderWalkValuesCount(root_, count);
+    }
+    return count;
+}
+
+
+template<typename K, typename V>
+void RBTree<K,V>::inorderWalkValuesCount(TNode<K,V> *x, unsigned int& count)
+{
+    if (x != nil_) {
+        inorderWalkRedNodesCount(x->left(), count);
+        count += x->values().size();
+        inorderWalkRedNodesCount(x->right(), count);
     }
 }
 
@@ -267,6 +351,7 @@ void RBTree<K,V>::insert(TNode<K,V> *z, bool rewrite)
         y = x;
         if (z->key() == x->key()) {
             x->addValues(z->values(), rewrite);
+            size_--;
             delete z;
             return;
         } else if (z->key() < x->key()) {
