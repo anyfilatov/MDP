@@ -183,6 +183,7 @@ public:
             ++size;
             it.next();
         }
+        LOG_INFO("Splitted size="<<size);
         if(size == 0){
             return;
         }
@@ -664,6 +665,7 @@ static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, 
             QByteArray ar;
             if( type == util::CMD_REDUCE){
                auto keys = executor->getKeys(i);
+               LOG_INFO( i << " list keys.size=" << keys.size());
                ar = util::pack(cmd, code, id, qFuncName, keys);
             } else {
                 ar = util::pack(cmd, code, id, qFuncName);

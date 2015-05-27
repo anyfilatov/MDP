@@ -68,7 +68,7 @@ QJsonObject DBClient::slotReadyRead(QJsonObject &obj)
     QDataStream in(m_pTcpSocket);
     in.setVersion(QDataStream::Qt_4_2);
     for (;;) {
-        if (m_pTcpSocket->waitForReadyRead(30000)){
+        if (m_pTcpSocket->waitForReadyRead(600000)){
             if (!m_nNextBlockSize) {
                 if (m_pTcpSocket->bytesAvailable() < sizeof(quint64)) {
                     break;
