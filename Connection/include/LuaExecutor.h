@@ -154,6 +154,10 @@ public:
         return Errors::STATUS_OK;
     }
     
+    void flushDb(){
+        db_->flush(id_);
+    }
+
     friend std::ostream& operator << (std::ostream& os, const LuaExecutor& ) {
         os << "not implemented";
         return os;
@@ -501,6 +505,7 @@ static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context,  const ch
         setValue->setCells(cells);
         executor->setSwapToDb(setValue);
     }
+    executor->flushDb();
 }
 
 static int doMapOnly(LuaExecutor* executor, util::Id& id) {

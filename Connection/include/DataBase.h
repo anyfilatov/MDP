@@ -69,6 +69,13 @@ public:
         }
     }
     
+    void flush(util::Id& id) {
+        if(atoms){
+            client_.put(id.i0, id.i1, id.i2, atoms.get());
+            atoms.reset();
+        }
+    }
+
     virtual ~DataBase(){
         LOG_TRACE("DataBase");
     }
