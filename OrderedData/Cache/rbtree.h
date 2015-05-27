@@ -341,7 +341,7 @@ template<typename K, typename V>
 void RBTree<K,V>::insert(TNode<K,V> *z, bool rewrite)
 {
     size_++;
-    if (size_ == 1) {
+    if (root_ == nil_) {
         root_ = z;
         return;
     }
