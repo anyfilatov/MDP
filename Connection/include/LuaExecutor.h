@@ -129,7 +129,10 @@ public:
         RB::WrappedType::GetAtomType out;
         if(it != keys_.end()) {
             RB::ScopedLock lock(rb_);
-            out = rb_->getNextAtom(id_, *it);
+            util::Id tId(id_);
+            auto i = tId.get(util::Id::dataIdIndex);
+            tId.set(util::Id::dataIdIndex, i-1);
+            out = rb_->getNextAtom(tId, *it);
             it++;
         }
         return out;

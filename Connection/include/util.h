@@ -73,8 +73,8 @@ namespace util{
         int get(IdIndex i) const {
             switch(i) {
                 case userIdIndex: return i0;
-                case scriptIdIndex: return i1;
-                case dataIdIndex: return i2;
+                case scriptIdIndex: return i2;
+                case dataIdIndex: return i1;
             }
             return i2;
         }

@@ -9,7 +9,9 @@
 #include <QString>
 #include "client.h"
 #include "abstractexception.h"
-const int BUFFER_SIZE = 10000;
+#include <unistd.h>
+
+const int BUFFER_SIZE = 7000;
 class RbTree {
     static thread_local Client* client_;
     QString fileName_;
@@ -24,12 +26,18 @@ public:
     QStringList getAllKeys (const util::Id& id) {
         create();
         QStringList out;
+
+
         try{
+            //sleep(10);
             out = client_->getBucketKeys(id.str());
         } catch ( AbstractException& e ) {
             reset();
             LOG_ERROR("exception:" << e.getMessage().toStdString());
         }
+
+        for(auto& l: out)
+            LOG_DEBUG(l.toStdString());
         return out;
     }
     
@@ -54,6 +62,7 @@ public:
         create();
         try{
             return std::make_pair( key, client_->get(key, id.str()));
+
         } catch ( AbstractException& e ) {
             reset();
             LOG_ERROR("exception:" << e.getMessage().toStdString());
