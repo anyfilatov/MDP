@@ -40,6 +40,7 @@ private:
     QJsonObject handleGet(const QJsonObject& json);
     QJsonObject handleRingCheck();
     QJsonObject handleRingJoin(const QJsonObject& json);
+    QJsonObject handleStatistics();
 
     void write(const QJsonObject& object);
     QJsonObject read();

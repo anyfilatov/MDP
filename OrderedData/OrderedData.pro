@@ -34,7 +34,8 @@ SOURCES += \
     Exception/notfoundvalueexception.cpp \
     ClientLib/client.cpp \
     ClientLib/abstractclient.cpp \
-    Router/connection.cpp
+    Router/connection.cpp \
+    ClientLib/guiclient.cpp
 
 HEADERS += \
     Router/router.h \
@@ -63,4 +64,5 @@ HEADERS += \
     Exception/notfoundvalueexception.h \
     ClientLib/abstractclient.h \
     ClientLib/client.h \
-    Router/connection.h
+    Router/connection.h \
+    ClientLib/guiclient.h

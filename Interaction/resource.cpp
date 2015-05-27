@@ -5,10 +5,10 @@ using namespace integration;
 
 Resource::Resource(const QString& owner){
     this->owner = owner;
-    SetResource();
+    setResource();
 }
 
-IP Resource::PopResource(qint32 port){
+IP Resource::popResource(qint32 port){
     if(!address.empty()){
         /*IP res = address[0];
         address.erase(address.begin());
@@ -29,7 +29,7 @@ IP Resource::PopResource(qint32 port){
     }
 }
 
-void Resource::SetResource(){
+void Resource::setResource(){
     QFile conf("conf.txt");
     conf.open(QIODevice::ReadOnly);
     QStringList tokens;
@@ -50,4 +50,33 @@ void Resource::SetResource(){
 
 std::vector<IP>& Resource::getAddresses(){
     return address;
+}
+
+bool Resource::operator ==(Resource & tmp) const {
+    if(this->owner.compare(tmp.getOwner()) != 0)
+        return false;
+    bool ans = true;
+    for(IP tmpIP1 : address){
+        bool eachfound = false;
+        for(IP tmpIP2 : tmp.getAddresses()){
+            eachfound |= (tmpIP1.GetIP().compare(tmpIP2.GetIP()) == 0 && tmpIP1.GetPort() == tmpIP2.GetPort());
+        }
+        ans &=eachfound;
+    }
+    return ans;
+}
+
+bool Resource::operator !=(Resource & tmp) const {
+    return !(*this == tmp);
+}
+
+QString Resource::getOwner(){
+    return owner;
+}
+
+std::ostream& integration::operator << (std::ostream& ostr, Resource& res) {
+    ostr << "Owner: " << res.getOwner().toStdString() << "\nIPs:";
+    for(IP bufIP : res.getAddresses())
+    ostr << bufIP.GetIP().toStdString() << ":" << bufIP.GetPort() << " ";
+    return ostr;
 }

@@ -26,9 +26,7 @@ void Connection::run() {
         if(_socket->bytesAvailable() > 0) {
             QJsonObject request = read();
             if (request["type"] == BATCH) {
-                qDebug() << "Before batch";
                 handleBatchRequest(request);
-                qDebug() << "After batch";
             } else {
                 QJsonObject response = handleRequest(request);
                 write(response);
@@ -48,6 +46,8 @@ QJsonObject Connection::handleRequest(const QJsonObject &json)
         return handleRingCheck();
     case OUTERJOIN:
         return handleRingJoin(json);
+    case STATS:
+        return handleStatistics();
     }
 }
 
@@ -219,6 +219,21 @@ QJsonObject Connection::handleRingJoin(const QJsonObject &json)
     return jsonResp;
 }
 
+QJsonObject Connection::handleStatistics()
+{
+    QJsonObject jsonResp;
+    jsonResp.insert("keys_count", 0);
+    jsonResp.insert("red_nodes_count", 0);
+    jsonResp.insert("black_nodes_count", 0);
+    jsonResp.insert("primary_count", 0);
+    jsonResp.insert("replica_count", 0);
+    jsonResp.insert("height_count", 0);
+    jsonResp.insert("hits_count", 0);
+    jsonResp.insert("status", OK);
+    return jsonResp;
+
+}
+
 bool Connection::isConnected()
 {
     return _socket->state() == QAbstractSocket::ConnectedState;
@@ -264,7 +279,6 @@ QJsonObject Connection::read()
     QByteArray packet;
 
     while (_socket->bytesAvailable() < packetSize) {
-        qDebug() << "Remote host: " << _socket->peerAddress();
         if (!_socket->waitForReadyRead()) {
             // тут нужно кинуть нормальный exception, что из сокета не удалось прочитать
             qDebug() << "Socket error: " << _socket->errorString();

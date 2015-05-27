@@ -71,17 +71,24 @@ namespace Execution{
             socket.connectToHost(ip_, port_);
             if (socket.isWritable()) {
                 socket.write(inOutBuffer);
-                bool res = socket.waitForReadyRead();
-                while (!res) {
+                bool res = socket.waitForReadyRead(2000);
+                //Согласовать с Ваней_begin: убрать while true
+                /*while (!res) {
                     if (!socket.isOpen()) {
+                        throw QString("Server unavailable");
                         break;
                     }
-                    res = socket.waitForReadyRead();
-                }
+                    res = socket.waitForReadyRead(2000);
+                }*/
+                // Согласовать с Ваней_end
                 if (res) {
                     inOutBuffer = socket.readAll();
                     return 0;
+                } else {
+                    throw QString("Server unavailable");
                 }
+            } else {
+                throw QString("Server unavailable");
             }
             return 2;
         }
