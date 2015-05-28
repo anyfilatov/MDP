@@ -25,24 +25,24 @@ public:
         LOG_TRACE("DataBase");
     };
     void create(){
-//        if(!client_){
-//            client_ = new DBClient(strHost_, nPort_, strSpareHost_, nSparePort_);
-//        }
+        if(!client_){
+            client_ = new DBClient(strHost_, nPort_, strSpareHost_, nSparePort_);
+        }
     }
     DataBase(const DataBase& ) = delete;
     
     GetAtomType getNextAtom(util::Id& id) {
         create();
         LOG_DEBUG(" " << id.i0 << " " << id.i1 << " "<< id.i2);
-//        auto* d = client_->getNextStrings(id.i0, id.i1, id.i2, getLimit);
+        auto* d = client_->getNextStrings(id.i0, id.i1, id.i2, getLimit);
 //        auto* d = client_.getNextStrings(0, 2, 1, 1);
-//        std::shared_ptr<MDPData> ptr(d);
-        std::shared_ptr<MDPData> ptr;
-        if(a==0){
-            ptr.reset(new MDPData());
-            ptr->generateRandom(100000);
-            a++;
-        }
+        std::shared_ptr<MDPData> ptr(d);
+//        std::shared_ptr<MDPData> ptr;
+//        if(a==0){
+//            ptr.reset(new MDPData());
+//            ptr->generateRandom(100000);
+//            a++;
+//        }
         return ptr;
     }
     
@@ -57,7 +57,10 @@ public:
         }
         return out;
     }
-    
+    void toStart(util::Id& id){
+        create();
+        client_->toStart(id.i0, id.i1, id.i2);
+    }
     void setSwap(util::Id& id, SetAtomType val) {
         create();
         LOG_DEBUG("Set id: " << id.str().toStdString());
@@ -77,18 +80,19 @@ public:
     
     void flush(util::Id& id) {
         create();
+        LOG_INFO("flush");
         if(atoms){
             LOG_INFO("atoms size:" << atoms->getCells().size());
-//            client_->put(id.i0, id.i1, id.i2, atoms.get());
+            client_->put(id.i0, id.i1, id.i2, atoms.get());
             atoms.reset();
         }
     }
 
     virtual ~DataBase(){
-//        if(client_){
-//            delete client_;
-//            client_ = nullptr;
-//        }
+        if(client_){
+            delete client_;
+            client_ = nullptr;
+        }
         LOG_TRACE("DataBase");
     }
     

@@ -97,7 +97,10 @@ public:
     void setId(const util::Id& id) {
         id_ = id;
     }
-    
+
+    util::Id getId() const {
+        return id_;
+    }
     void setFuncName(const QString& funcName) {
         func_ = funcName;
     }
@@ -133,6 +136,7 @@ public:
             auto i = tId.get(util::Id::dataIdIndex);
             tId.set(util::Id::dataIdIndex, i-1);
             out = rb_->getNextAtom(tId, *it);
+
             it++;
         }
         return out;
@@ -177,25 +181,32 @@ public:
     }
     
     void startMap() {
+        DB::ScopedLock lock(db_);
+        db_->toStart(id_);
         //++std::get<0>(id_);
     }
     
     void splitKeys() {
         int size = 0;
-        Iterator<Host> it(*og_);
-        while(!it.end()){
-            ++size;
-            it.next();
-        }
-        LOG_INFO("Splitted size="<<size);
-        if(size == 0){
-            return;
+        {
+            Iterator<Host> it(*og_);
+            while(!it.end()){
+                ++size;
+                it.next();
+            }
+            LOG_INFO("Splitted size="<<size);
+            if(size == 0){
+                return;
+            }
         }
         splittedKeys_.resize(size);
         auto sizeList = keys_.size()/size;
+        auto it = keys_.begin();
         for(int i = 0; i < size; i++){
-            auto it = keys_.begin();
-            for( int j = 0; j < sizeList && it != keys_.end(); j++, it++){
+            for( int j = 0; it != keys_.end(); j++, it++){
+                if(i < size - 1 && j >= sizeList){
+                    break;
+                }
                 splittedKeys_[i].append(*it);
             }
         }
@@ -721,6 +732,7 @@ static int doReduce(Lua l) {
     auto* context = LuaExecutor::LuaContextVariable::getFromPeak(l);
     auto* executor = context->e();
     executor->startReduce();
+    (*context->id()) = executor->getId();
     lua_pop(l, 1);
     const char* funcName = lua_tolstring(l, lua_gettop(l), &s);
     LOG_DEBUG("funcName=" << funcName << " id=" << *executor);
