@@ -82,9 +82,10 @@ QJsonObject DBClient::slotReadyRead(QJsonObject &obj)
                 break;
         }else{
             if (tryNum > 20){
+                throw 1;
                 QJsonObject jso;
                 jso.insert("TIME_OUT", true);
-                throw 1;
+
                 return jso;
             }
 

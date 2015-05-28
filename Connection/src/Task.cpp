@@ -42,7 +42,7 @@ int Task::operator()() {
         int id = 0;
         data >> cmd;
         QString code;
-        if(cmd != util::CMD_PING && cmd != util::CMD_SET_CONFIG){
+        if(util::needCode(cmd)){
             data >> code;
             LOG_DEBUG("cmd=" << cmd );
             if (code.isEmpty()) {
@@ -69,6 +69,9 @@ int Task::operator()() {
                 ping(data);
                 break;
             case util::CMD_SET_CONFIG:
+                setConfig(data);
+                break;
+            case util::CMD_PACKET_FOR_DB:
                 setConfig(data);
                 break;
             default:

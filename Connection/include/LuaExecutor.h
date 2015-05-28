@@ -340,6 +340,7 @@ private:
     util::Id id_;
     QString func_;
     int executionType_;
+    bool sendToDb_;
     CVariablesInLuaContainer luaVariables;
     QStringList keys_;
     QStringList::iterator it = keys_.begin();

@@ -4,7 +4,7 @@
         {"ip" : "172.19.24.90", "port" : 4011, "id" : 11 }
     ],
     "relations": [
-      {"parent": 10, "childs": [11, 12, 13] },
+      {"parent": 10, "childs": [11] },
       {"parent": 11, "childs": [] }
     ],
     "db": [

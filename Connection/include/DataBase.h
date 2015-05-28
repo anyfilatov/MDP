@@ -19,6 +19,7 @@ public:
     typedef std::vector<int> IntArray;
     typedef std::shared_ptr<MDPData> GetAtomType;
     typedef std::shared_ptr<MDPData> SetAtomType;
+    typedef std::map<util::Id, SetAtomType > KeepedType;
     DataBase(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort)
         : strHost_(strHost), nPort_(nPort), strSpareHost_(strSpareHost), nSparePort_(nSparePort)
     {
@@ -64,6 +65,7 @@ public:
     void setSwap(util::Id& id, SetAtomType val) {
         create();
         LOG_DEBUG("Set id: " << id.str().toStdString());
+        auto& atoms = atoms_[id];
         if(!atoms){
             atoms.reset(new SetAtomType::element_type(*val));
         } else {
@@ -81,8 +83,8 @@ public:
     void flush(util::Id& id) {
         create();
         LOG_INFO("flush");
+        auto& atoms = atoms_[id];
         if(atoms){
-            LOG_INFO("atoms size:" << atoms->getCells().size());
             client_->put(id.i0, id.i1, id.i2, atoms.get());
             atoms.reset();
         }
@@ -97,12 +99,11 @@ public:
     }
     
 private:
-    int limit = 10000;
-    int a =0;
-    SetAtomType atoms;
     QString strHost_;
     int nPort_;
     QString strSpareHost_;
     int nSparePort_;
+    int a =0;
+    KeepedType atoms_;
 };
 
