@@ -1,0 +1,46 @@
+[
+{
+	"host" : "192.168.1.1:25505",
+	"keys_count": 1281,
+	"red_nodes_count": 598,
+	"black_nodes_count": 684,
+	"primary_count": 1589354,
+	"replica_count": 864227,
+	"height_count": 310,
+	"hits_count": 31.5, 
+	"status": 0
+},
+{
+	"host" : "192.168.1.2:25505",
+	"keys_count": 1482,
+	"red_nodes_count": 698,
+	"black_nodes_count": 784,
+	"primary_count": 2589354,
+	"replica_count": 964227,
+	"height_count": 610,
+	"hits_count": 61.5, 
+	"status": 0
+},
+{
+	"host" : "192.168.1.3:25505",
+	"keys_count": 1282,
+	"red_nodes_count": 598,
+	"black_nodes_count": 684,
+	"primary_count": 1589354,
+	"replica_count": 864227,
+	"height_count": 310,
+	"hits_count": 31.5, 
+	"status": 0
+},
+{
+	"host" : "192.168.1.4:25505",
+	"keys_count": 1112,
+	"red_nodes_count": 508,
+	"black_nodes_count": 604,
+	"primary_count": 5589354,
+	"replica_count": 864227,
+	"height_count": 310,
+	"hits_count": 35.5, 
+	"status": 0
+}
+]

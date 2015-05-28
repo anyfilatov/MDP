@@ -18,6 +18,9 @@ public:
 
 private slots:
     void showCacheInfo(int index);
+    void updateData();
+    void debugMode();
+    void debugModeOff();
 
 private:
     Ui::MainWindow *ui;

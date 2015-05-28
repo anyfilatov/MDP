@@ -12,6 +12,12 @@ CacheInfoWidget::CacheInfoWidget(QWidget *parent) :
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
     setPalette(pal);
+
+    // Hide unused views
+    ui->requestsPerMin->hide();
+    ui->workTime->hide();
+    ui->label->hide();
+    ui->label_3->hide();
 }
 
 CacheInfoWidget::~CacheInfoWidget()
@@ -21,9 +27,9 @@ CacheInfoWidget::~CacheInfoWidget()
 
 void CacheInfoWidget::setCacheInfo(CacheInfo info)
 {
-    ui->ip->setText(toRichText(info.ip()));
+    ui->ip->setText(toRichText("IP " + info.ip()));
     ui->workTime->setText(toRichText(info.workTime()));
-    ui->keysCount->setText(toRichText(info.hits()));
+    ui->keysCount->setText(toRichText(info.keysCount()));
     ui->requestsPerMin->setText(toRichText(info.requestsPerMinute()));
     ui->keysPerReplics->setText(toRichText(info.keysPerReplics()));
     ui->hits->setText(toRichText(info.hits()));
@@ -34,4 +40,13 @@ void CacheInfoWidget::setCacheInfo(CacheInfo info)
 QString CacheInfoWidget::toRichText(QString str)
 {
     return "<html><head/><body><p><span style=\" font-size:24pt;\">" + str + "</span></p></body></html>";
+}
+
+void CacheInfoWidget::showSlider(bool b)
+{
+    if (b) {
+        ui->slider->show();
+    } else {
+        ui->slider->hide();
+    }
 }

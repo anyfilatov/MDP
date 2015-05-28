@@ -17,6 +17,7 @@ public:
     ~CacheInfoWidget();
 
     void setCacheInfo(CacheInfo info);
+    void showSlider(bool b);
 
 private:
     Ui::CacheInfoWidget *ui;

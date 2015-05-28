@@ -35,6 +35,40 @@
     </property>
    </widget>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionUpdate"/>
+    <addaction name="actionDebug_mode"/>
+    <addaction name="actionDebug_mode_off"/>
+   </widget>
+   <addaction name="menuTools"/>
+  </widget>
+  <action name="actionUpdate">
+   <property name="text">
+    <string>Update</string>
+   </property>
+  </action>
+  <action name="actionDebug_mode">
+   <property name="text">
+    <string>Debug mode</string>
+   </property>
+  </action>
+  <action name="actionDebug_mode_off">
+   <property name="text">
+    <string>Debug mode off</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

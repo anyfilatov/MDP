@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,6 +14,8 @@ TEMPLATE = app
 
 CONFIG += c++11
 
+INCLUDEPATH += ..
+
 
 SOURCES += main.cpp\
         MainWindow.cpp \
@@ -20,14 +23,20 @@ SOURCES += main.cpp\
     CacheInfo.cpp \
     CacheInfoService.cpp \
     DiagramWidget.cpp \
-    TabsWidget.cpp
+    TabsWidget.cpp \
 
 HEADERS  += MainWindow.h \
     CacheInfoWidget.h \
     CacheInfo.h \
     CacheInfoService.h \
     DiagramWidget.h \
-    TabsWidget.h
+    TabsWidget.h \
 
 FORMS    += MainWindow.ui \
     CacheInfoWidget.ui
+
+DISTFILES += \
+    testgui.json
+
+RESOURCES += \
+    test.qrc
