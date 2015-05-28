@@ -11,7 +11,7 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QMainWindow>
-#include "GUIFileParser/GuiFileParser.h"
+#include "GUI/GUIFileParser/GuiFileParser.h"
 
 NoSql::NoSql(Dispatcher* ndb)
 {
@@ -22,7 +22,10 @@ NoSql::NoSql(Dispatcher* ndb)
     saveAction = new QAction(tr("&Save Structure"), this);
     exitAction = new QAction(tr("&Exit"), this);
     removeColumnButton = new QPushButton("&Remove column");
+
     loadDataFilesAction = new QAction (tr("&Load data files"), this);
+    loadDataFromDbButton = new QPushButton("Load data from db");
+    nextDataFromDbButton = new QPushButton("Next 30 data");
 
     connect(loadDataFilesAction, SIGNAL(triggered()), this, SLOT(loadDataFiles()));
     connect(addColumnButton, SIGNAL(clicked()), this, SLOT(addColumn()));
@@ -30,6 +33,8 @@ NoSql::NoSql(Dispatcher* ndb)
     connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
     connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(quit()));
+    connect(loadDataFromDbButton, SIGNAL(clicked()), this, SLOT(loadDataFromDb()));
+    connect(nextDataFromDbButton, SIGNAL(clicked()), this, SLOT(nextDataFromDb()));
 
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAction);
@@ -40,7 +45,11 @@ NoSql::NoSql(Dispatcher* ndb)
     layoutManagement();
 }
 void NoSql::layoutManagement(QTableWidget* table){
-
+    QWidget* structure = new QWidget();
+    QWidget* dbview = new QWidget();
+    QTabWidget* tabWidget = new QTabWidget();
+    tabWidget->addTab(structure, "Structure");
+    tabWidget->addTab(dbview, "Database");
     tableWidget = new QTableWidget();
     tableWidget->setRowCount(2);
     tableWidget->setColumnCount(3);
@@ -49,7 +58,7 @@ void NoSql::layoutManagement(QTableWidget* table){
     QHBoxLayout *layout = new QHBoxLayout();
     userIdField = new QLineEdit(tr("User Id"));
     tableIdField = new QLineEdit(tr("Table Id"));
-    setCentralWidget(new QWidget);
+    setCentralWidget(tabWidget);
     QVBoxLayout* buttonsAndFielsLayout = new QVBoxLayout();
 
     QVBoxLayout* columnsButtonLayout = new QVBoxLayout();
@@ -72,12 +81,30 @@ void NoSql::layoutManagement(QTableWidget* table){
     layout->addLayout(buttonsAndFielsLayout);
     layout->setStretchFactor(buttonsAndFielsLayout,1);
     layout->setStretchFactor(tableWidget,4);
-    centralWidget()->setLayout(layout);
-
+    structure->setLayout(layout);
     int x=700;
     int y=400;
     setMinimumSize(x,y);
     layout->setSizeConstraint(QLayout::SetNoConstraint);
+    QVBoxLayout* dbviewLayout = new QVBoxLayout();
+    QHBoxLayout* dbfieldsLayout = new QHBoxLayout();
+
+    userIdDb = new QLineEdit(tr("User Id"));
+    tableIdDb = new QLineEdit(tr("Table Id"));
+    processIdDb = new QLineEdit(tr("User Id"));
+
+    dbfieldsLayout->addWidget(userIdDb);
+    dbfieldsLayout->addWidget(tableIdDb);
+    dbfieldsLayout->addWidget(processIdDb);
+    dbfieldsLayout->addWidget(loadDataFromDbButton);
+    dbfieldsLayout->addWidget(nextDataFromDbButton);
+    dbviewLayout->addLayout(dbfieldsLayout);
+    tableWidgetDB = new QTableWidget();
+    tableWidgetDB->setRowCount(2);
+    tableWidgetDB->setColumnCount(3);
+    dbviewLayout->addWidget(tableWidgetDB);
+    dbview->setLayout(dbviewLayout);
+
 }
 void NoSql::addColumn(){
     tableWidget->setColumnCount(tableWidget->columnCount()+1);
@@ -87,7 +114,41 @@ void NoSql::removeColumn(){
         tableWidget->setColumnCount(tableWidget->columnCount()-1);
     }
 }
-
+void NoSql::loadDataFromDb(){
+    int userId = userIdDb->text().toInt();
+    int tableId = tableIdDb->text().toInt();
+    int processId = processIdDb->text().toInt();
+    db->toStart(userId,tableId,processId);
+    MDPData* data = db->getNextStrings(userId,tableId,processId,30);
+    putDataInTable(data);
+}
+void NoSql::nextDataFromDb(){
+    int userId = userIdDb->text().toInt();
+    int tableId = tableIdDb->text().toInt();
+    int processId = processIdDb->text().toInt();
+    MDPData* data = db->getNextStrings(userId,tableId,processId,30);
+    putDataInTable(data);
+}
+void NoSql::putDataInTable(MDPData* data){
+    vector<vector<QString> > rows = data->getCells();
+    vector<QString> headers = data->getHeaders();
+    int j=0;
+    tableWidgetDB->setColumnCount(headers.size());
+    tableWidgetDB->setRowCount(rows.size());
+    foreach(QString header, headers){
+        tableWidgetDB->setItem(0,j,new QTableWidgetItem(header));
+        j++;
+    }
+    int i=1;
+    foreach(vector<QString> cells, rows){
+        int j=0;
+        foreach(QString cell, cells){
+            tableWidgetDB->setItem(i,j,new QTableWidgetItem(cell));
+            j++;
+        }
+        i++;
+    }
+}
 void NoSql::loadDataFiles(){
     QStringList fileNames =  QFileDialog::getOpenFileNames(this, tr("Open File"), "");
     vector<QString>* headers = new vector<QString>();
@@ -96,8 +157,6 @@ void NoSql::loadDataFiles(){
     for (int i=0;i<tableWidget->columnCount();i++){
         headers->push_back(tableWidget->item(0,i)->text());
         numberHeaders->push_back(tableWidget->item(1,i)->text().toInt());
-        qDebug()<<headers;
-        qDebug()<<numberHeaders;
     }
     qDebug()<<"Start loading files";
     foreach (const QString &filename, fileNames){

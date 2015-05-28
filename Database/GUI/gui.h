@@ -20,6 +20,8 @@ private slots:
     void addColumn();
     void removeColumn();
     void loadDataFiles();
+    void loadDataFromDb();
+    void nextDataFromDb();
 private:
     Dispatcher* db;
     QTextEdit *textEdit;
@@ -34,9 +36,14 @@ private:
     QPushButton *removeColumnButton;
     QLineEdit *userIdField ;
     QLineEdit *tableIdField;
-
-
+    QLineEdit* userIdDb;
+    QLineEdit* tableIdDb;
+    QLineEdit* processIdDb;
+    QPushButton* loadDataFromDbButton;
+    QPushButton* nextDataFromDbButton;
+    QTableWidget* tableWidgetDB;
     void layoutManagement(QTableWidget* table = NULL);
+    void putDataInTable(MDPData* data);
 };
 #endif // GUI
 
