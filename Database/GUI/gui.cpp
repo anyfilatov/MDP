@@ -11,13 +11,20 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QMainWindow>
-NoSql::NoSql()
+#include "GUIFileParser/GuiFileParser.h"
+
+NoSql::NoSql(Dispatcher* ndb)
 {
+    db = ndb;
+
     addColumnButton = new QPushButton("&Add column");
-    openAction = new QAction(tr("&Open"), this);
-    saveAction = new QAction(tr("&Save"), this);
+    openAction = new QAction(tr("&Open Structure"), this);
+    saveAction = new QAction(tr("&Save Structure"), this);
     exitAction = new QAction(tr("&Exit"), this);
     removeColumnButton = new QPushButton("&Remove column");
+    loadDataFilesAction = new QAction (tr("&Load data files"), this);
+
+    connect(loadDataFilesAction, SIGNAL(triggered()), this, SLOT(loadDataFiles()));
     connect(addColumnButton, SIGNAL(clicked()), this, SLOT(addColumn()));
     connect(removeColumnButton, SIGNAL(clicked()), this, SLOT(removeColumn()));
     connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
@@ -27,21 +34,46 @@ NoSql::NoSql()
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAction);
     fileMenu->addAction(saveAction);
+    fileMenu->addAction(loadDataFilesAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
+    layoutManagement();
+}
+void NoSql::layoutManagement(QTableWidget* table){
 
     tableWidget = new QTableWidget();
-    tableWidget->setRowCount(1);
+    tableWidget->setRowCount(2);
     tableWidget->setColumnCount(3);
- //   setCentralWidget(tableWidget);
-  //  setWindowTitle(tr("NoSql Database"));
-    QHBoxLayout *layout = new QHBoxLayout;
-
+    //   setCentralWidget(tableWidget);
+    setWindowTitle(tr("NoSql Database"));
+    QHBoxLayout *layout = new QHBoxLayout();
+    userIdField = new QLineEdit(tr("User Id"));
+    tableIdField = new QLineEdit(tr("Table Id"));
     setCentralWidget(new QWidget);
+    QVBoxLayout* buttonsAndFielsLayout = new QVBoxLayout();
+
+    QVBoxLayout* columnsButtonLayout = new QVBoxLayout();
+    columnsButtonLayout->addWidget(addColumnButton);
+    columnsButtonLayout->addWidget(removeColumnButton);
+
+    buttonsAndFielsLayout->addLayout(columnsButtonLayout);
+
+    QVBoxLayout* idsLayout = new QVBoxLayout();
+    idsLayout->addWidget(userIdField);
+    idsLayout->addWidget(tableIdField);
+    buttonsAndFielsLayout->addLayout(idsLayout);
+    if (table==NULL){
+        layout->addWidget(tableWidget);
+    }else{
+        delete tableWidget;
+        tableWidget = table;
+        layout->addWidget(table);
+    }
+    layout->addLayout(buttonsAndFielsLayout);
+    layout->setStretchFactor(buttonsAndFielsLayout,1);
+    layout->setStretchFactor(tableWidget,4);
     centralWidget()->setLayout(layout);
-    layout->addWidget(tableWidget);
-    layout->addWidget(addColumnButton);
-    layout->addWidget(removeColumnButton);
+
     int x=700;
     int y=400;
     setMinimumSize(x,y);
@@ -52,13 +84,36 @@ void NoSql::addColumn(){
 }
 void NoSql::removeColumn(){
     if(tableWidget->columnCount()>1){
-         tableWidget->setColumnCount(tableWidget->columnCount()-1);
+        tableWidget->setColumnCount(tableWidget->columnCount()-1);
+    }
+}
+
+void NoSql::loadDataFiles(){
+    QStringList fileNames =  QFileDialog::getOpenFileNames(this, tr("Open File"), "");
+    vector<QString>* headers = new vector<QString>();
+    vector<int>* numberHeaders = new vector<int>();
+    qDebug()<<"Start reading structure table";
+    for (int i=0;i<tableWidget->columnCount();i++){
+        headers->push_back(tableWidget->item(0,i)->text());
+        numberHeaders->push_back(tableWidget->item(1,i)->text().toInt());
+        qDebug()<<headers;
+        qDebug()<<numberHeaders;
+    }
+    qDebug()<<"Start loading files";
+    foreach (const QString &filename, fileNames){
+        GuiFileParser parser;
+        parser.setBlockSize(10000);
+        parser.setHeaders(headers,numberHeaders);
+        parser.setIds(userIdField->text().toInt(),tableIdField->text().toInt(),0);
+        qDebug() << filename;
+        parser.loadFile(filename, *db);
+
     }
 }
 void NoSql::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
-                                                    tr("Text Files (*.txt);;C++ Files (*.cpp *.h)"));
+                                                    tr("Structure Files (*.stc);"));
 
     if (fileName != "") {
         QFile file(fileName);
@@ -67,15 +122,36 @@ void NoSql::open()
             return;
         }
         QTextStream in(&file);
-        textEdit->setText(in.readAll());
-        file.close();
+        QTableWidget* widget = new QTableWidget();
+        widget->setRowCount(2);
+        bool flag =true;
+        int i = 0;
+        do{
+            QString lineconst =  in.readLine();
+            flag = lineconst!=NULL;
+            if (flag){
+                QStringList tokens= lineconst.split("\t",QString::SkipEmptyParts);
+                qDebug() << tokens;
+                if(i==0){
+                    widget->setColumnCount(tokens.size());
+                }
+                int j=0;
+                foreach( QString str, tokens) {
+                    widget->setItem(i,j,new QTableWidgetItem(str));
+                    j++;
+                }
+            }
+            i++;
+        }while (flag && i<2);
+        layoutManagement(widget);
     }
+
 }
 
 void NoSql::save()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
-                                                    tr("Text Files (*.txt);;C++ Files (*.cpp *.h)"));
+                                                    tr("Structure Files (*.stc);"));
 
     if (fileName != "") {
         QFile file(fileName);
