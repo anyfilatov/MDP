@@ -14,7 +14,13 @@ public:
     virtual int remove(K key) = 0;
     virtual int remove(K key, V value) = 0;
     virtual bool isEmpty() = 0;
-    virtual unsigned int size() = 0;
+    virtual int size() = 0;
+    virtual int redNodesCount() = 0;
+    virtual int blackNodesCount() = 0;
+    virtual int primaryNodesCount() = 0;
+    virtual int replicaNodesCount() = 0;
+    virtual int treeHeight() = 0;
+    virtual int valuesCount() = 0;
 
 };
 
