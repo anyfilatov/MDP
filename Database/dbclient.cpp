@@ -19,7 +19,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <vector>
-
+#include <QtDebug>
 using namespace std;
 
 DBClient::DBClient(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort, QObject *parent) :
@@ -42,6 +42,7 @@ void DBClient::_connect(){
     connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
     //connect(m_pTcpSocket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
     connect(m_pTcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
+
     qDebug() << "DBClient: Started; server host: " << ip << ", port: " << port;
 }
 
@@ -67,7 +68,7 @@ QJsonObject DBClient::slotReadyRead(QJsonObject &obj)
     QDataStream in(m_pTcpSocket);
     in.setVersion(QDataStream::Qt_4_2);
     for (;;) {
-        if (m_pTcpSocket->waitForReadyRead(5000)){
+        if (m_pTcpSocket->waitForReadyRead(600000)){
             if (!m_nNextBlockSize) {
                 if (m_pTcpSocket->bytesAvailable() < sizeof(quint64)) {
                     break;

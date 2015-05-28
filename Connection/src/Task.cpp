@@ -143,6 +143,7 @@ int Task::doReduce(QDataStream& stream) {
     QString funcName;
     QStringList keys;
     stream >> id >> funcName >> keys;
+    LOG_INFO("Recieve keys:" << keys.size());
     executor_->setId(id);
     executor_->setFuncName(funcName);
     executor_->setKeys(keys);

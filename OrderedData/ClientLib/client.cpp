@@ -1,5 +1,5 @@
 #include <QHostAddress>
-
+#include <QtDebug>
 #include "client.h"
 
 Client::Client(int maxBufferSize, QString settingsFileName) :
@@ -85,7 +85,6 @@ void Client::remove(const QString &key)
     reqJson.insert("key", key);
     _buffer.append(reqJson);
     if (_buffer.size() >= MAX_BUFFER_SIZE){
-        qDebug() << "full";
         flush();
     }
 }
@@ -149,7 +148,6 @@ void Client::joinToRing(const QString &who, const QStringList &ring)
 
 void Client::flush()
 {
-    qDebug() << "flush";
     if (_buffer.isEmpty()) {
         return;
     }
@@ -174,7 +172,6 @@ void Client::putRewriteValue(const QString &key, const QString &value)
     json.insert("value", value);
     _buffer.append(json);
     if (_buffer.size() >= MAX_BUFFER_SIZE){
-        qDebug() << "full";
         flush();
     }
 }
@@ -187,7 +184,6 @@ void Client::removeValue(const QString &key, const QString &value)
     json.insert("value", value);
     _buffer.append(json);
     if (_buffer.size() >= MAX_BUFFER_SIZE){
-        qDebug() << "full";
         flush();
     }
 }

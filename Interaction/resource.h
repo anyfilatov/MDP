@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 #include <vector>
 #include "ip.h"
+#include "iostream"
 
 namespace integration {
 
@@ -11,9 +12,15 @@ namespace integration {
     public:
         Resource(const QString& owner);
 
-        IP PopResource(qint32 port);
-        void SetResource();
+        IP popResource(qint32 port);
+        void setResource();
         std::vector<IP> &getAddresses();
-    };
+        bool operator == (Resource &tmp) const;
+        bool operator != (Resource & tmp) const;
+        QString getOwner();
 
+        friend std::ostream& operator << (std::ostream& , Resource& ) ;
+
+    };
+    std::ostream& operator << (std::ostream& , Resource& ) ;
 }

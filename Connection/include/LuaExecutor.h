@@ -129,7 +129,10 @@ public:
         RB::WrappedType::GetAtomType out;
         if(it != keys_.end()) {
             RB::ScopedLock lock(rb_);
-            out = rb_->getNextAtom(id_, *it);
+            util::Id tId(id_);
+            auto i = tId.get(util::Id::dataIdIndex);
+            tId.set(util::Id::dataIdIndex, i-1);
+            out = rb_->getNextAtom(tId, *it);
             it++;
         }
         return out;
@@ -151,6 +154,10 @@ public:
         return Errors::STATUS_OK;
     }
     
+    void flushDb(){
+        db_->flush(id_);
+    }
+
     friend std::ostream& operator << (std::ostream& os, const LuaExecutor& ) {
         os << "not implemented";
         return os;
@@ -180,6 +187,7 @@ public:
             ++size;
             it.next();
         }
+        LOG_INFO("Splitted size="<<size);
         if(size == 0){
             return;
         }
@@ -489,7 +497,6 @@ static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context,  const ch
         LOG_DEBUG("value " << value);
         lua_pop(l, 1);
         const char* key = lua_tostring(l, lua_gettop(l));
-        LOG_INFO("" << key << "=" << value);
         lua_pop(l, 1);
         vector<vector<QString> > cells(1);
         cells[0].push_back(QString(key));
@@ -497,6 +504,7 @@ static void doReduceForAtoms(LuaExecutor::LuaContextVariable* context,  const ch
         setValue->setCells(cells);
         executor->setSwapToDb(setValue);
     }
+    executor->flushDb();
 }
 
 static int doMapOnly(LuaExecutor* executor, util::Id& id) {
@@ -661,6 +669,7 @@ static void executeFunction(T action, LuaExecutor::LuaContextVariable* context, 
             QByteArray ar;
             if( type == util::CMD_REDUCE){
                auto keys = executor->getKeys(i);
+               LOG_INFO( i << " list keys.size=" << keys.size());
                ar = util::pack(cmd, code, id, qFuncName, keys);
             } else {
                 ar = util::pack(cmd, code, id, qFuncName);

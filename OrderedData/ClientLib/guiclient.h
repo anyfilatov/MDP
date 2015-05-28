@@ -1,6 +1,8 @@
 #ifndef GUICLIENT_H
 #define GUICLIENT_H
 
+#include <QFile>
+#include <QJsonArray>
 #include "abstractclient.h"
 #include "Cache/rbtree.h"
 #include "Exception/exception.h"
@@ -10,10 +12,11 @@
 class GUIClient: AbstractClient
 {
 public:
-    GUIClient(RBTree<QString, QString>* rbtree);
-    QJsonObject getStatistics();
+    GUIClient(QString settingsFileName);
+    QJsonArray getJSONData();
 private:
-    RBTree<QString, QString>* _rbtree;
+    QJsonObject getStatistics(QString host);
+    QStringList _hosts;
 };
 
 #endif // GUICLIENT_H
