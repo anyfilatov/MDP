@@ -240,13 +240,13 @@ QJsonObject Connection::handleRingJoin(const QJsonObject &json)
 QJsonObject Connection::handleStatistics()
 {
     QJsonObject jsonResp;
-    jsonResp.insert("keys_count", 0);
-    jsonResp.insert("red_nodes_count", 0);
-    jsonResp.insert("black_nodes_count", 0);
-    jsonResp.insert("primary_count", 0);
-    jsonResp.insert("replica_count", 0);
-    jsonResp.insert("height_count", 0);
-    jsonResp.insert("hits_count", 0);
+    jsonResp.insert("keys_count", _rbtree->size());
+    jsonResp.insert("red_nodes_count", _rbtree->redNodesCount());
+    jsonResp.insert("black_nodes_count", _rbtree->blackNodesCount());
+    jsonResp.insert("primary_count", _rbtree->primaryNodesCount());
+    jsonResp.insert("replica_count", _rbtree->replicaNodesCount());
+    jsonResp.insert("height_count", _rbtree->treeHeight());
+    jsonResp.insert("hits_count", _rbtree->valuesCount()/_rbtree->size());
     jsonResp.insert("status", OK);
     return jsonResp;
 

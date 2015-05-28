@@ -19,7 +19,14 @@ public:
     virtual int remove(K key);
     virtual int remove(K key, V value);
     virtual bool isEmpty();
-    virtual unsigned int size();
+    virtual int size();
+    virtual int redNodesCount();
+    virtual int blackNodesCount();
+    virtual int primaryNodesCount();
+    virtual int replicaNodesCount();
+    virtual int treeHeight();
+    virtual int valuesCount();
+
     virtual RBTree<K, V> *getRBTree();
 private:
     RBTree<K,V> *rbtree;
@@ -71,9 +78,45 @@ bool Cache<K, V>::isEmpty() {
 }
 
 template<typename K, typename V>
-unsigned int Cache<K, V>::size()
+int Cache<K, V>::size()
 {
-    return rbtree->size();
+    return (int)rbtree->size();
+}
+
+template<typename K, typename V>
+int Cache<K, V>::redNodesCount()
+{
+    return (int)rbtree->redNodesCount();
+}
+
+template<typename K, typename V>
+int Cache<K, V>::blackNodesCount()
+{
+    return (int)rbtree->blackNodesCount();
+}
+
+template<typename K, typename V>
+int Cache<K, V>::primaryNodesCount()
+{
+    return (int)rbtree->primaryNodesCount();
+}
+
+template<typename K, typename V>
+int Cache<K, V>::replicaNodesCount()
+{
+    return (int)rbtree->replicaNodesCount();
+}
+
+template<typename K, typename V>
+int Cache<K, V>::treeHeight()
+{
+    return (int)rbtree->treeHeight();
+}
+
+template<typename K, typename V>
+int Cache<K, V>::valuesCount()
+{
+    return (int)rbtree->valuesCount();
 }
 
 template<typename K, typename V>
