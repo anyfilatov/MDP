@@ -74,9 +74,9 @@ QList<Node> HashRing::findNodes(QString key) {
 }
 
 void HashRing::update() {
-  qDebug() << "update ring";
+//  qDebug() << "update ring";
   qDebug() << "RBTree nodes size: " << _cache->getRBTree()->size();
-  qDebug() << _ring;
+//  qDebug() << _ring;
   QList<Node*> curMemList;
   bool change = false;
 
@@ -86,10 +86,10 @@ void HashRing::update() {
 
   qSort(curMemList.begin(), curMemList.end(), hashBasedLessThen);
 
-  qDebug() << "Current member list: " << curMemList;
-  if (_ring.size() != curMemList.size() && !_cache->isEmpty() ) {
-    change = true;
-  }
+//  qDebug() << "Current member list: " << curMemList;
+//  if (_ring.size() != curMemList.size() && !_cache->isEmpty() ) {
+//    change = true;
+//  }
 
   if (change) {
     qDebug() << "Stabilization is required";

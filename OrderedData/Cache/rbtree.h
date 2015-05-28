@@ -267,6 +267,7 @@ void RBTree<K,V>::insert(TNode<K,V> *z, bool rewrite)
         y = x;
         if (z->key() == x->key()) {
             x->addValues(z->values(), rewrite);
+            size_--;
             delete z;
             return;
         } else if (z->key() < x->key()) {

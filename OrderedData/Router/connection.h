@@ -33,7 +33,6 @@ private:
     qintptr _socketDescriptor;
     QMutex *_mutex;
     QString _me;
-    int _count = 1;
 
     QJsonObject handleRequest(const QJsonObject& json);
     void handleBatchRequest(const QJsonObject& json);

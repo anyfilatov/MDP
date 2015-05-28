@@ -60,7 +60,7 @@ QJsonObject AbstractClient::read()
 
         QByteArray packet;
 
-        while (_socket.bytesAvailable() < sizeof(quint32)) {
+        while (_socket.bytesAvailable() < packetSize) {
             if (!_socket.waitForReadyRead(AbstractClient::MAX_WAIT_TIME_MLS)) {
                 throw ServerUnavailableException();
             }
