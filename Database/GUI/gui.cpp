@@ -12,11 +12,45 @@
 #include <QDesktopWidget>
 #include <QMainWindow>
 #include "GUI/GUIFileParser/GuiFileParser.h"
+#include "dbclient.h"
 
 NoSql::NoSql(Dispatcher* ndb)
 {
+    isServer = true;
     db = ndb;
+    initActions();
+    initSignals();
+    initFileMenuBar();
+}
+NoSql::NoSql(DBClient* ndb)
+{
+    isServer = false;
+    dbc = ndb;
+    initActions();
+    initSignals();
+    initFileMenuBar();
+}
 
+void NoSql::initFileMenuBar(){
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(openAction);
+    fileMenu->addAction(saveAction);
+    fileMenu->addAction(loadDataFilesAction);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAction);
+    layoutManagement();
+}
+void NoSql::initSignals(){
+    connect(loadDataFilesAction, SIGNAL(triggered()), this, SLOT(loadDataFiles()));
+    connect(addColumnButton, SIGNAL(clicked()), this, SLOT(addColumn()));
+    connect(removeColumnButton, SIGNAL(clicked()), this, SLOT(removeColumn()));
+    connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
+    connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(quit()));
+    connect(loadDataFromDbButton, SIGNAL(clicked()), this, SLOT(loadDataFromDb()));
+    connect(nextDataFromDbButton, SIGNAL(clicked()), this, SLOT(nextDataFromDb()));
+}
+void NoSql::initActions(){
     addColumnButton = new QPushButton("&Add column");
     openAction = new QAction(tr("&Open Structure"), this);
     saveAction = new QAction(tr("&Save Structure"), this);
@@ -27,22 +61,6 @@ NoSql::NoSql(Dispatcher* ndb)
     loadDataFromDbButton = new QPushButton("Load data from db");
     nextDataFromDbButton = new QPushButton("Next 30 data");
 
-    connect(loadDataFilesAction, SIGNAL(triggered()), this, SLOT(loadDataFiles()));
-    connect(addColumnButton, SIGNAL(clicked()), this, SLOT(addColumn()));
-    connect(removeColumnButton, SIGNAL(clicked()), this, SLOT(removeColumn()));
-    connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
-    connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(quit()));
-    connect(loadDataFromDbButton, SIGNAL(clicked()), this, SLOT(loadDataFromDb()));
-    connect(nextDataFromDbButton, SIGNAL(clicked()), this, SLOT(nextDataFromDb()));
-
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(openAction);
-    fileMenu->addAction(saveAction);
-    fileMenu->addAction(loadDataFilesAction);
-    fileMenu->addSeparator();
-    fileMenu->addAction(exitAction);
-    layoutManagement();
 }
 void NoSql::layoutManagement(QTableWidget* table){
     QWidget* structure = new QWidget();
@@ -118,15 +136,26 @@ void NoSql::loadDataFromDb(){
     int userId = userIdDb->text().toInt();
     int tableId = tableIdDb->text().toInt();
     int processId = processIdDb->text().toInt();
-    db->toStart(userId,tableId,processId);
-    MDPData* data = db->getNextStrings(userId,tableId,processId,30);
+    MDPData* data;
+    if (isServer){
+        db->toStart(userId,tableId,processId);
+        data = db->getNextStrings(userId,tableId,processId,30);
+    }else{
+        dbc->toStart(userId,tableId,processId);
+        data = dbc->getNextStrings(userId,tableId,processId,30);
+    }
     putDataInTable(data);
 }
 void NoSql::nextDataFromDb(){
     int userId = userIdDb->text().toInt();
     int tableId = tableIdDb->text().toInt();
     int processId = processIdDb->text().toInt();
-    MDPData* data = db->getNextStrings(userId,tableId,processId,30);
+    MDPData* data;
+    if (isServer){
+        data = db->getNextStrings(userId,tableId,processId,30);
+    }else{
+        data = dbc->getNextStrings(userId,tableId,processId,30);
+    }
     putDataInTable(data);
 }
 void NoSql::putDataInTable(MDPData* data){
@@ -165,8 +194,11 @@ void NoSql::loadDataFiles(){
         parser.setHeaders(headers,numberHeaders);
         parser.setIds(userIdField->text().toInt(),tableIdField->text().toInt(),0);
         qDebug() << filename;
-        parser.loadFile(filename, *db);
-
+        if (isServer){
+            parser.loadFile(filename, *db);
+        }else{
+            parser.loadFile(filename, *dbc);
+        }
     }
 }
 void NoSql::open()
