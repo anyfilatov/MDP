@@ -17,9 +17,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     Data.cpp \
-    Storage.cpp \
     dbclient.cpp \
     Dispatcher/Dispatcher.cpp \
+    Dispatcher/HardDiskWorker.cpp \
+    Dispatcher/MetaData.cpp \
     Dispatcher/Session.cpp \
     Dispatcher/TableInfoHandler.cpp \
     HashTable/IntWithHash.cpp \
@@ -32,9 +33,10 @@ HEADERS += \
     Clonable.h \
     Serializible.h \
     Data.h \
-    Storage.h \
     dbclient.h \
     Dispatcher/Dispatcher.h \
+    Dispatcher/HardDiskWorker.h \
+    Dispatcher/MetaData.h \
     Dispatcher/Session.h \
     Dispatcher/TableInfoHandler.h \
     HashTable/AbstractTableKey.h \

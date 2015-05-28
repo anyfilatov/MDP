@@ -24,12 +24,16 @@ void Connection::run() {
         return;
     while(isConnected()){
         if(_socket->bytesAvailable() > 0) {
-            QJsonObject request = read();
-            if (request["type"] == BATCH) {
-                handleBatchRequest(request);
-            } else {
-                QJsonObject response = handleRequest(request);
-                write(response);
+            try {
+                QJsonObject request = read();
+                if (request["type"] == BATCH) {
+                    handleBatchRequest(request);
+                } else {
+                    QJsonObject response = handleRequest(request);
+                    write(response);
+                }
+            } catch (...) {
+                qDebug() << "Exception occured";
             }
         } else {
             _socket->waitForReadyRead();
@@ -101,7 +105,6 @@ void Connection::handleBatchRequest(const QJsonObject &json)
 
         QJsonArray array = json.value("packet").toArray();
         qDebug() << "Recieved array size = " << array.size();
-        qDebug() << "Count = " << _count++;
 
         for (QJsonValueRef kv : array) {
             nodes = _ring->findNodes(kv.toObject().value("key").toString());
@@ -143,6 +146,9 @@ void Connection::handleBatchRequest(const QJsonObject &json)
 QJsonObject Connection::handleGet(const QJsonObject &json)
 {
     QJsonObject jsonResp;
+//    _mutex->lock();
+//    qDebug() << "Tree size: " << _rbtree->size();
+//    _mutex->unlock();
     if (json.contains("not_forwards_request") &&
             json.value("not_forwards_request").toBool()) {
         _mutex->lock();
@@ -182,6 +188,10 @@ QJsonObject Connection::handleGet(const QJsonObject &json)
             jsonResp.insert("status", StatusCode::SERVER_UNAVAILABLE);
         }
     }
+
+//    qDebug() << "Request:" << json;
+//    qDebug() << "Response:" << jsonResp;
+
     return jsonResp;
 }
 
@@ -200,6 +210,7 @@ QJsonObject Connection::handleRingCheck()
     }
     jsonResp.insert("hosts", QJsonValue(QJsonArray::fromStringList(hosts)));
     jsonResp.insert("status", StatusCode::OK);
+    qDebug() << "HOST: " << jsonResp;
     return jsonResp;
 }
 
@@ -215,6 +226,13 @@ QJsonObject Connection::handleRingJoin(const QJsonObject &json)
         delete node;
     }
     _ring->getManager()->addMembers(values);
+    qDebug() << "Going to join:";
+    qDebug() << values;
+
+    qDebug() << "Current list: ";
+    for (Node* node: _ring->getAllMember()) {
+        qDebug() << node->getAddress();
+    }
     jsonResp.insert("status", StatusCode::OK);
     return jsonResp;
 }
@@ -279,7 +297,7 @@ QJsonObject Connection::read()
     QByteArray packet;
 
     while (_socket->bytesAvailable() < packetSize) {
-        if (!_socket->waitForReadyRead()) {
+        if (!_socket->waitForReadyRead(120000)) {
             // тут нужно кинуть нормальный exception, что из сокета не удалось прочитать
             qDebug() << "Socket error: " << _socket->errorString();
             throw std::bad_cast();

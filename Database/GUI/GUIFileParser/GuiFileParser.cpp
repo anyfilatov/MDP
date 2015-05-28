@@ -5,6 +5,7 @@
 #include <QTextStream>
 #include "GuiFileParser.h"
 #include "Dispatcher/Dispatcher.h"
+#include "dbclient.h"
 
 void GuiFileParser::setHeaders(vector<QString>* nheaders, vector<int>* nheadersNums)  {
     headers = nheaders;
@@ -32,6 +33,28 @@ void GuiFileParser::loadFile(QString fileName, Dispatcher& db, int numberOfBlock
         inputFile.close();
     }
 }
+void GuiFileParser::loadFile(QString fileName, DBClient& db, int numberOfBlocks){
+    QFile inputFile(fileName);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+        QTextStream in(&inputFile);
+        bool flag = true;
+        int blockCounter = 0;
+        do{
+            MDPData* datablock = packDataBlock(in);
+            flag = datablock!=NULL && datablock->getCells().size()!=0 && blockCounter<numberOfBlocks;
+            qDebug() << flag;
+            if (flag){
+                db.put(userId,dataId,processId,datablock);
+                qDebug() << "put";
+                blockCounter++;
+            }
+            delete datablock;
+        }while(flag);
+        inputFile.close();
+    }
+}
+
 void GuiFileParser::setBlockSize(int nblockSize){
     blockSize = nblockSize;
 }

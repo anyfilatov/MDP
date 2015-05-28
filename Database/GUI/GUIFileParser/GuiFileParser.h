@@ -3,6 +3,7 @@
 #include <QString>
 #include "Data.h"
 #include "Dispatcher/Dispatcher.h"
+#include "dbclient.h"
 
 class GuiFileParser{
 private:
@@ -17,6 +18,7 @@ private:
 public:
        void setHeaders(vector<QString>* headers, vector<int>* headersNums);
        void loadFile(QString fileName, Dispatcher& db, int numberOfBlocks=INT_MAX);
+       void loadFile(QString fileName, DBClient& db, int numberOfBlocks=INT_MAX);
        void setIds(int nuserId, int ndataId, int nprocessId);
        void setBlockSize(int blockSize);
 };
