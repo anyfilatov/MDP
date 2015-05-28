@@ -53,6 +53,7 @@ public:\
 
 DEF_EXCEPTION(LuaExecutionExeption)
 DEF_EXCEPTION(LuaAllocationException)
+DEF_EXCEPTION(RemoteServerNoAnswereException)
 DEF_EXCEPTION(UnknownParametersException)
 DEF_EXCEPTION(NetworkErrorException)
 DEF_EXCEPTION(ParseConfigException)

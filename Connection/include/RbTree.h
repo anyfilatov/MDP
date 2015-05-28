@@ -22,15 +22,21 @@ public:
         LOG_TRACE("RBTree");
     };
     RbTree(const RbTree& ) = delete;
-
-    QStringList getAllKeys (const util::Id& id) {
-        create();
+    QStringList generateRandom(int count){
         QStringList out;
-
-
+        for(int i = 0; i < count; i++){
+            out.append(QString::number(1));
+        }
+        return out;
+    }
+    QStringList getAllKeys (const util::Id& id) {
+        QStringList out;
+        create();
+        return generateRandom(1000000);
         try{
             //sleep(10);
-            out = client_->getBucketKeys(id.str());
+
+//            out = client_->getBucketKeys(id.str());
         } catch ( AbstractException& e ) {
             reset();
             LOG_ERROR("exception:" << e.getMessage().toStdString());
@@ -45,7 +51,7 @@ public:
         create();
         if(atom.size() == 2){
             try{
-                client_->put(atom[0], atom[1], id.str());
+//                client_->put(atom[0], atom[1], id.str());
             } catch ( AbstractException& e ) {
                 reset();
                 LOG_ERROR("exception:" << e.getMessage().toStdString());
@@ -61,7 +67,8 @@ public:
     GetAtomType getNextAtom(util::Id& id, const QString& key) {
         create();
         try{
-            return std::make_pair( key, client_->get(key, id.str()));
+            return std::make_pair( key, generateRandom(10));
+//            return std::make_pair( key, client_->get(key, id.str()));
 
         } catch ( AbstractException& e ) {
             reset();
@@ -70,7 +77,7 @@ public:
         return GetAtomType();
     }
     void flush() {
-        if(client_) {
+        if(0 && client_) {
             LOG_INFO("flush");
             client_->flush();
         }

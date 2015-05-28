@@ -82,9 +82,14 @@ int Task::operator()() {
         auto s = util::concat("execution script exception:", e.what());
         resString.append(s.c_str());
         result = Errors::STATUS_COMPILATION_ERROR;
-        QByteArray arr;
-        QDataStream ss(&arr, QIODevice::ReadWrite);
-        ss << result << resString;
+        QByteArray arr(util::pack(result, resString));
+        socket->write(arr);
+    } catch (...) {
+        LOG_ERROR("exception unknown:");
+        auto s = util::concat("execution script exception:unknown", "");
+        resString.append(s.c_str());
+        result = Errors::STATUS_COMPILATION_ERROR;
+        QByteArray arr(util::pack(result, resString));
         socket->write(arr);
     }
     LOG_DEBUG("before flush");

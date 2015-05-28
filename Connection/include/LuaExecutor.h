@@ -127,8 +127,8 @@ public:
     
     RB::WrappedType::GetAtomType getNextFromRb() {
         RB::WrappedType::GetAtomType out;
+        RB::ScopedLock lock(rb_);
         if(it != keys_.end()) {
-            RB::ScopedLock lock(rb_);
             util::Id tId(id_);
             auto i = tId.get(util::Id::dataIdIndex);
             tId.set(util::Id::dataIdIndex, i-1);
@@ -585,7 +585,9 @@ public:
     
     void closeAll() {
         for(auto& s : sockets_){
+            s.socket->disconnectFromHost();
             s.socket->close();
+            s.socket->deleteLater();
         }
     }
     

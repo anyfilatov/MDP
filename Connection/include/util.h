@@ -126,6 +126,9 @@ namespace util{
     static int readAll(QTcpSocket& socket, QByteArray& out, int timeout) {
         
         while (socket.bytesAvailable() < qint64(sizeof(int))) {
+            if(socket.state() == QTcpSocket::UnconnectedState){
+                throw RemoteServerNoAnswereException("Remote server close connection");
+            }
             socket.waitForReadyRead();
         }
         QDataStream in(&socket);

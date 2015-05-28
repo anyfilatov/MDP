@@ -31,8 +31,8 @@ public:
     int size();
     QString serialize();
     void parse(QString json);
-    void generateRandom() {
-        for(int j =0; j < 100000; j++){
+    void generateRandom(int count) {
+        for(int j =0; j < count; j++){
             vector<QString>  v(14);
             for(int i =0; i < 14; i++){
                 v[i] = QString::number(1.0);
