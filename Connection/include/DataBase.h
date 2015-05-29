@@ -19,30 +19,31 @@ public:
     typedef std::vector<int> IntArray;
     typedef std::shared_ptr<MDPData> GetAtomType;
     typedef std::shared_ptr<MDPData> SetAtomType;
+    typedef std::map<util::Id, SetAtomType > KeepedType;
     DataBase(const QString& strHost, int nPort, const QString& strSpareHost, int nSparePort)
         : strHost_(strHost), nPort_(nPort), strSpareHost_(strSpareHost), nSparePort_(nSparePort)
     {
         LOG_TRACE("DataBase");
     };
     void create(){
-//        if(!client_){
-//            client_ = new DBClient(strHost_, nPort_, strSpareHost_, nSparePort_);
-//        }
+        if(!client_){
+            client_ = new DBClient(strHost_, nPort_, strSpareHost_, nSparePort_);
+        }
     }
     DataBase(const DataBase& ) = delete;
     
     GetAtomType getNextAtom(util::Id& id) {
         create();
         LOG_DEBUG(" " << id.i0 << " " << id.i1 << " "<< id.i2);
-//        auto* d = client_->getNextStrings(id.i0, id.i1, id.i2, getLimit);
+        auto* d = client_->getNextStrings(id.i0, id.i1, id.i2, getLimit);
 //        auto* d = client_.getNextStrings(0, 2, 1, 1);
-//        std::shared_ptr<MDPData> ptr(d);
-        std::shared_ptr<MDPData> ptr;
-        if(a==0){
-            ptr.reset(new MDPData());
-            ptr->generateRandom(100000);
-            a++;
-        }
+        std::shared_ptr<MDPData> ptr(d);
+//        std::shared_ptr<MDPData> ptr;
+//        if(a==0){
+//            ptr.reset(new MDPData());
+//            ptr->generateRandom(100000);
+//            a++;
+//        }
         return ptr;
     }
     
@@ -57,10 +58,14 @@ public:
         }
         return out;
     }
-    
+    void toStart(util::Id& id){
+        create();
+        client_->toStart(id.i0, id.i1, id.i2);
+    }
     void setSwap(util::Id& id, SetAtomType val) {
         create();
         LOG_DEBUG("Set id: " << id.str().toStdString());
+        auto& atoms = atoms_[id];
         if(!atoms){
             atoms.reset(new SetAtomType::element_type(*val));
         } else {
@@ -77,28 +82,28 @@ public:
     
     void flush(util::Id& id) {
         create();
+        LOG_INFO("flush");
+        auto& atoms = atoms_[id];
         if(atoms){
-            LOG_INFO("atoms size:" << atoms->getCells().size());
-//            client_->put(id.i0, id.i1, id.i2, atoms.get());
+            client_->put(id.i0, id.i1, id.i2, atoms.get());
             atoms.reset();
         }
     }
 
     virtual ~DataBase(){
-//        if(client_){
-//            delete client_;
-//            client_ = nullptr;
-//        }
+        if(client_){
+            delete client_;
+            client_ = nullptr;
+        }
         LOG_TRACE("DataBase");
     }
     
 private:
-    int limit = 10000;
-    int a =0;
-    SetAtomType atoms;
     QString strHost_;
     int nPort_;
     QString strSpareHost_;
     int nSparePort_;
+    int a =0;
+    KeepedType atoms_;
 };
 

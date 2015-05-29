@@ -68,7 +68,7 @@ QJsonObject DBClient::slotReadyRead(QJsonObject &obj)
     QDataStream in(m_pTcpSocket);
     in.setVersion(QDataStream::Qt_4_2);
     for (;;) {
-        if (m_pTcpSocket->waitForReadyRead(1000)){
+        if (m_pTcpSocket->waitForReadyRead(600000)){
             if (!m_nNextBlockSize) {
                 if (m_pTcpSocket->bytesAvailable() < sizeof(quint64)) {
                     break;
@@ -82,9 +82,10 @@ QJsonObject DBClient::slotReadyRead(QJsonObject &obj)
                 break;
         }else{
             if (tryNum > 20){
+                throw 1;
                 QJsonObject jso;
                 jso.insert("TIME_OUT", true);
-                throw 1;
+
                 return jso;
             }
 
@@ -314,7 +315,7 @@ MDPData* DBClient::getNextStrings(short int userId, short int dataId, short int 
 
 bool DBClient::toStart(short userId, short dataId, short processId){
     QJsonObject obj;
-    obj.insert("COMMAND", "GET_SIZE");
+    obj.insert("COMMAND", "TO_START");
     obj.insert("USER_ID", userId);
     obj.insert("DATA_ID", dataId);
     obj.insert("PROCESS_ID", processId);

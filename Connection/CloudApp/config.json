@@ -1,27 +1,15 @@
 {
     "hosts": [
-        {"ip" : "127.0.0.1", "port" : 4010, "id" : 10 },
-        {"ip" : "127.0.0.1", "port" : 4011, "id" : 11 },
-        {"ip" : "127.0.0.1", "port" : 4012, "id" : 12 },
-        {"ip" : "127.0.0.1", "port" : 4013, "id" : 13 },
-        {"ip" : "127.0.0.1", "port" : 4014, "id" : 14 },
-        {"ip" : "127.0.0.1", "port" : 4015, "id" : 15 },
-        {"ip" : "127.0.0.1", "port" : 4016, "id" : 16 },
-        {"ip" : "127.0.0.1", "port" : 4017, "id" : 17 }
+        {"ip" : "172.19.24.90", "port" : 4010, "id" : 10 },
+        {"ip" : "172.19.24.90", "port" : 4011, "id" : 11 }
     ],
     "relations": [
-      {"parent": 10, "childs": [11, 12, 13, 14, 15, 16, 17] },
-      {"parent": 11, "childs": [] },
-      {"parent": 12, "childs": [] },
-      {"parent": 13, "childs": [] },
-      {"parent": 14, "childs": [] },
-      {"parent": 15, "childs": [] },
-      {"parent": 16, "childs": [] },
-      {"parent": 17, "childs": [] }
+      {"parent": 10, "childs": [11] },
+      {"parent": 11, "childs": [] }
     ],
     "db": [
-      {"ip": "169.254.99.6", "port": 2323, "id" : 1},
-      {"ip": "169.254.99.6", "port": 2323, "id" : 1}
+      {"ip": "172.19.2.165", "port": 2323, "id" : 1},
+      {"ip": "172.19.2.165", "port": 2323, "id" : 1}
     ],
     "rb": [
       {"ip": "/home/savinov/edu/mdp/mdp/OrderedData/settings.json", "port": 1, "id" : 1}

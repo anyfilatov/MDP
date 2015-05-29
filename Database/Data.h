@@ -31,6 +31,42 @@ public:
     int size();
     QString serialize();
     void parse(QString json);
+//    friend QDataStream& operator << (QDataStream& stream, const MDPData& d){
+//        stream << d.firstIndex ;
+//        stream << d.headers.size();
+//        for(auto& s : d.headers){
+//            stream << s;
+//        }
+//        stream << d.cells.size();
+//        for(auto& cell : d.cells){
+//            stream << cell.size();
+//            for(auto& s : cell) {
+//                stream << s;
+//            }
+//        }
+//        return stream;
+//    }
+//      friend QDataStream& operator >> (QDataStream& stream, MDPData& d){
+//          int hSize = 0;
+//          stream >> d.firstIndex >> hSize;
+//          d.headers.resize(hSize);
+//          for(int i =0; i < hSize;i++){
+//              stream >> d.headers[i];
+//          }
+//          int cSize = 0;
+//          stream >> cSize;
+//          d.cells.resize(cSize);
+//          for(int i =0; i < cSize; i ++){
+//              int inSize = 0;
+//              stream >> inSize;
+//              std::vector<QString> vec(inSize);
+//              for(int j = 0; j < inSize; j++){
+//                    stream >> vec[j];
+//              }
+//              d.cells[i].swap(vec);
+//          }
+
+//      }
     void generateRandom(int count) {
         for(int j =0; j < count; j++){
             vector<QString>  v(14);

@@ -67,6 +67,7 @@ void MainWindow::on_getResult_clicked()
         file.open(QIODevice::ReadWrite);
         auto ba = file.readAll();
         QString str(ba);
+        ui->plainTextEdit->clear();
         ui->plainTextEdit->appendPlainText(str);
     }
 }

@@ -14,8 +14,14 @@ namespace util{
     static const int CMD_REDUCE = 3;
     static const int CMD_PING = 4;
     static const int CMD_SET_CONFIG = 5;
+    static const int CMD_PACKET_FOR_DB = 6;
 //    static const int CMD_START_USER_SCRIPT = 1;
 //    static const int CMD_START_USER_SCRIPT = 1;
+    static bool needCode(int cmd ) {
+        return cmd  == CMD_START_USER_SCRIPT
+                || cmd == CMD_MAP
+                || cmd == CMD_REDUCE;
+    }
     
     template<typename T>
     std::string concat_(const T& s) {
@@ -117,7 +123,9 @@ namespace util{
             stream >> id.i0 >> id.i1 >> id.i2;
             return stream;
         }
-        
+        bool operator <(const Id&id)const{
+            return std::tie(i0, i1, i2) < std::tie(id.i0, id.i1, id.i2);
+        }
         int i0;
         int i1;
         int i2;
@@ -139,12 +147,14 @@ namespace util{
         while (out.size() < dataSize) {
             out.append(socket.readAll());
             if (out.size() < dataSize) {
-                if (!socket.waitForReadyRead(timeout)) {
-                    LOG_DEBUG("4");
-                    if(out.size() == 0){
-                        return Errors::STATUS_ERROR;
-                    } else {
-                        break;
+                int i = 3;
+                while (!socket.waitForReadyRead(timeout)) {
+                    if(socket.state() == QTcpSocket::UnconnectedState){
+                        if(out.size() == 0){
+                            return Errors::STATUS_ERROR;
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
