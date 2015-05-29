@@ -51,24 +51,25 @@ int MDPData::getFirstIndex(){
     return firstIndex;
 }
 
-void MDPData::setHeaders(vector<QString> headers){
+void MDPData::setHeaders(vector<QString>& headers){
     this->headers.clear();
     this->headers = headers;
 }
 
-vector<QString> MDPData::getHeaders(){
+vector<QString>& MDPData::getHeaders(){
     return headers;
 }
 
 void MDPData::setCells(vector<vector<QString> >& cells){
-    this->cells.swap(cells);
+    this->cells.clear();
+    this->cells = cells;
 }
 
 vector<vector<QString> >& MDPData::getCells(){
     return cells;
 }
 
-vector<QString> MDPData::getString(int num){
+vector<QString>& MDPData::getString(int num){
     vector<QString> str(0);
     int innerNum = num - firstIndex;
     if ((innerNum < 0) || (innerNum >= cells.size())){
@@ -81,13 +82,13 @@ bool MDPData::containsString(int num){
     return ((num >= firstIndex) && (num < firstIndex + cells.size()));
 }
 
-int MDPData::addString(vector<QString> Str){
+int MDPData::addString(vector<QString>& Str){
     if (Str.size() != headers.size()) return -1;
     cells.push_back(Str);
     return (cells.size() + firstIndex - 1);
 }
 
-vector<QString> MDPData::getColumn(QString header){
+vector<QString>& MDPData::getColumn(QString header){
     vector<QString> column(cells.size());
     int num = MDPData::findHeaderColumn(header);
     for (int i = 0; i < cells.size(); i++){
@@ -96,7 +97,7 @@ vector<QString> MDPData::getColumn(QString header){
     return column;
 }
 
-QString MDPData::getCell(QString header, int num){
+QString MDPData::getCell(QString& header, int num){
     int column = MDPData::findHeaderColumn(header);
     int innerNum = num - firstIndex;
     if ((innerNum < 0) || (innerNum > cells.size()) || (column == -1)) return "";

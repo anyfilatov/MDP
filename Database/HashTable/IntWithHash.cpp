@@ -2,12 +2,13 @@
 #define IntWithHash_cpp
 
 #include "AbstractTableKey.h"
-#include <iostream>
 #include <sstream>
 #include <QString>
 #include "IntWithHash.h"
 
 using namespace std;
+
+namespace database{
 
 IntWithHash::IntWithHash(){
     value = 0;
@@ -47,6 +48,7 @@ QString IntWithHash::serialize(){
 
 void IntWithHash::parse(QString json){
     value = json.toInt();
+}
 }
 
 #endif

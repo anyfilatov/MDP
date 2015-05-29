@@ -3,9 +3,11 @@
 
 #include <sstream>
 #include <QTextStream>
-#include "AbstractTableKey.h"
+#include "HashTable/AbstractTableKey.h"
 
 using namespace std;
+
+namespace database{
 
 template <typename V>
 class CellItem{
@@ -82,31 +84,22 @@ string CellItem<V>::toString(){
 
 template <typename V>
 void CellItem<V>::clear(){
-    QTextStream cout(stdout);
-    //cout << " CLEAR cellItem\n";
-    //cout << "  delete key\n";
     if (key != NULL){
-        //cout << "   key: " << key->hash() << endl;
         delete key;
         key = NULL;
     }
-    //cout << "  delete value\n";
     if (value != NULL){
         delete value;
         value = NULL;
     }
-
-    //cout << "  delete next\n";
     if (next != NULL){
-        next->getValue();
-        //cout << "  next: " << next->getKey()->hash() << endl;
         next->clear();
         delete next;
         next = NULL;
 
     }
-    //else
-        //cout << "  next: NULL\n";
+}
+
 }
 
 #endif

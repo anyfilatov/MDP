@@ -9,6 +9,7 @@
 
 using namespace std;
 
+namespace database{
 
 StringWithHash::StringWithHash(){
     value = "";
@@ -21,7 +22,7 @@ StringWithHash::StringWithHash(QString val){
 StringWithHash::~StringWithHash(){
 }
 
-QString StringWithHash::getValue(){
+QString& StringWithHash::getValue(){
     return value;
 }
 
@@ -48,6 +49,8 @@ QString StringWithHash::serialize(){
 
 void StringWithHash::parse(QString json){
     value = json;
+}
+
 }
 
 #endif

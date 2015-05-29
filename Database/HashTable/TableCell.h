@@ -6,10 +6,12 @@
 //#include <conio.h>
 #include <vector>
 #include <QTextStream>
-#include "CellItem.h"
-#include "AbstractTableKey.h"
+#include "HashTable/CellItem.h"
+#include "HashTable/AbstractTableKey.h"
 
 using namespace std;
+
+namespace database{
 
 template <typename V>
 class TableCell{
@@ -153,7 +155,6 @@ QString TableCell<V>::toString(){
 template <typename V>
 vector<AbstractTableKey*> TableCell<V>::keys(){
     vector<AbstractTableKey*  > keys;
-//    qDebug()<<"CellSize " << size;
 	CellItem<V> *current = listRoot;
 	for (int i = 0; i < size; i++){
         if (!current) { continue;}
@@ -182,6 +183,8 @@ void TableCell<V>::clear(){
         delete listRoot;
         listRoot = NULL;
     }
+}
+
 }
 
 #endif

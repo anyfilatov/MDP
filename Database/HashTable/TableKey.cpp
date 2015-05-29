@@ -12,6 +12,8 @@
 
 using namespace std;
 
+namespace database{
+
 TableKey::TableKey(){
     userId = -1;
     dataId = -1;
@@ -100,6 +102,6 @@ void TableKey::parse(QString json){
      processId = val.toInt();
 }
 
-
+}
 
 #endif

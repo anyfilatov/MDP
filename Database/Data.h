@@ -7,6 +7,8 @@
 
 using namespace std;
 
+using namespace database;
+
 class MDPData:public Serializible{
 private:
     int firstIndex;
@@ -19,65 +21,35 @@ public:
     ~MDPData();
     void setFirstIndex(int index);
     int getFirstIndex();
-    void setHeaders(vector<QString> headers);
-    vector<QString> getHeaders();
+    void setHeaders(vector<QString>& headers);
+    vector<QString>& getHeaders();
     void setCells(vector<vector<QString> >& cells);
     vector<vector<QString> >& getCells();
-    vector<QString> getString(int num);
+    vector<QString>& getString(int num);
     bool containsString(int num);
-    int addString(vector<QString> Str);
-    vector<QString> getColumn(QString header);
-    QString getCell(QString header, int num);
+    int addString(vector<QString>& Str);
+    vector<QString>& getColumn(QString header);
+    QString getCell(QString& header, int num);
     int size();
     QString serialize();
     void parse(QString json);
-//    friend QDataStream& operator << (QDataStream& stream, const MDPData& d){
-//        stream << d.firstIndex ;
-//        stream << d.headers.size();
-//        for(auto& s : d.headers){
-//            stream << s;
-//        }
-//        stream << d.cells.size();
-//        for(auto& cell : d.cells){
-//            stream << cell.size();
-//            for(auto& s : cell) {
-//                stream << s;
-//            }
-//        }
-//        return stream;
-//    }
-//      friend QDataStream& operator >> (QDataStream& stream, MDPData& d){
-//          int hSize = 0;
-//          stream >> d.firstIndex >> hSize;
-//          d.headers.resize(hSize);
-//          for(int i =0; i < hSize;i++){
-//              stream >> d.headers[i];
-//          }
-//          int cSize = 0;
-//          stream >> cSize;
-//          d.cells.resize(cSize);
-//          for(int i =0; i < cSize; i ++){
-//              int inSize = 0;
-//              stream >> inSize;
-//              std::vector<QString> vec(inSize);
-//              for(int j = 0; j < inSize; j++){
-//                    stream >> vec[j];
-//              }
-//              d.cells[i].swap(vec);
-//          }
-
-//      }
-    void generateRandom(int count) {
-        for(int j =0; j < count; j++){
-            vector<QString>  v(14);
-            for(int i =0; i < 14; i++){
-                v[i] = QString::number(1.0);
+    struct comparator {
+        bool operator() (MDPData& data1, MDPData& data2) const{
+            if (data1.size() != data2.size() || data1.firstIndex != data2.firstIndex || data1.getHeaders().size() != data2.getHeaders().size()) return false;
+            for (int i = 0; i < data1.getHeaders().size(); i++){
+                if (data1.getHeaders()[i] != data1.getHeaders()[i]) return false;
             }
-            cells.push_back(v);
+            for (int i = 0; i < data1.getCells().size(); i++){
+                if (data1.getCells()[i].size() != data2.getCells()[i].size()) return false;
+                for (int j = 0; j < data1.getCells()[i].size(); i++){
+                    if (data1.getCells()[i][j] != data2.getCells()[i][j]) return false;
+                }
+            }
+            return true;
         }
-    }
-
+    };
 };
+
 
 
 #endif // DATA

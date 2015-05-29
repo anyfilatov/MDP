@@ -1,10 +1,12 @@
 #ifndef TABLEKEY
 #define TABLEKEY
 
-#include "AbstractTableKey.h"
+#include "HashTable/AbstractTableKey.h"
 #include <QString>
 
 using namespace std;
+
+namespace database{
 
 class TableKey: public AbstractTableKey{
 private:
@@ -29,14 +31,14 @@ public:
     bool equals(AbstractTableKey* other);
     QString serialize();
     void parse(QString json);
-    struct keys_comparator {
+    struct comparator {
         bool operator() (const TableKey& key1, const TableKey& key2) const{
             return ((key1.getUserId() < key2.getUserId()) || (key1.getDataId() < key2.getDataId()) || (key1.getProcessId() < key2.getProcessId()));
         }
     };
 };
 
-
+}
 
 #endif // TABLEKEY
 

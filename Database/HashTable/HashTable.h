@@ -4,20 +4,29 @@
 #include <QStringList>
 #include <QString>
 #include <vector>
-//#include <conio.h>
 #include <QTextStream>
-#include "TableCell.h"
-#include "AbstractTableKey.h"
-#include "CellItem.h"
+#include "HashTable/TableCell.h"
+#include "HashTable/AbstractTableKey.h"
+#include "HashTable/CellItem.h"
 #include <sstream>
 #include "Serializible.h"
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QByteArray>
+#include <QDebug>
+#include <ostream>
 
 using namespace std;
 
-template <typename K, typename V>
+namespace database{
+
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+class HashTable;
+
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+ostream& operator << (ostream& stream, const HashTable<K, V, K_comparator, V_comparator>& table);
+
+template <typename K, typename V, typename K_comparator, typename V_comparator>
 class HashTable:public Serializible{
 
 	private:
@@ -38,7 +47,7 @@ class HashTable:public Serializible{
 		HashTable(int num, double coef);
         ~HashTable();
         Iterator iterator(){
-            HashTable<K, V>::Iterator iter(this);
+            HashTable<K, V, K_comparator, V_comparator>::Iterator iter(this);
             return iter;
         }
         void put(K* key, V* value);
@@ -48,19 +57,28 @@ class HashTable:public Serializible{
         bool contains(K* key);
         vector<K> keys();
         vector<pair<K, V> > entries();
-		bool isEmpty();
-		int size();
-		void setResizeCoef(int coef);
-		int getResizeCoef();
+        bool isEmpty() const;
+        int size() const;
+        void setResizeCoef(double coef);
+        double getResizeCoef() const;
         void clear();
+        bool operator ==(HashTable<K, V, K_comparator, V_comparator>& another);
         QString serialize();
         void parse(QString json);
+        friend ostream& operator << <>(ostream& stream, const HashTable<K, V, K_comparator, V_comparator>& table);
 };
 
-template <typename K, typename V>
-class HashTable<K, V>::Iterator{
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+ostream& operator << (ostream& stream, const HashTable<K, V, K_comparator, V_comparator>& table)
+{
+    stream << "HashTable size: " << table.size();
+    return stream;
+}
+
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+class HashTable<K, V, K_comparator, V_comparator>::Iterator{
 private:
-    HashTable<K, V>* table;
+    HashTable<K, V, K_comparator, V_comparator>* table;
     int oldTableSize;
     int oldCellsCount;
     int cellNum;
@@ -74,7 +92,7 @@ private:
         } else return true;
     }
 public:
-    Iterator(HashTable<K, V>* outerTable){
+    Iterator(HashTable<K, V, K_comparator, V_comparator>* outerTable){
         table = outerTable;
         oldTableSize = outerTable->tableSize;
         oldCellsCount = outerTable->cellsCount;
@@ -120,6 +138,10 @@ public:
         }else return false;
     }
 
+    bool isFirst(){
+        return (num == 0);
+    }
+
     K* getKey(){
         if (currentItem){
             return (K*)currentItem->getKey()->clone();
@@ -137,8 +159,8 @@ public:
     }
 };
 
-template <typename K, typename V>
-HashTable<K, V>::HashTable(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+HashTable<K, V, K_comparator, V_comparator>::HashTable(){
     cellsCount = 30;
 	tableSize = 0;
 	coef = 0.6;
@@ -146,37 +168,57 @@ HashTable<K, V>::HashTable(){
 
 }
 
-template <typename K, typename V>
-HashTable<K, V>::HashTable(int num){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+HashTable<K, V, K_comparator, V_comparator>::HashTable(int num){
     cellsCount = (num > 1) ? num : 1;
 	tableSize = 0;
 	coef = 0.6;
 	createCellsArray();
 }
 
-template <typename K, typename V>
-HashTable<K, V>::HashTable(int num, double coef){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+HashTable<K, V, K_comparator, V_comparator>::HashTable(int num, double coef){
     cellsCount = (num > 1) ? num : 1;
 	tableSize = 0;
 	this->coef = coef;
 	createCellsArray();
 }
 
-template <typename K, typename V>
-HashTable<K, V>::~HashTable(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+HashTable<K, V, K_comparator, V_comparator>::~HashTable(){
     clean(&cells);
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::clear(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+bool HashTable<K, V, K_comparator, V_comparator>::operator==(HashTable<K, V, K_comparator, V_comparator>& another){
+        if (tableSize != another.size() || coef != another.getResizeCoef()) return false;
+        HashTable<K, V, K_comparator, V_comparator>::Iterator innerIt = this->iterator();
+        HashTable<K, V, K_comparator, V_comparator>::Iterator outerIt = another.iterator();
+        K_comparator Kcomp;
+        V_comparator Vcomp;
+        while(outerIt.hasNext() && innerIt.hasNext()){
+            if(outerIt.isFirst()){
+                if (!Vcomp(*(outerIt.getValue()), *(innerIt.getValue()))
+                        || !Kcomp(*(outerIt.getKey()), *(innerIt.getKey()))) return false;
+            }
+            if (!Vcomp(*(outerIt.next()), *(innerIt.next()))
+                    || !Kcomp(*(outerIt.getKey()), *(innerIt.getKey()))) return false;
+        }
+
+       return true;
+
+    }
+
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::clear(){
     clean(&cells);
     cellsCount = 10;
     tableSize = 0;
     createCellsArray();
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::createCellsArray(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::createCellsArray(){
     cells.clear();
     cells.resize(cellsCount);
 	for (int n = 0; n < cells.size(); n++){
@@ -184,65 +226,53 @@ void HashTable<K, V>::createCellsArray(){
 	}
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::put(K* key, V* value){
-	/*if (key == NULL){
-		throws new NullPointerException("Key can not be null");
-	}*/
-    QTextStream cout(stdout);
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::put(K* key, V* value){
     AbstractTableKey* keyWithHash = key;
     int hash = keyWithHash->hash();
-	int index = indexFor(hash);
-    //cout << "HashTable_PUT\n  hash: " << hash << "\n  index: " << index << "\n  value: " << value << "\n  cellsSize: " << cells.size() << endl;
-
+    int index = indexFor(hash);
     if (cells[index]->add(new CellItem<V>((AbstractTableKey*) key->clone(), value))){
-		tableSize++;
-        //cout << "  TableSize: " << tableSize << endl;
+        tableSize++;
 		if (overSize()){
             resize(cellsCount * 2);
 		}
-	}else{
-        //cout << "  KEY ALREADY EXISTS" << endl;
-	}
+    }
 }
 
-template <typename K, typename V>
-int HashTable<K, V>::indexFor(int hash){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+int HashTable<K, V, K_comparator, V_comparator>::indexFor(int hash){
     return hash % cellsCount;
 }
 
-template <typename K, typename V>
-bool HashTable<K, V>::overSize(){
-    QTextStream cout(stdout);
-    //cout << "  coef: " << ((double)tableSize/(double)cellsCount) << endl;
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+bool HashTable<K, V, K_comparator, V_comparator>::overSize(){
     return (((double)tableSize/(double)cellsCount) >= coef);
 }
 
-template <typename K, typename V>
-vector<K> HashTable<K, V>::keys(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+vector<K> HashTable<K, V, K_comparator, V_comparator>::keys(){
     vector<K> Keys;
 	int j = 0;
     for (int i = 0; i < cellsCount; i++){
-   //     qDebug() <cell[i];
         vector<AbstractTableKey*> cellKeys = cells[i]->keys();
         for (int k = 0; k < cellKeys.size(); k++){
             K* key = (K*) cellKeys[k];
             Keys.push_back(*key);
 			j++;
         }
-	} 
+    }
     return Keys;
 }
 
-template <typename K, typename V>
-vector<pair<K, V> > HashTable<K, V>::entries(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+vector<pair<K, V> > HashTable<K, V, K_comparator, V_comparator>::entries(){
     vector<pair<K, V> > entries(tableSize);
     int j = 0;
     for (int i = 0; i < cellsCount; i++){
         vector<pair<AbstractTableKey*, V> > cellEntries = cells[i]->entries();
         for (int k = 0; k < cellEntries.size(); k++){
             K* key = (K*) cellEntries[k].first;
-            entries[j] = pair<K*, V>(*key, cellEntries[k].second);
+            entries[j] = pair<K, V>(*key, cellEntries[k].second);
             j++;
         }
         cellEntries.clear();
@@ -250,52 +280,41 @@ vector<pair<K, V> > HashTable<K, V>::entries(){
     return entries;
 }
 
-template <typename K, typename V>
-V* HashTable<K, V>::get(K* key){
-    QTextStream cout(stdout);
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+V* HashTable<K, V, K_comparator, V_comparator>::get(K* key){
     AbstractTableKey* keyWithHash = key;
     int hash = keyWithHash->hash();
-	int index = indexFor(hash);
-    //cout << "HashTable_GET\n  hash: " << hash << "\n  value: " << cells[index]->get(key) << endl;
+    int index = indexFor(hash);
     return cells[index]->get(key);
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::update(K* key, V* value){
-    QTextStream cout(stdout);
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::update(K* key, V* value){
     AbstractTableKey* keyWithHash = key;
     int hash = keyWithHash->hash();
-    //cout << "HashTable_UPDATE\n  hash: " << hash << "\n";
 	int index = indexFor(hash);
     cells[index]->update(key, value);
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::remove(K* key){
-    QTextStream cout(stdout);
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::remove(K* key){
     AbstractTableKey* keyWithHash = key;
     int hash = keyWithHash->hash();
 	int index = indexFor(hash);
     CellItem<V>* removed = cells[index]->remove(key);
     if (removed != NULL){
         tableSize--;
-        delete [] removed;
+        delete removed;
     }
-    //cout << "HashTable_REMOVE\n  hash: " << hash << "\n  tableSize: " << tableSize << endl;
 }
 
-template <typename K, typename V>
-bool HashTable<K, V>::contains(K* key){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+bool HashTable<K, V, K_comparator, V_comparator>::contains(K* key){
     return (this->get(key) != NULL);
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::resize(int newCapacity){
-	/*if (tableSize == MaxCapacity){
-		return;
-	}*/
-    QTextStream cout(stdout);
-    //cout << "HashTable_RESIZE\n  oldCellsNUM: " << cellsCount << "\n  newCellsNUM: " << newCapacity << endl;
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::resize(int newCapacity){
     cellsCount = newCapacity;
     vector<TableCell<V>* > oldcells(cells.size());
     for (int i = 0; i < cells.size(); i++){
@@ -307,52 +326,44 @@ void HashTable<K, V>::resize(int newCapacity){
 	return;
 }
 
-template <typename K, typename V>
-bool HashTable<K, V>::isEmpty(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+bool HashTable<K, V, K_comparator, V_comparator>::isEmpty() const{
 	if (tableSize == 0) return true;
 	return false;
 }
 
-template <typename K, typename V>
-int HashTable<K, V>::size(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+int HashTable<K, V, K_comparator, V_comparator>::size() const{
 	return tableSize;
 }
 
-template <typename K, typename V>
-int HashTable<K, V>::getResizeCoef(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+double HashTable<K, V, K_comparator, V_comparator>::getResizeCoef() const{
 	return coef;
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::setResizeCoef(int coef){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::setResizeCoef(double coef){
 	this->coef = coef;
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::transfer(vector<TableCell<V>* >* oldCells){
-    QTextStream cout(stdout);
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::transfer(vector<TableCell<V>* >* oldCells){
     vector<TableCell<V>* > Cells = *oldCells;
-    //cout << "HashTable_TRANSFER\n  oldCellsNum: " << oldCells->size() << " \n  newCellsNum: " << cells.size() << endl;
     for (int i = 0; i < oldCells->size(); i++){
         TableCell<V>* cell = Cells[i];
         vector<AbstractTableKey*> cellKeys = cell->keys();
-        //cout << "    " << i << " oldCell;  keysNum: " << cellKeys.size() << endl;
 		for (int j = 0; j < cellKeys.size(); j++){
             CellItem<V>* item = cell->remove(cellKeys[j]);
-
-            //cout << "      " << j << " key(" << cellKeys[j]->hash() << ", " << item->getValue() << ") goes to ";
-			int index = indexFor(item->getKey()->hash());
-            //cout << index << " newCell\n";
+            int index = indexFor(item->getKey()->hash());
             cells[index]->add(item);
 		}
     }
     clean(oldCells);
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::clean(vector<TableCell<V>* >* oldCells){
-    QTextStream cout(stdout);
-    //cout << "HashTable_CLEAN\n";
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::clean(vector<TableCell<V>* >* oldCells){
     vector<TableCell<V>* > Cells = *oldCells;
     for (int i = 0; i < oldCells->size(); i++){
         TableCell<V>* cell = Cells[i];
@@ -361,8 +372,8 @@ void HashTable<K, V>::clean(vector<TableCell<V>* >* oldCells){
     oldCells->clear();
 }
 
-template <typename K, typename V>
-QString HashTable<K, V>::serialize(){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+QString HashTable<K, V, K_comparator, V_comparator>::serialize(){
     QJsonObject jsonObj;
     vector<K> keys = this->keys();
     for (int i = 0; i < keys.size(); i++){
@@ -375,8 +386,8 @@ QString HashTable<K, V>::serialize(){
     return str;
 }
 
-template <typename K, typename V>
-void HashTable<K, V>::parse(QString json){
+template <typename K, typename V, typename K_comparator, typename V_comparator>
+void HashTable<K, V, K_comparator, V_comparator>::parse(QString json){
     this->clear();
     QJsonDocument jdoc;
     jdoc = jdoc.fromJson(json.toUtf8());
@@ -395,8 +406,10 @@ void HashTable<K, V>::parse(QString json){
         key->parse(keys[i]);
         value->parse(val.toString());
         this->put((K*)key, (V*)value);
+        delete key;
     }
 }
 
+}
 
 #endif
