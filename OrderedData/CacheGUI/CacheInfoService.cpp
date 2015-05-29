@@ -1,12 +1,12 @@
 #include "CacheInfoService.h"
 #include <QMessageBox>
 
-#define DEBUG
+//#define DEBUG
 
 CacheInfoService::CacheInfoService()
 {
     testData();
-//    client = new GUIClient(settingsFromFile());
+    client = new GUIClient("settings.json");
 }
 
 QString CacheInfoService::settingsFromFile()

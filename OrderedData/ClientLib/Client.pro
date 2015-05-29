@@ -26,6 +26,7 @@ SOURCES += \
     ../Exception/notfoundvalueexception.cpp \
     ../Exception/serverunavailableexception.cpp \
     abstractclient.cpp \
+    client.cpp \
     server.cpp
 
 
@@ -42,6 +43,7 @@ HEADERS += \
     ../Exception/exception.h \
     ../Exception/exceptioncode.h \
     abstractclient.h \
+    client.h \
     server.h
 
 

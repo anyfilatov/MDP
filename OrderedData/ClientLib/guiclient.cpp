@@ -37,9 +37,14 @@ QJsonObject GUIClient::getStatistics(QString host)
 {
     QJsonObject req, resp;
     req.insert("type", STATS);
-    connectToHost(host.split(':').first(), host.split(':').back().toInt());
-    write(req);
-    resp = read();
-    disconnectFromHost();
+    try {
+        connectToHost(host.split(':').first(), host.split(':').back().toInt());
+        write(req);
+        resp = read();
+        disconnectFromHost();
+    } catch(...) {
+        qDebug() << "Can't connect to host" << host;
+    }
+
     return resp;
 }

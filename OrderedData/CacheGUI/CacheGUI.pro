@@ -24,6 +24,13 @@ SOURCES += main.cpp\
     CacheInfoService.cpp \
     DiagramWidget.cpp \
     TabsWidget.cpp \
+    ../ClientLib/guiclient.cpp \
+    ../ClientLib/abstractclient.cpp \
+    ../Exception/abstractexception.cpp \
+    ../Exception/clientexeption.cpp \
+    ../Exception/serverunavailableexception.cpp \
+    ../Exception/connectionisnotcreatedexception.cpp \
+    ../Exception/notfoundvalueexception.cpp
 
 HEADERS  += MainWindow.h \
     CacheInfoWidget.h \
@@ -31,6 +38,15 @@ HEADERS  += MainWindow.h \
     CacheInfoService.h \
     DiagramWidget.h \
     TabsWidget.h \
+    ../ClientLib/guiclient.h \
+    ../ClientLib/abstractclient.h \
+    ../Exception/abstractexception.h \
+    ../Exception/exceptioncode.h \
+    ../Exception/clientexeption.h \
+    ../Exception/serverunavailableexception.h \
+    ../Exception/connectionisnotcreatedexception.h \
+    ../Exception/exception.h \
+    ../Exception/notfoundvalueexception.h
 
 FORMS    += MainWindow.ui \
     CacheInfoWidget.ui

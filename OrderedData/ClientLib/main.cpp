@@ -1,35 +1,35 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTimer>
-#include "abstractclient.h"
+#include "ClientLib/client.h"
 #include "server.h"
 
 
 
-int main(int argc, char** argv) {
+//int main(int argc, char** argv) {
 
-    QCoreApplication a(argc, argv);
+//    QCoreApplication a(argc, argv);
 
-    if (!strcmp(argv[1], "1")) {
-        Server server;
-        server.run();
-    } else {
+//    if (!strcmp(argv[1], "1")) {
+//        Server server;
+//        server.run();
+//    } else {
 
-        AbstractClient client;
-        qDebug() << client.connectToHost("127.0.0.1", 12345);
-        QJsonObject object;
-        object.insert("key", "value");
+//        client client;
+//        qDebug() << client.connectToHost("127.0.0.1", 12345);
+//        QJsonObject object;
+//        object.insert("key", "value");
 
-        client.write(object);
-        try {
-            QJsonObject repsonse = client.read();
-        } catch (...) {
-            qDebug() << "catched";
-        }
-    }
+//        client.write(object);
+//        try {
+//            QJsonObject repsonse = client.read();
+//        } catch (...) {
+//            qDebug() << "catched";
+//        }
+//    }
 
-    return a.exec();
-}
+//    return a.exec();
+//}
 
 
 
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 
 
 
-/*#include <QCoreApplication>
+#include <QCoreApplication>
 #include <QDebug>
 #include "client.h"
 #include "Exception/exception.h"
@@ -88,42 +88,42 @@ int main(int argc, char** argv) {
 int main(int argc, char *argv[])
 {
 //    QCoreApplication a(argc, argv);
-/*    Client client("settings.json");
+    Client client(1, "settings.json");
     qDebug() << "===Test 1===";
     try{
-        qDebug() << "INSERT:" << client.put("testInsert", "testValue");
+//        qDebug() << "INSERT:" << client.put("testInsert", "testValue");
         qDebug() << "SEARCH:" << client.get("testInsert");
-        qDebug() << "REMOVE:" << client.remove("testInsert");
+//        qDebug() << "REMOVE:" << client.remove("testInsert");
         qDebug() << "SEARCH:" << client.get("testInsert");
-        qDebug() << "INSERT:" << client.put("testInsert", "testValue");
+//        qDebug() << "INSERT:" << client.put("testInsert", "testValue");
         qDebug() << "SEARCH:" << client.get("testInsert");
-        qDebug() << "REMOVE:" << client.remove("testInsert");
+//        qDebug() << "REMOVE:" << client.remove("testInsert");
         qDebug() << "SEARCH:" << client.get("testInsert");
 
         qDebug() << "===Test 2===";
         QList<QString> list;
         list << "test1" << "test2" << "test3";
-        qDebug() << "INSERT:" << client.put("testInsert", list);
+//        qDebug() << "INSERT:" << client.put("testInsert", list);
         qDebug() << "SEARCH:" << client.get("testInsert");
         list << "test 4" << "test 5";
-        qDebug() << "REPLACE:" << client.replace("testInsert", list);
+//        qDebug() << "REPLACE:" << client.replace("testInsert", list);
         qDebug() << "SEARCH:" << client.get("testInsert");
-        qDebug() << "REMOVE:" << client.remove("testInsert");
+//        qDebug() << "REMOVE:" << client.remove("testInsert");
         qDebug() << "SEARCH:" << client.get("testInsert");
 
         qDebug() << "===Test 3===";
-        qDebug() << "INSERT BUCKET:" << client.put("testInsert1", "testValue", "TestBucket");
-        qDebug() << "SEARCH BUCKET:" << client.getBucketKeys("TestBucket");
+//        qDebug() << "INSERT BUCKET:" << client.put("testInsert1", "testValue", "TestBucket");
+//        qDebug() << "SEARCH BUCKET:" << client.getBucketKeys("TestBucket");
         qDebug() << "SEARCH:" << client.get("testInsert1","TestBucket");
-        qDebug() << "REMOVE:" << client.remove("testInsert1", "TestBucket");
+//        qDebug() << "REMOVE:" << client.remove("testInsert1", "TestBucket");
 
         qDebug() << "===Test 4===";
-        qDebug() << "INSERT BUCKET:" << client.put("testInsert2", list, "TestBucket");
-        qDebug() << "SEARCH BUCKET:" << client.getBucketKeys("TestBucket");
+//        qDebug() << "INSERT BUCKET:" << client.put("testInsert2", list, "TestBucket");
+//        qDebug() << "SEARCH BUCKET:" << client.getBucketKeys("TestBucket");
         qDebug() << "SEARCH:" << client.get("testInsert2","TestBucket");
         list.clear();
         list << "test6" << "test7";
-        qDebug() << "REPLACE:" << client.replace("testInsert2", list, "TestBucket");
+//        qDebug() << "REPLACE:" << client.replace("testInsert2", list, "TestBucket");
         qDebug() << "SEARCH:" << client.get("testInsert2","TestBucket");
 
 
@@ -134,6 +134,6 @@ int main(int argc, char *argv[])
 
 //    qDebug() << client.getRingHosts();
 //    return a.exec();
-}*/
+}
 
 

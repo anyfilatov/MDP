@@ -50,6 +50,7 @@ private:
     bool replica_;
 
     void init(K key, V value, Color color, TNode<K,V> *left, TNode<K,V> *right, TNode<K,V> *parent);
+    void init(K key, vector<V> values, Color color, TNode<K,V> *left, TNode<K,V> *right, TNode<K,V> *parent);
 };
 
 template<typename K, typename V>
@@ -73,7 +74,15 @@ TNode<K,V>::TNode(K key, V value, Color color, TNode<K,V> *left, TNode<K,V> *rig
 template<typename K, typename V>
 TNode<K,V>::TNode(const TNode<K,V>& node)
 {
-    init(node.key(), node.values(), node.color(), node.left(), node.right(), node.parent());
+    if (node.values().empty()) {
+        color_ = node.color();
+        left_ = node.left();
+        right_ = node.right();
+        parent_ = node.parent();
+        replica_ = node.is_replica();
+    } else {
+        init(node.key(), node.values(), node.color(), node.left(), node.right(), node.parent());
+    }
 }
 
 template<typename K, typename V>
@@ -81,6 +90,18 @@ void TNode<K,V>::init(K key, V value, Color color, TNode<K,V> *left, TNode<K,V> 
 {
     key_ = key;
     values_.push_back(value);
+    color_ = color;
+    left_ = left;
+    right_ = right;
+    parent_ = parent;
+    replica_ = false;
+}
+
+template<typename K, typename V>
+void TNode<K,V>::init(K key, vector<V> values, Color color, TNode<K,V> *left, TNode<K,V> *right, TNode<K,V> *parent)
+{
+    key_ = key;
+    values_ = values;
     color_ = color;
     left_ = left;
     right_ = right;

@@ -6,6 +6,7 @@
 //#include "ClientLib/StatusCodes.h"
 #include <QList>
 #include <QVector>
+#include "allocator.h"
 
 template<typename K, typename V>
 class Cache : public iCache<K,V>
@@ -27,14 +28,14 @@ public:
     virtual int treeHeight();
     virtual int valuesCount();
 
-    virtual RBTree<K, V> *getRBTree();
+    RBTree<K, V, Allocator<TNode<K,V> > > *getRBTree();
 private:
-    RBTree<K,V> *rbtree;
+    RBTree<K,V, Allocator<TNode<K,V> > > *rbtree;
 };
 
 template<typename K, typename V>
 Cache<K,V>::Cache(){
-    rbtree = new RBTree<K, V>;
+    rbtree = new RBTree<K, V, Allocator<TNode<K,V> > >;
 }
 
 template<typename K, typename V>
@@ -120,7 +121,7 @@ int Cache<K, V>::valuesCount()
 }
 
 template<typename K, typename V>
-RBTree<K, V> *Cache<K, V>::getRBTree()
+RBTree<K, V, Allocator<TNode<K,V> > > *Cache<K, V>::getRBTree()
 {
     return rbtree;
 }

@@ -65,4 +65,5 @@ HEADERS += \
     ClientLib/abstractclient.h \
     ClientLib/client.h \
     Router/connection.h \
-    ClientLib/guiclient.h
+    ClientLib/guiclient.h \
+    Cache/allocator.h
