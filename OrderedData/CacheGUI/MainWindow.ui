@@ -51,6 +51,8 @@
     <addaction name="actionUpdate"/>
     <addaction name="actionDebug_mode"/>
     <addaction name="actionDebug_mode_off"/>
+    <addaction name="actionAutoupdate_on"/>
+    <addaction name="actionAutoupdate_off"/>
    </widget>
    <addaction name="menuTools"/>
   </widget>
@@ -67,6 +69,16 @@
   <action name="actionDebug_mode_off">
    <property name="text">
     <string>Debug mode off</string>
+   </property>
+  </action>
+  <action name="actionAutoupdate_on">
+   <property name="text">
+    <string>Autoupdate on</string>
+   </property>
+  </action>
+  <action name="actionAutoupdate_off">
+   <property name="text">
+    <string>Autoupdate off</string>
    </property>
   </action>
  </widget>

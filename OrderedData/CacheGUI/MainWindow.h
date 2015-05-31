@@ -21,10 +21,13 @@ private slots:
     void updateData();
     void debugMode();
     void debugModeOff();
+    void autoupdateOn();
+    void autoupdateOff();
 
 private:
     Ui::MainWindow *ui;
     CacheInfoService *service;
+    QTimer *updateTimer;
 };
 
 #endif // MAINWINDOW_H

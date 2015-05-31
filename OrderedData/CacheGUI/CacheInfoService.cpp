@@ -1,7 +1,7 @@
 #include "CacheInfoService.h"
 #include <QMessageBox>
 
-//#define DEBUG
+#define DEBUG
 
 CacheInfoService::CacheInfoService()
 {
