@@ -109,7 +109,7 @@ void NoSql::layoutManagement(QTableWidget* table){
 
     userIdDb = new QLineEdit(tr("User Id"));
     tableIdDb = new QLineEdit(tr("Table Id"));
-    processIdDb = new QLineEdit(tr("User Id"));
+    processIdDb = new QLineEdit(tr("Process Id"));
 
     dbfieldsLayout->addWidget(userIdDb);
     dbfieldsLayout->addWidget(tableIdDb);

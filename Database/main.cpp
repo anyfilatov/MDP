@@ -138,34 +138,36 @@ int main(int argc, char *argv[])
         IntWithHash* val = iter.next();
         cout << val->getValue() << endl;
     }*/
-    int dim = 10;
-    vector<QString> headers(3);
-    vector<vector<QString> > cells(dim);
-    headers[0] = "firstaeiurblsrun";
-    headers[1] = "secersgsregsergond";
-    headers[2] = "tegersgsergregserhird";
+//    int dim = 10;
+//    vector<QString> headers(3);
+//    vector<vector<QString> > cells(dim);
+//    headers[0] = "firstaeiurblsrun";
+//    headers[1] = "secersgsregsergond";
+//    headers[2] = "tegersgsergregserhird";
 
-    for (int i = 0; i < dim; i++){
-        for (int j = 0; j < 3; j++){
-            cells[i].push_back(QString::number(i) + QString::number(j));
-        }
-    }
+//    for (int i = 0; i < dim; i++){
+//        for (int j = 0; j < 3; j++){
+//            cells[i].push_back(QString::number(i) + QString::number(j));
+//        }
+//    }
 
 
     //MDPData data1(headers, cells, 0);
     //MDPData data2(headers, cells, 0);
-    MDPData data(headers, cells, 0);
+//    MDPData data(headers, cells, 0);
     //data.parse(data.serialize());
     //data.serialize();
     //MDPData data;
-      MDPData* d = new MDPData();
-      Dispatcher dispatcher(2323);
+//      MDPData* d = new MDPData();
+      Dispatcher db(2323);
+      NoSql gui(&db);
+      gui.show();
       //testGuiParser(dispatcher);
-      while(d != NULL){
-          delete d;
-          d = dispatcher.getNextStrings(1, 1, 0, 10000);
-          if (!d) qDebug() << "NULL";
-      }
+//      while(d != NULL){
+//          delete d;
+//          d = dispatcher.getNextStrings(1, 1, 0, 10000);
+//          if (!d) qDebug() << "NULL";
+//      }
 
 
 //    for(int i=0; i<10000;i++){
