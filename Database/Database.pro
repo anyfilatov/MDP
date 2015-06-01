@@ -21,8 +21,6 @@ SOURCES += main.cpp \
     Dispatcher/Dispatcher.cpp \
     Dispatcher/HardDiskWorker.cpp \
     Dispatcher/MetaData.cpp \
-    Dispatcher/Session.cpp \
-    Dispatcher/TableInfoHandler.cpp \
     HashTable/IntWithHash.cpp \
     HashTable/StringWithHash.cpp \
     HashTable/TableKey.cpp \
@@ -37,8 +35,6 @@ HEADERS += \
     Dispatcher/Dispatcher.h \
     Dispatcher/HardDiskWorker.h \
     Dispatcher/MetaData.h \
-    Dispatcher/Session.h \
-    Dispatcher/TableInfoHandler.h \
     HashTable/AbstractTableKey.h \
     HashTable/CellItem.h \
     HashTable/Hashable.h \

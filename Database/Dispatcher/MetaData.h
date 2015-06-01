@@ -5,7 +5,7 @@
 #include "Serializible.h"
 #include <vector>
 
-class MetaData:public Serializible{
+class MetaData:public database::Serializible{
 private:
     int size;
     vector<QString> headers;

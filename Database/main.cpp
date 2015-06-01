@@ -24,9 +24,9 @@
 //#include <unistd.h>
 #include <QAbstractSocket>
 #include <QThread>
-#include "GUIFileParser/GuiFileParser.h"
+#include "GUI/GUIFileParser/GuiFileParser.h"
 #include <QtWidgets/QApplication>
-#include "gui.h"
+#include "GUI/gui.h"
 #include "Dispatcher/HardDiskWorker.h"
 
 

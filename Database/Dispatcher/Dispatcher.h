@@ -26,8 +26,8 @@ public slots:
     virtual void slotNewConnection();
             void slotReadClient   ();
 private:
-    HashTable<TableKey, MDPData> cash;
-    HashTable<TableKey, IntWithHash> sessions;
+    HashTable<TableKey, MDPData,TableKey(), MDPData()> cash;
+    HashTable<TableKey, IntWithHash, TableKey(), IntWithHash()> sessions;
 public:
     void put(short int userId, short int dataId, short int processId, MDPData* data);
     MDPData* get(short int userId, short int dataId, short int processId);

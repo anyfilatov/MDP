@@ -4,6 +4,7 @@
 #include <QString>
 
 using namespace std;
+namespace database {
 
 #pragma once
 class Serializible{
@@ -12,5 +13,6 @@ public:
         virtual void parse(QString json)= 0;
 };
 
+}
 #endif
 

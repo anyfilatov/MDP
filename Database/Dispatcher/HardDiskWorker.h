@@ -29,7 +29,7 @@ class HardDiskWorker
     static HardDiskWorkDestroyer destroyer;
     int maxFileSize;
     QString DBSource;
-    HashTable<TableKey, MetaData> meta;
+    HashTable<TableKey, MetaData,TableKey(), MDPData()> meta;
     void uploadMetaData();
     void updateMetaFile(short int userId, short int dataId, short int processId, MetaData* metaData);
     void putCells(short int userId, short int dataId, short int processId, int oldSize, const vector<vector<QString> > &cells);
