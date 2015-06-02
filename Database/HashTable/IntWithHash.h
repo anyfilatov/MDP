@@ -15,7 +15,7 @@ public:
 	IntWithHash();
 	IntWithHash(int val);
     ~IntWithHash();
-    int getValue();
+    int getValue() const;
     void setValue(int val);
 	int hash();
     Clonable* clone();
@@ -25,6 +25,16 @@ public:
     struct comparator {
         bool operator() (IntWithHash& key1, IntWithHash& key2) const{
             return (key1.getValue() == key2.getValue());
+        }
+    };
+    struct hashFunc {
+        int operator() (const IntWithHash& key) const{
+            return (key.getValue());
+        }
+    };
+    struct cloneFunc {
+        IntWithHash* operator() (const IntWithHash& key) const{
+            return new IntWithHash(key.value);
         }
     };
 };

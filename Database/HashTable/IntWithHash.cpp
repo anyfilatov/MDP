@@ -21,7 +21,7 @@ IntWithHash::IntWithHash(int val){
 IntWithHash::~IntWithHash(){
 }
 
-int IntWithHash::getValue(){
+int IntWithHash::getValue() const{
     return value;
 }
 

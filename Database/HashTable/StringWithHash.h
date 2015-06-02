@@ -16,7 +16,7 @@ public:
     StringWithHash();
     StringWithHash(QString val);
     ~StringWithHash();
-    QString& getValue();
+    const QString& getValue() const;
     void setValue(QString val);
     int hash();
     Clonable* clone();
@@ -26,6 +26,16 @@ public:
     struct comparator {
         bool operator() (StringWithHash& key1, StringWithHash& key2){
             return (key1.getValue() == key2.getValue());
+        }
+    };
+    struct hashFunc {
+        int operator() (const StringWithHash& key) const{
+            return (key.getValue().length());
+        }
+    };
+    struct cloneFunc {
+        StringWithHash* operator() (const StringWithHash& key) const{
+            return new StringWithHash(key.getValue());
         }
     };
 };

@@ -22,7 +22,7 @@ StringWithHash::StringWithHash(QString val){
 StringWithHash::~StringWithHash(){
 }
 
-QString& StringWithHash::getValue(){
+const QString& StringWithHash::getValue() const{
     return value;
 }
 

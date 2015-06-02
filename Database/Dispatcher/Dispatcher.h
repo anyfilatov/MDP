@@ -13,6 +13,8 @@
 
 using namespace std;
 
+namespace database{
+
 class Dispatcher: public QObject{
     Q_OBJECT
 private:
@@ -26,21 +28,22 @@ public slots:
     virtual void slotNewConnection();
             void slotReadClient   ();
 private:
-    HashTable<TableKey, MDPData,TableKey(), MDPData()> cash;
-    HashTable<TableKey, IntWithHash, TableKey(), IntWithHash()> sessions;
+    HashTable<TableKey, MDPData, TableKey::comparator, MDPData::comparator, TableKey::hashFunc, TableKey::cloneFunc, MDPData::cloneFunc> cash;
+    HashTable<TableKey, IntWithHash, TableKey::comparator, IntWithHash::comparator, TableKey::hashFunc, TableKey::cloneFunc, IntWithHash::cloneFunc> sessions;
 public:
     void put(short int userId, short int dataId, short int processId, MDPData* data);
     MDPData* get(short int userId, short int dataId, short int processId);
     MDPData* get(short int userId, short int dataId, short int processId, int strNum);
     MDPData* get(short int userId, short int dataId, short int processId, int strNum, int count);
     void remove(short int userId, short int dataId, short int processId);
-    MDPData* getNextStrings(short int userId, short int dataId, short int processId, short int count);
+    MDPData* getNextStrings(short int userId, short int dataId, short int processId, int count);
     void toStart(short int userId, short int dataId, short int processId);
     int getSize(short int userId, short int dataId, short int processId);
     QJsonArray getUsers();
     QJsonArray getTableIds(short int userId);
 };
 
+}
 
 #endif // DISPATCHER
 

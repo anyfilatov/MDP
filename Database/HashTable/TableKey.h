@@ -33,7 +33,17 @@ public:
     void parse(QString json);
     struct comparator {
         bool operator() (const TableKey& key1, const TableKey& key2) const{
-            return ((key1.getUserId() < key2.getUserId()) || (key1.getDataId() < key2.getDataId()) || (key1.getProcessId() < key2.getProcessId()));
+            return ((key1.getUserId() == key2.getUserId()) && (key1.getDataId() == key2.getDataId()) && (key1.getProcessId() == key2.getProcessId()));
+        }
+    };
+    struct hashFunc {
+        int operator() (const TableKey& key) const{
+            return (key.getUserId() + key.getDataId() + key.getProcessId());
+        }
+    };
+    struct cloneFunc {
+        TableKey* operator() (const TableKey& key) const{
+            return new TableKey(key.getUserId(), key.getDataId(), key.getProcessId());
         }
     };
 };

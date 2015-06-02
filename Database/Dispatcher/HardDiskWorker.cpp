@@ -15,6 +15,8 @@
 
 using namespace std;
 
+namespace database{
+
 HardDiskWorker* HardDiskWorker::p_instance = 0;
 HardDiskWorkDestroyer HardDiskWorker::destroyer;
 
@@ -37,7 +39,7 @@ HardDiskWorker& HardDiskWorker::getInstance() {
 
 HardDiskWorker::HardDiskWorker(){
     DBSource = "C:/MDPDatabase/";
-    maxFileSize = 50000;
+    maxFileSize = 200000;
     uploadMetaData();
 }
 
@@ -68,21 +70,21 @@ void HardDiskWorker::uploadMetaData(){
                 headers[i] = tokens[i];
             }
             metaFile.close();
-            MetaData* metaData = new MetaData(headers, size);
-            qDebug() << metaData->serialize();
-            meta.put(&key, metaData);
+            MetaData metaData(headers, size);
+            qDebug() << metaData.serialize();
+            meta.put(key, metaData);
         }
     }
 }
 
-void HardDiskWorker::updateMetaFile(short int userId, short int dataId, short int processId, MetaData* metaData){
+void HardDiskWorker::updateMetaFile(short int userId, short int dataId, short int processId, MetaData& metaData){
     QString name = QString::number(userId) + "_" + QString::number(dataId) + "_" + QString::number(processId);
     QFile metaFile(DBSource + name + "/meta");
     metaFile.open(QIODevice::WriteOnly);
     QTextStream out(&metaFile);
-    out << metaData->getSize() << endl;
-    for (int i = 0;  i < metaData->getHeaders().size(); i++){
-        out << metaData->getHeaders()[i] << "\t";
+    out << metaData.getSize() << endl;
+    for (int i = 0;  i < metaData.getHeaders().size(); i++){
+        out << metaData.getHeaders()[i] << "\t";
     }
     metaFile.close();
 }
@@ -121,21 +123,16 @@ void HardDiskWorker::putCells(short int userId, short int dataId, short int proc
 }
 
 bool HardDiskWorker::contains(TableKey & key){
-    return meta.contains(&key);
+    return meta.contains(key);
 }
 
 int HardDiskWorker::getSize(TableKey & key){
-    MetaData* metaData = meta.get(&key);
-    if (metaData == NULL) return 0;
-    return metaData->getSize();
+    vector<TableKey> keys = meta.keys();
+    return meta.get(key).getSize();
 }
 
 const vector<QString>& HardDiskWorker::getHeaders(TableKey & key){
-    MetaData* metaData = meta.get(&key);
-    if (metaData == NULL){
-
-    }
-    return metaData->getHeaders();
+    return meta.get(key).getHeaders();
 }
 
 int HardDiskWorker::getMaxFileSize(){
@@ -150,43 +147,47 @@ vector<TableKey>& HardDiskWorker::keys(){
 void HardDiskWorker::put(short int userId, short int dataId, short int processId, MDPData* data){
     if (data == NULL) return;
     TableKey key(userId, dataId, processId);
-    MetaData* metaData = meta.get(&key);
     int oldSize = 0;
-    if (metaData == NULL){
-        metaData = new MetaData(data->getHeaders(), data->size());
-        meta.put(&key, metaData);
+    if (!meta.contains(key)){
+        MetaData metaData(data->getHeaders(), data->size());
+        meta.put(key, metaData);
         QDir dir(DBSource);
         QString name = QString::number(userId) + "_" + QString::number(dataId) + "_" + QString::number(processId);
         dir.mkdir(name);
     }else{
         vector <QString> headers = data->getHeaders();
-        if (headers.size() != metaData->getHeaders().size())
-            throw "ERROR! WRONG SIZE OF HEADERS";
+        vector<QString> metaHeaders =  meta.get(key).getHeaders();
+        if (headers.size() !=metaHeaders.size())
+            qDebug() << "ERROR! WRONG SIZE OF HEADERS";
+            return;
         for (int i = 0; i < headers.size(); i++){
-            if (headers[i] != metaData->getHeaders()[i])
-                throw "ERROR! WRONG NAMES OF HEADERS";
+            if (headers[i] != metaHeaders[i])
+                qDebug() << "ERROR! WRONG NAMES OF HEADERS";
+                return;
         }
-        oldSize = metaData->getSize();
-        metaData->setSize(oldSize + data->size());
+        oldSize = meta.get(key).getSize();
+
+        meta.get(key).setSize(oldSize + data->size());
     }
-    updateMetaFile(userId, dataId, processId, metaData);
+    updateMetaFile(userId, dataId, processId, meta.get(key));
     putCells(userId, dataId, processId, oldSize, data->getCells());
 }
 
 vector<vector<QString> > HardDiskWorker::get(short int userId, short int dataId, short int processId, int part){
     qDebug() << "GET FROM HARD DISK: part " << part;
     TableKey key(userId, dataId, processId);
-    MetaData* metaData = meta.get(&key);
     vector<vector<QString> > cells;
-    if (metaData == NULL){
-        throw "ERROR! WRONG TABLE ID IN GET METHOD";
+    if (!meta.contains(key)){
+        qDebug() << "ERROR! WRONG TABLE ID IN GET METHOD";
+        return cells;
     };
-    int lastPart = metaData->getSize() / maxFileSize + 1;
+    int metaSize = meta.get(key).getSize();
+    int lastPart = metaSize / maxFileSize + 1;
     int size;
     if (part < lastPart && part > 0){
         size = maxFileSize;
     }else if (part == lastPart){
-        size = metaData->getSize() % maxFileSize;
+        size = metaSize % maxFileSize;
     }else{
         return cells;
     }
@@ -208,7 +209,6 @@ vector<vector<QString> > HardDiskWorker::get(short int userId, short int dataId,
             foreach(QString str, tokens) {
                 cortege.push_back(str);
             }
-//            qDebug() << cortege[1];
             cells[lines].swap(cortege);
         }
        lines++;
@@ -218,6 +218,8 @@ vector<vector<QString> > HardDiskWorker::get(short int userId, short int dataId,
     }
     inputFile.close();
     return cells;
+}
+
 }
 
 #endif // HARDDISKWORKER_CPP

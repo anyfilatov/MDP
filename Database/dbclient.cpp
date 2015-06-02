@@ -31,11 +31,17 @@ DBClient::DBClient(const QString& strHost, int nPort, const QString& strSpareHos
     spareIp = strSpareHost;
     port = nPort;
     sparePort = nSparePort;
+    m_pTcpSocket = NULL;
     _connect();
 
 }
 
 void DBClient::_connect(){
+    if (m_pTcpSocket != NULL){
+        m_pTcpSocket->close();
+        delete m_pTcpSocket;
+    }
+
     m_pTcpSocket = new QTcpSocket(this);
 
     m_pTcpSocket->connectToHost(ip, port);
@@ -67,7 +73,7 @@ QJsonObject DBClient::slotReadyRead(QJsonObject &obj)
     QDataStream in(m_pTcpSocket);
     in.setVersion(QDataStream::Qt_4_2);
     for (;;) {
-        if (m_pTcpSocket->waitForReadyRead(60000)){
+        if (m_pTcpSocket->waitForReadyRead(10000)){
             if (!m_nNextBlockSize) {
                 if (m_pTcpSocket->bytesAvailable() < sizeof(quint64)) {
                     break;
@@ -80,14 +86,11 @@ QJsonObject DBClient::slotReadyRead(QJsonObject &obj)
             }else
                 break;
         }else{
-            if (tryNum > 20){
+            if (tryNum > 10){
                 QJsonObject jso;
                 jso.insert("TIME_OUT", true);
                 return jso;
             }
-
-            m_pTcpSocket->close();
-            delete m_pTcpSocket;
             switchIps();
             _connect();
             qDebug() << "RECONNECT";
@@ -130,16 +133,12 @@ void DBClient::sendToServer(const QJsonObject& jso)
     out << quint64(arrBlock.size() - sizeof(quint64));
 
     m_pTcpSocket->write(arrBlock);
-  //  qDebug() << "DBClient: sended to server -> " << jsDoc.toJson();
 }
 
 void DBClient::slotConnected()
 {
     qDebug() << "DBClient: Connect success";
 }
-
-//end of
-
 
 
 bool DBClient::put(short int userId, short int dataId, short int processId, MDPData* data){

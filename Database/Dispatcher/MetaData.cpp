@@ -15,6 +15,8 @@
 
 using namespace std;
 
+namespace database{
+
 MetaData::MetaData(){
     size = 0;
 }
@@ -46,20 +48,15 @@ vector<QString>& MetaData::getHeaders(){
 }
 
 QString MetaData::serialize(){
-    QTextStream cout(stdout);
-
     QJsonObject mainObj, headersObj;
     headersObj.insert("size", (int)headers.size());
     for (int i = 0; i < headers.size(); i++){
         headersObj.insert(QString::number(i), headers[i]);
     }
-    /* QJsonDocument headersDoc(headersObj);
-    QString headersString(headersDoc.toJson());*/
     mainObj.insert("headers", headersObj);
     mainObj.insert("size", size);
     QJsonDocument mainDoc(mainObj);
     QString json(mainDoc.toJson());
-    //cout << json << endl;
     return json;
 }
 
@@ -83,5 +80,6 @@ void MetaData::parse(QString json){
     }
 }
 
+}
 
 #endif

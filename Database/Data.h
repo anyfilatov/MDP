@@ -48,6 +48,11 @@ public:
             return true;
         }
     };
+    struct cloneFunc {
+        MDPData* operator() (MDPData& data){
+            return new MDPData(data.getHeaders(), data.getCells(), data.getFirstIndex());
+        }
+    };
 };
 
 

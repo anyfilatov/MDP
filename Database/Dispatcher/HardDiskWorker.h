@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace database{
+
 class HardDiskWorker;
 
 class HardDiskWorkDestroyer
@@ -29,9 +31,9 @@ class HardDiskWorker
     static HardDiskWorkDestroyer destroyer;
     int maxFileSize;
     QString DBSource;
-    HashTable<TableKey, MetaData,TableKey(), MDPData()> meta;
+    HashTable<TableKey, MetaData, TableKey::comparator, MetaData::comparator, TableKey::hashFunc, TableKey::cloneFunc, MetaData::cloneFunc> meta;
     void uploadMetaData();
-    void updateMetaFile(short int userId, short int dataId, short int processId, MetaData* metaData);
+    void updateMetaFile(short int userId, short int dataId, short int processId, MetaData& metaData);
     void putCells(short int userId, short int dataId, short int processId, int oldSize, const vector<vector<QString> > &cells);
   protected:
     friend class HardDiskWorkDestroyer;
@@ -47,6 +49,8 @@ class HardDiskWorker
     void put(short int userId, short int dataId, short int processId, MDPData* data);
     vector<vector<QString> > get(short int userId, short int dataId, short int processId, int part);
 };
+
+}
 
 #endif // HARDDISKWORKER
 

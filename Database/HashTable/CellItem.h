@@ -3,87 +3,80 @@
 
 #include <sstream>
 #include <QTextStream>
-#include "HashTable/AbstractTableKey.h"
 
 using namespace std;
 
 namespace database{
 
-template <typename V>
+template <typename K, typename V>
 class CellItem{
 
 private:
 
-    AbstractTableKey*  key;
+    K*  key;
     V* value;
-	CellItem<V>* next;
+    CellItem<K, V>* next;
 
 public:
 
 	CellItem();
-    CellItem(AbstractTableKey* key, V* value);
-    void setKey(AbstractTableKey*  key);
-    AbstractTableKey*  getKey();
+    CellItem(K* key, V* value);
+    void setKey(K* key);
+    K* getKey();
     void setValue(V* value);
     V* getValue();
-	CellItem<V>* getNext();
-	void setNext(CellItem<V>* item);
-	string toString();
+    CellItem<K, V>* getNext();
+    void setNext(CellItem<K, V>* item);
     void clear();
 
 };
 
-template <typename V>
-CellItem<V>::CellItem(){
+template <typename K, typename V>
+CellItem<K, V>::CellItem(){
+    key = NULL;
+    value = NULL;
 	next = NULL;
 }
 
-template <typename V>
-CellItem<V>::CellItem(AbstractTableKey*  key, V* value){
+template <typename K, typename V>
+CellItem<K, V>::CellItem(K* key, V* value){
 	this->key = key;
 	this->value = value;
 	next = NULL;
 }
 
-template <typename V>
-void CellItem<V>::setKey(AbstractTableKey*  key){
+template <typename K, typename V>
+void CellItem<K, V>::setKey(K* key){
 	this->key = key;
 }
 
-template <typename V>
-AbstractTableKey* CellItem<V>::getKey(){
+template <typename K, typename V>
+K* CellItem<K, V>::getKey(){
 	return key;
 }
 
-template <typename V>
-void CellItem<V>::setValue(V* value){
+template <typename K, typename V>
+void CellItem<K, V>::setValue(V* value){
 	this->value = value;
 }
 
-template <typename V>
-V* CellItem<V>::getValue(){
+template <typename K, typename V>
+V* CellItem<K, V>::getValue(){
 	return value;
 }
 
-template <typename V>
-CellItem<V>* CellItem<V>::getNext(){
+template <typename K, typename V>
+CellItem<K, V>* CellItem<K, V>::getNext(){
 	return next;
 }
 
-template <typename V>
-void CellItem<V>::setNext(CellItem<V>* item){
+template <typename K, typename V>
+void CellItem<K, V>::setNext(CellItem<K, V>* item){
 	next = item;
 }
 
-template <typename V>
-string CellItem<V>::toString(){
-	stringstream ss;
-    ss << "CellItem\n{\n  key Hash: " << key->hash() << "\n}\n";
-	return ss.str();
-}
-
-template <typename V>
-void CellItem<V>::clear(){
+template <typename K, typename V>
+void CellItem<K, V>::clear(){
     if (key != NULL){
         delete key;
         key = NULL;

@@ -15,31 +15,33 @@
 #include <QByteArray>
 #include <QDebug>
 #include <ostream>
+#include "Exceptions/NotUniqueKeyException.h"
+#include "Exceptions/NullPointerException.h"
 
 using namespace std;
 
 namespace database{
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
 class HashTable;
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-ostream& operator << (ostream& stream, const HashTable<K, V, K_comparator, V_comparator>& table);
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+ostream& operator << (ostream& stream, const HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>& table);
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-class HashTable:public Serializible{
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+class HashTable{
 
 	private:
 		int tableSize;
         int cellsCount;
 		double coef;
-        vector<TableCell<V>* > cells;
+        vector<TableCell<K, V, K_comparator>* > cells;
 		void createCellsArray();
-		int indexFor(int hash);
-		bool overSize();
+        int indexFor(int hash) const;
+        bool overSize() const;
 		void resize(int newCapacity);
-        void transfer(vector<TableCell<V>* >* oldCells);
-        void clean(vector<TableCell<V>* >* oldCells);
+        void transfer(vector<TableCell<K, V, K_comparator>* >* oldCells);
+        void clean(vector<TableCell<K, V, K_comparator>* >* oldCells);
     public:
         class Iterator;
         HashTable();
@@ -47,14 +49,13 @@ class HashTable:public Serializible{
 		HashTable(int num, double coef);
         ~HashTable();
         Iterator iterator(){
-            HashTable<K, V, K_comparator, V_comparator>::Iterator iter(this);
+            HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::Iterator iter(this);
             return iter;
         }
-        void put(K* key, V* value);
-        V* get(K* key);
-        void update(K* key, V* value);
-        void remove(K* key);
-        bool contains(K* key);
+        void put(K& key, V& value);
+        V& get(K key);
+        void remove(K& key);
+        bool contains(K key) const;
         vector<K> keys();
         vector<pair<K, V> > entries();
         bool isEmpty() const;
@@ -62,29 +63,27 @@ class HashTable:public Serializible{
         void setResizeCoef(double coef);
         double getResizeCoef() const;
         void clear();
-        bool operator ==(HashTable<K, V, K_comparator, V_comparator>& another);
-        QString serialize();
-        void parse(QString json);
-        friend ostream& operator << <>(ostream& stream, const HashTable<K, V, K_comparator, V_comparator>& table);
+        bool operator ==(HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>& another);
+        friend ostream& operator << <>(ostream& stream, const HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>& table);
 };
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-ostream& operator << (ostream& stream, const HashTable<K, V, K_comparator, V_comparator>& table)
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+ostream& operator << (ostream& stream, const HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>& table)
 {
     stream << "HashTable size: " << table.size();
     return stream;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-class HashTable<K, V, K_comparator, V_comparator>::Iterator{
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+class HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::Iterator{
 private:
-    HashTable<K, V, K_comparator, V_comparator>* table;
+    HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>* table;
     int oldTableSize;
     int oldCellsCount;
     int cellNum;
     bool permanent;
     int num;
-    CellItem<V>* currentItem;
+    CellItem<K, V>* currentItem;
     bool checkPepmanent(){
         if ((!permanent) || (!table) || (oldTableSize != table->tableSize) || (oldCellsCount != table->cellsCount) || (!currentItem)){
             permanent = false;
@@ -92,7 +91,7 @@ private:
         } else return true;
     }
 public:
-    Iterator(HashTable<K, V, K_comparator, V_comparator>* outerTable){
+    Iterator(HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>* outerTable){
         table = outerTable;
         oldTableSize = outerTable->tableSize;
         oldCellsCount = outerTable->cellsCount;
@@ -109,24 +108,25 @@ public:
         permanent = true;
     }
 
-    V* next(){
-        if (num >= oldTableSize - 1) return NULL;
+    V& next(){
+        V v;
+        if (num >= oldTableSize - 1) return v;
         num++;
         if (checkPepmanent()){
             if (currentItem->getNext()){
                 currentItem = currentItem->getNext();
-                return currentItem->getValue();
+                return *(currentItem->getValue());
             }else if (cellNum >= oldCellsCount){
-                return NULL;
+                return v;
             }else{
                 cellNum++;
                 while(!table->cells[cellNum]->listRoot){
                     cellNum++;
                 }
                 currentItem = table->cells[cellNum]->listRoot;
-                return currentItem->getValue();
+                return *(currentItem->getValue());
             }
-        }else return NULL;
+        }else return v;
     }
 
     bool hasNext(){
@@ -142,25 +142,27 @@ public:
         return (num == 0);
     }
 
-    K* getKey(){
+    K getKey(){
         if (currentItem){
-            return (K*)currentItem->getKey()->clone();
+            return *(currentItem->getKey());
         }else{
-            return NULL;
+            K k;
+            return k;
         }
     }
 
-    V* getValue(){
+    V& getValue(){
         if (currentItem){
-            return currentItem->getValue();
+            return *(currentItem->getValue());
         }else{
-            return NULL;
+            V v;
+            return v;
         }
     }
 };
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-HashTable<K, V, K_comparator, V_comparator>::HashTable(){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::HashTable(){
     cellsCount = 30;
 	tableSize = 0;
 	coef = 0.6;
@@ -168,95 +170,92 @@ HashTable<K, V, K_comparator, V_comparator>::HashTable(){
 
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-HashTable<K, V, K_comparator, V_comparator>::HashTable(int num){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::HashTable(int num){
     cellsCount = (num > 1) ? num : 1;
 	tableSize = 0;
 	coef = 0.6;
 	createCellsArray();
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-HashTable<K, V, K_comparator, V_comparator>::HashTable(int num, double coef){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::HashTable(int num, double coef){
     cellsCount = (num > 1) ? num : 1;
 	tableSize = 0;
 	this->coef = coef;
 	createCellsArray();
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-HashTable<K, V, K_comparator, V_comparator>::~HashTable(){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::~HashTable(){
     clean(&cells);
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-bool HashTable<K, V, K_comparator, V_comparator>::operator==(HashTable<K, V, K_comparator, V_comparator>& another){
-        if (tableSize != another.size() || coef != another.getResizeCoef()) return false;
-        HashTable<K, V, K_comparator, V_comparator>::Iterator innerIt = this->iterator();
-        HashTable<K, V, K_comparator, V_comparator>::Iterator outerIt = another.iterator();
-        K_comparator Kcomp;
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+bool HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::operator==(HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>& another){
+        if (tableSize != another.size()) return false;
+        HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::Iterator outerIt = another.iterator();
         V_comparator Vcomp;
-        while(outerIt.hasNext() && innerIt.hasNext()){
-            if(outerIt.isFirst()){
-                if (!Vcomp(*(outerIt.getValue()), *(innerIt.getValue()))
-                        || !Kcomp(*(outerIt.getKey()), *(innerIt.getKey()))) return false;
-            }
-            if (!Vcomp(*(outerIt.next()), *(innerIt.next()))
-                    || !Kcomp(*(outerIt.getKey()), *(innerIt.getKey()))) return false;
+        while(true){
+            if (!this->contains(outerIt.getKey()) || !Vcomp(outerIt.getValue(), this->get(outerIt.getKey()))) return false;
+            if(outerIt.hasNext())
+                outerIt.next();
+            else break;
         }
 
        return true;
 
     }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::clear(){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::clear(){
     clean(&cells);
     cellsCount = 10;
     tableSize = 0;
     createCellsArray();
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::createCellsArray(){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::createCellsArray(){
     cells.clear();
     cells.resize(cellsCount);
 	for (int n = 0; n < cells.size(); n++){
-        cells[n] = new TableCell<V>(n);
+        cells[n] = new TableCell<K, V, K_comparator>(n);
 	}
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::put(K* key, V* value){
-    AbstractTableKey* keyWithHash = key;
-    int hash = keyWithHash->hash();
-    int index = indexFor(hash);
-    if (cells[index]->add(new CellItem<V>((AbstractTableKey*) key->clone(), value))){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::put(K& key, V& value){
+    hashFunc hash;
+    K_cloneFunc K_clone;
+    V_cloneFunc V_clone;
+    int index = indexFor(hash(key));
+    if (cells[index]->add(new CellItem<K, V>(K_clone(key), V_clone(value)))){
         tableSize++;
-		if (overSize()){
+        if (overSize()){
             resize(cellsCount * 2);
-		}
+        }
     }
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-int HashTable<K, V, K_comparator, V_comparator>::indexFor(int hash){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+int HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::indexFor(int hash) const{
     return hash % cellsCount;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-bool HashTable<K, V, K_comparator, V_comparator>::overSize(){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+bool HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::overSize() const{
     return (((double)tableSize/(double)cellsCount) >= coef);
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-vector<K> HashTable<K, V, K_comparator, V_comparator>::keys(){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+vector<K> HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::keys(){
     vector<K> Keys;
 	int j = 0;
     for (int i = 0; i < cellsCount; i++){
-        vector<AbstractTableKey*> cellKeys = cells[i]->keys();
+        vector<K* > cellKeys = cells[i]->keys();
         for (int k = 0; k < cellKeys.size(); k++){
-            K* key = (K*) cellKeys[k];
+            K* key = cellKeys[k];
             Keys.push_back(*key);
 			j++;
         }
@@ -264,59 +263,58 @@ vector<K> HashTable<K, V, K_comparator, V_comparator>::keys(){
     return Keys;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-vector<pair<K, V> > HashTable<K, V, K_comparator, V_comparator>::entries(){
-    vector<pair<K, V> > entries(tableSize);
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+vector<pair<K, V> > HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::entries(){
+    vector<pair<K, V> > entries;
     int j = 0;
     for (int i = 0; i < cellsCount; i++){
-        vector<pair<AbstractTableKey*, V> > cellEntries = cells[i]->entries();
+        vector<pair<K*, V* > > cellEntries = cells[i]->entries();
         for (int k = 0; k < cellEntries.size(); k++){
-            K* key = (K*) cellEntries[k].first;
-            entries[j] = pair<K, V>(*key, cellEntries[k].second);
+            K* key = cellEntries[k].first;
+            V* value = cellEntries[k].second;
+            if (key && value)
+                entries.push_back(pair<K, V>(*key, *value));
             j++;
         }
-        cellEntries.clear();
     }
     return entries;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-V* HashTable<K, V, K_comparator, V_comparator>::get(K* key){
-    AbstractTableKey* keyWithHash = key;
-    int hash = keyWithHash->hash();
-    int index = indexFor(hash);
-    return cells[index]->get(key);
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+V& HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::get(K key){
+    hashFunc hash;
+    int index = indexFor(hash(key));
+    V* value = cells[index]->get(key);
+    if (value) return *value;
+    V v;
+    return v;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::update(K* key, V* value){
-    AbstractTableKey* keyWithHash = key;
-    int hash = keyWithHash->hash();
-	int index = indexFor(hash);
-    cells[index]->update(key, value);
-}
-
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::remove(K* key){
-    AbstractTableKey* keyWithHash = key;
-    int hash = keyWithHash->hash();
-	int index = indexFor(hash);
-    CellItem<V>* removed = cells[index]->remove(key);
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::remove(K& key){
+    hashFunc hash;
+    int index = indexFor(hash(key));
+    CellItem<K, V>* removed = cells[index]->remove(key);
     if (removed != NULL){
         tableSize--;
+        removed->clear();
         delete removed;
     }
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-bool HashTable<K, V, K_comparator, V_comparator>::contains(K* key){
-    return (this->get(key) != NULL);
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+bool HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::contains(K key) const{
+    hashFunc hash;
+    int index = indexFor(hash(key));
+    V* value = cells[index]->get(key);
+    if (value) return true;
+    return false;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::resize(int newCapacity){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::resize(int newCapacity){
     cellsCount = newCapacity;
-    vector<TableCell<V>* > oldcells(cells.size());
+    vector<TableCell<K, V, K_comparator>* > oldcells(cells.size());
     for (int i = 0; i < cells.size(); i++){
         oldcells[i] = cells[i];
         cells[i] = NULL;
@@ -326,35 +324,34 @@ void HashTable<K, V, K_comparator, V_comparator>::resize(int newCapacity){
 	return;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-bool HashTable<K, V, K_comparator, V_comparator>::isEmpty() const{
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+bool HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::isEmpty() const{
 	if (tableSize == 0) return true;
 	return false;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-int HashTable<K, V, K_comparator, V_comparator>::size() const{
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+int HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::size() const{
 	return tableSize;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-double HashTable<K, V, K_comparator, V_comparator>::getResizeCoef() const{
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+double HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::getResizeCoef() const{
 	return coef;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::setResizeCoef(double coef){
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::setResizeCoef(double coef){
 	this->coef = coef;
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::transfer(vector<TableCell<V>* >* oldCells){
-    vector<TableCell<V>* > Cells = *oldCells;
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::transfer(vector<TableCell<K, V, K_comparator>* >* oldCells){
     for (int i = 0; i < oldCells->size(); i++){
-        TableCell<V>* cell = Cells[i];
-        vector<AbstractTableKey*> cellKeys = cell->keys();
+        TableCell<K, V, K_comparator>* cell = oldCells->at(i);
+        vector<K* > cellKeys = cell->keys();
 		for (int j = 0; j < cellKeys.size(); j++){
-            CellItem<V>* item = cell->remove(cellKeys[j]);
+            CellItem<K, V>* item = cell->remove(*cellKeys[j]);
             int index = indexFor(item->getKey()->hash());
             cells[index]->add(item);
 		}
@@ -362,52 +359,14 @@ void HashTable<K, V, K_comparator, V_comparator>::transfer(vector<TableCell<V>* 
     clean(oldCells);
 }
 
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::clean(vector<TableCell<V>* >* oldCells){
-    vector<TableCell<V>* > Cells = *oldCells;
+template <typename K, typename V, typename K_comparator, typename V_comparator, typename hashFunc, typename K_cloneFunc, typename V_cloneFunc>
+void HashTable<K, V, K_comparator, V_comparator, hashFunc, K_cloneFunc, V_cloneFunc>::clean(vector<TableCell<K, V, K_comparator>* >* oldCells){
     for (int i = 0; i < oldCells->size(); i++){
-        TableCell<V>* cell = Cells[i];
+        TableCell<K, V, K_comparator>* cell = oldCells->at(i);
         cell->clear();
+        delete cell;
 	}
     oldCells->clear();
-}
-
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-QString HashTable<K, V, K_comparator, V_comparator>::serialize(){
-    QJsonObject jsonObj;
-    vector<K> keys = this->keys();
-    for (int i = 0; i < keys.size(); i++){
-        AbstractTableKey* key = &keys[i];
-        Serializible* value = this->get((K*) key);
-        jsonObj.insert(key->serialize(),value->serialize());
-    }
-    QJsonDocument jdoc(jsonObj);
-    QString str(jdoc.toJson());
-    return str;
-}
-
-template <typename K, typename V, typename K_comparator, typename V_comparator>
-void HashTable<K, V, K_comparator, V_comparator>::parse(QString json){
-    this->clear();
-    QJsonDocument jdoc;
-    jdoc = jdoc.fromJson(json.toUtf8());
-    QJsonObject jsonObj;
-    jsonObj = jdoc.object();
-
-    QStringList keys = jsonObj.keys();
-    cellsCount = keys.size() * 2;
-    tableSize = keys.size();
-    createCellsArray();
-
-    for (int i = 0; i <keys.size(); i++){
-        QJsonValue val = jsonObj.take(keys[i]);
-        Serializible* key = new K();
-        Serializible* value = new V();
-        key->parse(keys[i]);
-        value->parse(val.toString());
-        this->put((K*)key, (V*)value);
-        delete key;
-    }
 }
 
 }

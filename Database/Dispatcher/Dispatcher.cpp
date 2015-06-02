@@ -21,6 +21,8 @@
 
 using namespace std;
 
+namespace database{
+
 Dispatcher::Dispatcher(int nPort, QObject *parent) :
     QObject(parent), m_nNextBlockSize(0)
 {
@@ -78,6 +80,7 @@ void Dispatcher::slotReadClient()
             jsAnswer.insert("COMMAND", "_TO_START");
             jsAnswer.insert("SUCCESS", true);
             sendToClient(pClientSocket, jsAnswer);
+            qDebug() << "Dispatcher: COMMAND TO_START, user:" << userId << ", data:" << dataId << ", process:" << processId;
         }else if (comm == "ADD_HOST"){
             QString ip = jso.take("IP").toString();
             int port = jso.take("PORT").toInt();
@@ -85,23 +88,26 @@ void Dispatcher::slotReadClient()
             jsAnswer.insert("COMMAND", "_ADD_HOST");
             jsAnswer.insert("SUCCESS", true);
             sendToClient(pClientSocket, jsAnswer);
+            qDebug() << "Dispatcher: COMMAND ADD_HOST";
         }else if (comm == "PING_ALL"){
             QJsonArray ips;
             jsAnswer.insert("COMMAND", "_PING_ALL");
             jsAnswer.insert("HOSTS", ips);
             sendToClient(pClientSocket, jsAnswer);
-
+            qDebug() << "Dispatcher: COMMAND PING_ALL";
         }else if (comm == "GET_TABLEIDS") {
             short userId = jso.take("USER_ID").toInt();
             QJsonArray ids = getTableIds(userId);
             jsAnswer.insert("COMMAND", "_GET_TABLEIDS");
             jsAnswer.insert("TABLE_IDS", ids);
             sendToClient(pClientSocket, jsAnswer);
+            qDebug() << "Dispatcher: COMMAND GET_TABLEIDS";
         }else if (comm == "GET_USERS") {
             QJsonArray users = getUsers();
             jsAnswer.insert("COMMAND", "_GET_USERS");
             jsAnswer.insert("USERS", users);
             sendToClient(pClientSocket, jsAnswer);
+            qDebug() << "Dispatcher: COMMAND GET_USERS";
         }else if (comm == "REMOVE") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
@@ -110,6 +116,7 @@ void Dispatcher::slotReadClient()
             jsAnswer.insert("COMMAND", "_REMOVE");
             jsAnswer.insert("SUCCESS", true);
             sendToClient(pClientSocket, jsAnswer);
+            qDebug() << "Dispatcher: COMMAND REMOVE, user:" << userId << ", data:" << dataId << ", process:" << processId;
         }else if (comm == "GET_SIZE") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
@@ -118,11 +125,12 @@ void Dispatcher::slotReadClient()
             jsAnswer.insert("COMMAND", "_GET_SIZE");
             jsAnswer.insert("SIZE", size);
             sendToClient(pClientSocket, jsAnswer);
+            qDebug() << "Dispatcher: COMMAND GET_SIZE, user:" << userId << ", data:" << dataId << ", process:" << processId;
         }else if (comm == "GET_NEXTSTR") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
             short processId = jso.take("PROCESS_ID").toInt();
-            short count = jso.take("COUNT").toInt();
+            int count = jso.take("COUNT").toInt();
             d = getNextStrings(userId, dataId, processId, count);
             jsAnswer.insert("COMMAND", "_GET_NEXTSTR");
             if (d != NULL) {
@@ -131,12 +139,15 @@ void Dispatcher::slotReadClient()
             sendToClient(pClientSocket, jsAnswer);
             qDebug() << "Dispatcher: COMMAND GET_NEXTSTR, user:" << userId << ", data:" << dataId << ", process:" << processId << ", count:" << count << ", " <<
                         ((d != NULL) ? ("firstIndex: "+ QString::number(d->getFirstIndex())) : ("DATA IS NULL"));
+            if (d != NULL) {
+                delete d;
+            }
         } else if (comm == "GET_5") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
             short processId = jso.take("PROCESS_ID").toInt();
-            short strNum = jso.take("STRNUM").toInt();
-            short count = jso.take("COUNT").toInt();
+            int strNum = jso.take("STRNUM").toInt();
+            int count = jso.take("COUNT").toInt();
             d = get(userId, dataId, processId, strNum, count);
             jsAnswer.insert("COMMAND", "_GET_5");
             if (d != NULL) {
@@ -145,11 +156,14 @@ void Dispatcher::slotReadClient()
             sendToClient(pClientSocket, jsAnswer);
             qDebug() << "Dispatcher: COMMAND GET_5, user:" << userId << ", data:" << dataId << ", process:" << processId << ", num:" << strNum << ", count:" << count << ", " <<
                         ((d != NULL) ? ("firstIndex: "+ QString::number(d->getFirstIndex())) : ("DATA IS NULL"));
+            if (d != NULL) {
+                delete d;
+            }
         } else if (comm == "GET_4") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
             short processId = jso.take("PROCESS_ID").toInt();
-            short strNum = jso.take("STR_NUM").toInt();
+            int strNum = jso.take("STR_NUM").toInt();
             d = get(userId, dataId, processId, strNum);
             jsAnswer.insert("COMMAND", "_GET_4");
             if (d != NULL) {
@@ -158,6 +172,9 @@ void Dispatcher::slotReadClient()
             sendToClient(pClientSocket, jsAnswer);
             qDebug() << "Dispatcher: COMMAND GET_4, user:" << userId << ", data:" << dataId << ", process:" << processId << ", num:" << strNum << ", " <<
                         ((d != NULL) ? (d->serialize()) : ("DATA IS NULL"));
+            if (d != NULL) {
+                delete d;
+            }
         } else if (comm == "GET_3") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
@@ -166,16 +183,21 @@ void Dispatcher::slotReadClient()
             jsAnswer.insert("COMMAND", "_GET_3");
             if (d != NULL) {
                 jsAnswer.insert("DATA", d->serialize());
+                delete d;
             }
             sendToClient(pClientSocket, jsAnswer);
             qDebug() << "Dispatcher: COMMAND GET_3, user:" << userId << ", data:" << dataId << ", process:" << processId << ", " <<
                         ((d != NULL) ? ("firstIndex: "+ QString::number(d->getFirstIndex())) : ("DATA IS NULL"));
+            if (d != NULL) {
+                delete d;
+            }
         } else if (comm == "PUT") {
             short userId = jso.take("USER_ID").toInt();
             short dataId = jso.take("DATA_ID").toInt();
             short processId = jso.take("PROCESS_ID").toInt();
             d = new MDPData;
             d->parse(jso.take("DATA").toString());
+            //qDebug() << "Dispatcher: COMMAND PUT, user:" << userId << ", data:" << dataId << ", process:" << processId;
             put(userId, dataId, processId, d);
             jsAnswer.insert("COMMAND", "_PUT");
             if (d != NULL) {
@@ -231,53 +253,41 @@ MDPData* Dispatcher::get(short int userId, short int dataId, short int processId
 }
 
 MDPData* Dispatcher::get(short int userId, short int dataId, short int processId, int strNum){
-    qDebug() << "GET_4 str:" << strNum;
     TableKey key(userId, dataId, processId);
-    MDPData* cashData = cash.get(&key);
     int size = HardDiskWorker::getInstance().getSize(key);
     if ((!HardDiskWorker::getInstance().contains(key)) || (strNum < 0) || (strNum >= size)) return NULL;
     vector<QString> headers = HardDiskWorker::getInstance().getHeaders(key);
-    if (!cashData){
-        qDebug() << " new cashData";
-        cashData = new MDPData();
-        cashData->setHeaders(headers);
-        cash.put(&key, cashData);
+    if (!cash.contains(key)){
+        MDPData cashD;
+        cashD.setHeaders(headers);
+        cash.put(key, cashD);
     }
-    qDebug() << " headers size: " << headers.size();
     vector<vector<QString> > cells(1);
-    if (!cashData->containsString(strNum)){
+    if (!cash.get(key).containsString(strNum)){
         int maxFileSize = HardDiskWorker::getInstance().getMaxFileSize();
         int currentPart = strNum / maxFileSize + 1;
-        qDebug() << " put in cashData";
-        qDebug() << " currentPart: " << currentPart;
         vector<vector<QString> > fileCells = HardDiskWorker::getInstance().get(userId, dataId, processId, currentPart);
-        qDebug() << " first index: " << (strNum - strNum % maxFileSize);
-        qDebug() << " cells size: " << fileCells.size();
-        cashData->setCells(fileCells);
-        cashData->setFirstIndex(strNum - strNum % maxFileSize);
+        cash.get(key).setCells(fileCells);
+        cash.get(key).setFirstIndex(strNum - strNum % maxFileSize);
     }
-    cells[0] = cashData->getString(strNum);
+    cells[0] = cash.get(key).getString(strNum);
     return new MDPData(headers, cells, strNum);
 }
 
 MDPData* Dispatcher::get(short int userId, short int dataId, short int processId, int strNum, int count){
-    qDebug() << "GET_5 str:" << strNum << ", count: " << count;
     TableKey key(userId, dataId, processId);
-    MDPData* cashData = cash.get(&key);
     int tableSize = HardDiskWorker::getInstance().getSize(key);
     if ((!HardDiskWorker::getInstance().contains(key)) || ((strNum + count) <= 0) || (strNum >= tableSize)) return NULL;
     vector<QString> headers = HardDiskWorker::getInstance().getHeaders(key);
-    if (!cashData){
-        qDebug() << " new cashData";
-        cashData = new MDPData();
-        cashData->setHeaders(headers);
-        cash.put(&key, cashData);
+    if (!cash.contains(key)){
+        MDPData cashD;
+        cashD.setHeaders(headers);
+        cash.put(key, cashD);
     }
-     qDebug() << " headers size: " << headers.size();
     int firstIndex = (strNum < 0)? 0 : strNum;
     int size = (((count + strNum) > tableSize)? tableSize : (count + strNum)) - firstIndex;
     vector<vector<QString> > cells(size);
-    if ((!cashData->containsString(firstIndex)) || (!cashData->containsString(firstIndex + size - 1))){
+    if ((!cash.get(key).containsString(firstIndex)) || (!cash.get(key).containsString(firstIndex + size - 1))){
         int maxFileSize = HardDiskWorker::getInstance().getMaxFileSize();
         int firstPart = strNum / maxFileSize + 1;
         int lastPart = (strNum + count - 1) / maxFileSize + 1;
@@ -288,12 +298,11 @@ MDPData* Dispatcher::get(short int userId, short int dataId, short int processId
                 cashCells.push_back(fileCells[j]);
             }
         }
-        qDebug() << "cells count: " << cashCells.size();
-        cashData->setCells(cashCells);
-        cashData->setFirstIndex(strNum - strNum % maxFileSize);
+        cash.get(key).setCells(cashCells);
+        cash.get(key).setFirstIndex(strNum - strNum % maxFileSize);
     }
-    for (short int i = 0; i < size; i++){
-        cells[i] = cashData->getString(firstIndex + i);
+    for (int i = 0; i < size; i++){
+        cells[i] = cash.get(key).getString(firstIndex + i);
     }
     return new MDPData(headers, cells, firstIndex);
 }
@@ -302,19 +311,18 @@ void Dispatcher::remove(short int userId, short int dataId, short int processId)
 
 }
 
-MDPData* Dispatcher::getNextStrings(short int userId, short int dataId, short int processId, short int count){
+MDPData* Dispatcher::getNextStrings(short int userId, short int dataId, short int processId, int count){
     TableKey key(userId, dataId, processId);
     if (!HardDiskWorker::getInstance().contains(key)) return NULL;
-    IntWithHash* increment = sessions.get(&key);
-    if (!increment){
-        increment = new IntWithHash(0);
-        sessions.put(&key, increment);
+    if (!sessions.contains(key)){
+        IntWithHash inc(0);
+        sessions.put(key, inc);
     }
-    int firstIndex = increment->getValue();
-    if (increment->getValue() >= (HardDiskWorker::getInstance().getSize(key))){
+    int firstIndex = sessions.get(key).getValue();
+    if (firstIndex >= (HardDiskWorker::getInstance().getSize(key))){
         return NULL;
     }else{
-        increment->setValue(increment->getValue() + count);
+        sessions.get(key).setValue(firstIndex + count);
     }
     return get(userId, dataId, processId, firstIndex, count);
 }
@@ -327,12 +335,11 @@ int Dispatcher::getSize(short userId, short dataId, short processId){
 void Dispatcher::toStart(short int userId, short int dataId, short int processId){
     TableKey key(userId, dataId, processId);
     if (!HardDiskWorker::getInstance().contains(key)) return;
-    IntWithHash* increment = sessions.get(&key);
-    if (!increment){
-        increment = new IntWithHash(0);
-        sessions.put(&key, increment);
+    if (!sessions.contains(key)){
+        IntWithHash inc(0);
+        sessions.put(key, inc);
     }else{
-        increment->setValue(0);
+        sessions.get(key).setValue(0);
     }
 }
 
@@ -363,6 +370,8 @@ QJsonArray Dispatcher::getTableIds(short userId){
         }
     }
     return array;
+}
+
 }
 
 #endif
